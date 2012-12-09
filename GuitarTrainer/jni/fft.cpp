@@ -101,7 +101,7 @@ int jniRegisterNativeMethods(JNIEnv* env, const char* className,
 }
 
 static JNINativeMethod gMethods[] = {
-    {"DoFFT", "([DI)V", (void *)Java_com_example_GuitarTuner_PitchDetector_DoFFT},
+    {"DoFFT", "([DI)V", (void *)Java_com_ago_guitartrainer_PitchDetector_DoFFT},
 };
 
 jint JNI_OnLoad(JavaVM* vm, void* reserved)
@@ -113,11 +113,11 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved)
         return result;
     }
 
-    jniRegisterNativeMethods(env, "com/example/GuitarTuner/PitchDetector", gMethods, 1);
+    jniRegisterNativeMethods(env, "com/ago/guitartrainer/PitchDetector", gMethods, 1);
     return JNI_VERSION_1_4;
 }
 
-void Java_com_example_GuitarTuner_PitchDetector_DoFFT(
+void Java_com_ago_guitartrainer_PitchDetector_DoFFT(
             JNIEnv* env,
 	        jobject thiz,
             jdoubleArray data,

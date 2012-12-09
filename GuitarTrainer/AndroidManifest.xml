@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.GuitarTuner"
+    package="com.ago.guitartrainer"
     android:versionCode="2"
     android:versionName="2.0" >
 
     <application
         android:icon="@drawable/icon"
-        android:label="Guitar Tuner" >
+        android:label="Guitar Trainer" >
         <activity
-            android:name=".GuitarTunerActivity"
-            android:label="Guitar Tuner" >
+            android:name=".GuitarTrainerActivity"
+            android:label="Guitar Trainer" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

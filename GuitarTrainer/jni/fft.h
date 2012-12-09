@@ -21,7 +21,7 @@
 // to the real part and each odd element to the imaginary part of a
 // complex number.
 // For an incoming stream, all imaginary parts should be zero.
-void Java_com_example_GuitarTuner_PitchDetector_DoFFT(
+void Java_com_ago_guitartrainer_PitchDetector_DoFFT(
     JNIEnv* env, jobject thiz, jdoubleArray data, jint size);
 
 jint JNI_OnLoad(JavaVM* vm, void* reserved);
