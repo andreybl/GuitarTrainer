@@ -37,8 +37,12 @@ public class GuitarTrainerActivity extends Activity implements IFingerboardListe
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        fingerboardView = new DrawableView(this);
-        setContentView(fingerboardView);
+        
+        setContentView(R.layout.main);
+        
+//        fingerboardView = new DrawableView(this);
+//        setContentView(fingerboardView);
+        
     }
 
     @Override

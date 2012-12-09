@@ -14,7 +14,7 @@ public class AlphaGridShape extends GridShape {
         Degree.SIX, 
         Degree.THREE };
     //@formatter:on
-    
+
     private static int frets = 4;
 
     private static int[] rootStrings = new int[] { 1, 4 };
@@ -23,4 +23,6 @@ public class AlphaGridShape extends GridShape {
         super(zeroFretDegrees, frets, rootStrings);
         setKey(key);
     }
+
+
 }

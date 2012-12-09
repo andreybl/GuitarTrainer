@@ -25,7 +25,13 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 
-
+/**
+ * 
+ * Activity to test recording capabilities of the Android.
+ * 
+ * @author Andrej Golovko - jambit GmbH
+ *
+ */
 public class AudioRecordTest extends Activity
 {
     private static final String LOG_TAG = "AudioRecordTest";

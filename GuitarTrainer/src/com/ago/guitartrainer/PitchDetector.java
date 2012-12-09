@@ -79,7 +79,7 @@ public class PitchDetector implements Runnable {
     private Note prevNote = null;
     
     public void run() {
-        Notes noteScale = new Notes();
+        Notes noteScale = Notes.getInstance();
         
         android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
         recorder_ = new AudioRecord(AudioSource.MIC, RATE, CHANNEL_MODE, ENCODING, 6144);

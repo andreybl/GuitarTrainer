@@ -1,14 +1,17 @@
 package com.ago.guitartrainer;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
 public class Notes {
 
+    private static Notes INSTANCE;
     /*-
      * the format of the array is:
      * [string][fret] 
@@ -16,28 +19,20 @@ public class Notes {
      * The fret==0 has the mening of "open fret".
      */
     private Note[][] notesOnFret = new Note[6][13];
+    
+    private Map<Note, List<Position>> mapNote2Positions = new Hashtable<Notes.Note, List<Position>>();
 
     private SortedMap<Note, Double> mapNote2Frequency;
 
-    public Notes() {
+    private Notes() {
         initNotesOnFret();
         initNote2Freq();
-        System.out.println(notesOnFret[5][9].toString());
     }
-
-    public static void main(String[] args) {
-
-        Notes ns = new Notes(); // C3di
-//        
-////        
-////        {
-////            String note = ns.resolveNote(466.20);
-////            System.out.println(note); // A4di
-////        }
-////        {
-////            String note = ns.resolveNote(660d);
-////            System.out.println(note); // E5
-////        }
+    
+    public static Notes getInstance() {
+        if (INSTANCE== null)
+            INSTANCE = new Notes();
+        return INSTANCE;
     }
 
     private void initNotesOnFret() {
@@ -131,6 +126,19 @@ public class Notes {
         notesOnFret[5][10] = Note.D3;
         notesOnFret[5][11] = Note.D3di;
         notesOnFret[5][12] = Note.E3;
+        
+//        
+        for (int iString = 0; iString < notesOnFret.length; iString++) {
+            for (int iFret = 0; iFret < notesOnFret[iString].length; iFret++) {
+                Note note = notesOnFret[iString][iFret];
+                
+                if (!mapNote2Positions.containsKey(note)) {
+                    mapNote2Positions.put(note, new ArrayList<Notes.Position>());
+                }
+                
+                mapNote2Positions.get(note).add(new Position(iString, iFret));
+            }
+        }
 
     }
 
@@ -225,6 +233,25 @@ public class Notes {
         }
     }
 
+    /**
+     * Represents a single note position on the fretboard.
+     * 
+     * The counting is from 0. So the open fret is equal to "0". The first string 
+     * is referenced as "0". The last sixth string is referenced as "5".
+     * 
+     * @author Andrej Golovko - jambit GmbH
+     *
+     */
+    public static class Position {
+        public int fret;
+        public int string;
+        
+        public Position(int string, int fret) {
+            this.string = string;
+            this.fret = fret;
+        }
+    }
+    
     public enum Note {
         // @formatter:off
         D2di, // not available on the guitar
@@ -238,6 +265,10 @@ public class Notes {
 
     public Note resolveNote(int str, int fret) {
         return notesOnFret[str][fret];
+    }
+
+    public List<Position> resolvePositions(Note n) {
+        return mapNote2Positions.get(n);
     }
 
 }
