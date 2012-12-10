@@ -2,9 +2,10 @@ package com.ago.guitartrainer;
 
 import java.util.List;
 
-import com.ago.guitartrainer.Notes.Note;
 import com.ago.guitartrainer.gridshapes.AlphaGridShape;
 import com.ago.guitartrainer.gridshapes.GridShape;
+import com.ago.guitartrainer.notation.Degree;
+import com.ago.guitartrainer.notation.Note;
 
 public class Main {
 

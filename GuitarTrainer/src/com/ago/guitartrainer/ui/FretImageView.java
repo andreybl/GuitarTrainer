@@ -1,5 +1,6 @@
 package com.ago.guitartrainer.ui;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Context;
@@ -10,27 +11,26 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.widget.ImageView;
 
-import com.ago.guitartrainer.Degree;
-import com.ago.guitartrainer.Notes.Note;
-import com.ago.guitartrainer.Notes.Position;
 import com.ago.guitartrainer.gridshapes.AlphaGridShape;
+import com.ago.guitartrainer.notation.Degree;
+import com.ago.guitartrainer.notation.Note;
+import com.ago.guitartrainer.notation.Position;
 
 public class FretImageView extends ImageView {
 
     private int[] midlesOfFrets = new int[] { 40, 116, 229, 343, 453, 553, 650, 743, 831, 912, 991, 1074, 1151 };
 
     private int[] midlesOfStrings = new int[] { 22, 52, 82, 109, 139, 169 };
-    
+
     /** paint object used to draw on the canvas */
     Paint paint = new Paint();
 
     /* x-coordinate of the touch on the screen */
     private int x;
-    
+
     /* y-coordinate of the touch on the screen */
     private int y;
 
-    
     public FretImageView(Context context) {
         super(context);
     }
@@ -42,11 +42,25 @@ public class FretImageView extends ImageView {
     public FretImageView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
     }
-    
+
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
+//        debugMode(canvas);
+        
+        paint.setColor(Color.BLUE);
+
+        for (Position position : positions2Vizualize) {
+            int pxFret = midlesOfFrets[position.fret];
+            int pxStr = midlesOfStrings[position.string];
+            
+            canvas.drawCircle(pxFret, pxStr, 10, paint);    
+        }
+        
+    }
+
+    private void debugMode(Canvas canvas) {
         paint.setColor(Color.RED);
         AlphaGridShape aShape = new AlphaGridShape(Note.D4);
 
@@ -76,7 +90,6 @@ public class FretImageView extends ImageView {
         canvas.drawCircle(x, 2, 5, paint);
         canvas.drawCircle(40, y, 5, paint);
         canvas.drawCircle(x, y, 10, paint);
-
     }
 
     @Override
@@ -86,5 +99,15 @@ public class FretImageView extends ImageView {
         System.out.println("IMAGE:" + x + ";" + y);
         invalidate();
         return true;
+    }
+
+    private List<Position> positions2Vizualize = new ArrayList<Position>();
+    
+    public void showOnFret(List<Position> positions) {
+        if (positions == null)
+            return;
+
+        positions2Vizualize = positions;
+        invalidate();
     }
 }

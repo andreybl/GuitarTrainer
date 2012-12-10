@@ -1,7 +1,7 @@
 package com.ago.guitartrainer.gridshapes;
 
-import com.ago.guitartrainer.Degree;
-import com.ago.guitartrainer.Notes.Note;
+import com.ago.guitartrainer.notation.Degree;
+import com.ago.guitartrainer.notation.Note;
 
 public class AlphaGridShape extends GridShape {
 

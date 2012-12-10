@@ -1,4 +1,4 @@
-package com.ago.guitartrainer;
+package com.ago.guitartrainer.notation;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -9,9 +9,9 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-public class Notes {
+public class NoteStave {
 
-    private static Notes INSTANCE;
+    private static NoteStave INSTANCE;
     /*-
      * the format of the array is:
      * [string][fret] 
@@ -20,18 +20,18 @@ public class Notes {
      */
     private Note[][] notesOnFret = new Note[6][13];
     
-    private Map<Note, List<Position>> mapNote2Positions = new Hashtable<Notes.Note, List<Position>>();
+    private Map<Note, List<Position>> mapNote2Positions = new Hashtable<Note, List<Position>>();
 
     private SortedMap<Note, Double> mapNote2Frequency;
 
-    private Notes() {
+    private NoteStave() {
         initNotesOnFret();
         initNote2Freq();
     }
     
-    public static Notes getInstance() {
+    public static NoteStave getInstance() {
         if (INSTANCE== null)
-            INSTANCE = new Notes();
+            INSTANCE = new NoteStave();
         return INSTANCE;
     }
 
@@ -133,7 +133,7 @@ public class Notes {
                 Note note = notesOnFret[iString][iFret];
                 
                 if (!mapNote2Positions.containsKey(note)) {
-                    mapNote2Positions.put(note, new ArrayList<Notes.Position>());
+                    mapNote2Positions.put(note, new ArrayList<Position>());
                 }
                 
                 mapNote2Positions.get(note).add(new Position(iString, iFret));
@@ -233,35 +233,8 @@ public class Notes {
         }
     }
 
-    /**
-     * Represents a single note position on the fretboard.
-     * 
-     * The counting is from 0. So the open fret is equal to "0". The first string 
-     * is referenced as "0". The last sixth string is referenced as "5".
-     * 
-     * @author Andrej Golovko - jambit GmbH
-     *
-     */
-    public static class Position {
-        public int fret;
-        public int string;
-        
-        public Position(int string, int fret) {
-            this.string = string;
-            this.fret = fret;
-        }
-    }
     
-    public enum Note {
-        // @formatter:off
-        D2di, // not available on the guitar
-        E2, F2, F2di, G2, G2di, A2, A2di, B2, 
-        C3, C3di, D3, D3di, E3, F3, F3di, G3, G3di, A3, A3di, B3, 
-        C4, C4di, D4, D4di, E4, F4, F4di, G4, G4di, A4, A4di, B4, 
-        C5, C5di, D5, D5di, E5, 
-        F5 // over the 12th fret
-        // @formatter:on
-    }
+
 
     public Note resolveNote(int str, int fret) {
         return notesOnFret[str][fret];

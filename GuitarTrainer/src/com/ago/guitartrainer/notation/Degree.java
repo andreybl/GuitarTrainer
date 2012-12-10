@@ -1,4 +1,4 @@
-package com.ago.guitartrainer;
+package com.ago.guitartrainer.notation;
 
 import java.util.Hashtable;
 import java.util.Map;
@@ -32,6 +32,32 @@ public enum Degree {
         this.degreeValue = degreeValue;
     }
 
+    public boolean isRoot() {
+        if (this == ONE)
+            return true;
+        else 
+            return false;
+    }
+            
+    public boolean isStrong() {
+        if (this == ONE)
+            return true;
+        else if (this == TWO)
+            return true;
+        else if (this == THREE)
+            return true;
+        else if (this == FOUR)
+            return true;
+        else if (this == FIVE)
+            return true;
+        else if (this == SIX)
+            return true;
+        else if (this == SEVEN)
+            return true;
+        else
+            return false;
+    }
+    
     public Degree addFrets(int frets) {
 
         int f = frets % 12;

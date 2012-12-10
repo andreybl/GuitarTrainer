@@ -4,28 +4,40 @@
     android:orientation="vertical" >
 
     <com.ago.guitartrainer.ui.FretImageView
-        android:id="@+id/imageView1"
+        android:id="@+id/img_fretimageview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:adjustViewBounds="true"
         android:src="@drawable/guitar_12_frets" />
 
     <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:orientation="horizontal" >
 
         <TextView
-            android:id="@+id/textView1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Play Note: " />
 
         <TextView
-            android:id="@+id/textView2"
+            android:id="@+id/txt_playnote"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="-" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/btn_start_lesson"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Start lesson" />
+        
     </LinearLayout>
 
 </LinearLayout>

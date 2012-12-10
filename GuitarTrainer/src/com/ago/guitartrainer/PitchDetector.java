@@ -21,7 +21,11 @@ import android.media.AudioRecord;
 import android.media.MediaRecorder.AudioSource;
 import android.util.Log;
 
-import com.ago.guitartrainer.Notes.Note;
+import com.ago.guitartrainer.events.INoteEventListener;
+import com.ago.guitartrainer.events.NoteEventType;
+import com.ago.guitartrainer.events.NotePlayingEvent;
+import com.ago.guitartrainer.notation.Note;
+import com.ago.guitartrainer.notation.NoteStave;
 
 /**
  * The thread, in pich the pitch detection takes place
@@ -52,8 +56,10 @@ public class PitchDetector implements Runnable {
 
     private AudioRecord recorder_;
 
-    private List<IFingerboardListener> fingerboardListeners = new ArrayList<IFingerboardListener>();
+//    private List<INoteEventListener> fingerboardListeners = new ArrayList<INoteEventListener>();
 
+    private List<INoteEventListener> listeners = new ArrayList<INoteEventListener>();
+    
     /**
      * 
      * Taken from which took it from Numerical Recipes in C++, p.513
@@ -79,7 +85,7 @@ public class PitchDetector implements Runnable {
     private Note prevNote = null;
     
     public void run() {
-        Notes noteScale = Notes.getInstance();
+        NoteStave noteScale = NoteStave.getInstance();
         
         android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
         recorder_ = new AudioRecord(AudioSource.MIC, RATE, CHANNEL_MODE, ENCODING, 6144);
@@ -192,40 +198,47 @@ public class PitchDetector implements Runnable {
                 freqsMatched[i][0] = slotsFrequency2NormalizedAmplitude[i][0];
                 freqsMatched[i][1] = slotsFrequency2NormalizedAmplitude[i][1];
             }
+
+            double pitch = freqsMatched[0][0];
+            double normalAmpli = freqsMatched[0][1];
             
-            String[] notes = new String[freqsMatched.length];
+            Note note = noteScale.resolveNote(pitch);
             
-            Note note = noteScale.resolveNote(freqsMatched[0][0]);
-            double ampl = freqsMatched[0][1];
 
             if (prevNote==null) {
                 prevNote = note;
-                Log.d(TAG, note+": " + ampl);
+                Log.d(TAG, note+": " + normalAmpli);
             } else {
                 if (prevNote.equals(note) || note.equals("D2di") || note.equals("F5")) {
                 } else {
-                    Log.d(TAG, note+": " + ampl);
+                    Log.d(TAG, note+": " + normalAmpli);
                 }
             }
-                
-            notifyListeners(slotsFrequency2Amplitude, best_frequency);
+            
+            NotePlayingEvent e = new NotePlayingEvent(note, pitch, normalAmpli, NoteEventType.NOTE_PLAY_STARTED, System.currentTimeMillis());
+
+            notifyListener(e);
+        }
+    }
+    
+    private void notifyListener(NotePlayingEvent e) {
+        for (INoteEventListener listener : listeners) {
+            listener.noteStateChanged(e);
         }
     }
 
-    /**
-     * Notifies listeners based on the FFT results.
-     * 
-     * @param frequencies
-     * @param pitch
-     */
-    private void notifyListeners(final HashMap<Double, Double> frequencies, final double pitch) {
-        for (IFingerboardListener fbListener : fingerboardListeners) {
-            // TODO:
-        }
+    public void addNoteStateChangedListener(INoteEventListener listener) {
+        this.listeners.add(listener);
     }
+    
 
-    public void addFingerboardListener(IFingerboardListener fbListener) {
-        fingerboardListeners.add(fbListener);
+    public void removeNoteStateChangedListener(INoteEventListener listener) {
+        this.listeners.remove(listener);
     }
-
+    
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+        listeners.clear();
+    }
 }
