@@ -1,7 +1,8 @@
 package com.ago.guitartrainer.ui;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -12,6 +13,7 @@ import android.view.MotionEvent;
 import android.widget.ImageView;
 
 import com.ago.guitartrainer.gridshapes.AlphaGridShape;
+import com.ago.guitartrainer.gridshapes.GridShape;
 import com.ago.guitartrainer.notation.Degree;
 import com.ago.guitartrainer.notation.Note;
 import com.ago.guitartrainer.notation.Position;
@@ -30,6 +32,8 @@ public class FretImageView extends ImageView {
 
     /* y-coordinate of the touch on the screen */
     private int y;
+    
+    private Map<Position, Integer> positionsAndColor = new HashMap<Position, Integer>();
 
     public FretImageView(Context context) {
         super(context);
@@ -49,48 +53,50 @@ public class FretImageView extends ImageView {
 
 //        debugMode(canvas);
         
-        paint.setColor(Color.BLUE);
+        
 
-        for (Position position : positions2Vizualize) {
+        for (Position position : positionsAndColor.keySet()) {
             int pxFret = midlesOfFrets[position.fret];
             int pxStr = midlesOfStrings[position.string];
+            
+            paint.setColor(positionsAndColor.get(position));
             
             canvas.drawCircle(pxFret, pxStr, 10, paint);    
         }
         
     }
 
-    private void debugMode(Canvas canvas) {
-        paint.setColor(Color.RED);
-        AlphaGridShape aShape = new AlphaGridShape(Note.D4);
-
-        if (x < 40 && y > 50 && y <= 100) {
-            paint.setColor(Color.RED);
-            for (int i = 0; i < midlesOfStrings.length; i++) {
-                for (int j = 0; j < midlesOfFrets.length; j++) {
-                    canvas.drawCircle(midlesOfFrets[j], midlesOfStrings[i], 10, paint);
-                }
-            }
-        } else if (x < 40 && y > 100 && y <= 150) {
-            List<Position> positions = aShape.calculatePositions(Degree.SEVEN);
-            for (Position p : positions) {
-                canvas.drawCircle(midlesOfFrets[p.fret], midlesOfStrings[p.string], 10, paint);
-            }
-
-        } else if (x < 40 && y > 150) {
-            List<Position> positions = aShape.getStrongPositions();
-            for (Position p : positions) {
-                canvas.drawCircle(midlesOfFrets[p.fret], midlesOfStrings[p.string], 10, paint);
-            }
-
-        }
-
-        paint.setColor(Color.GREEN);
-
-        canvas.drawCircle(x, 2, 5, paint);
-        canvas.drawCircle(40, y, 5, paint);
-        canvas.drawCircle(x, y, 10, paint);
-    }
+//    private void debugMode(Canvas canvas) {
+//        paint.setColor(Color.RED);
+//        AlphaGridShape aShape = new AlphaGridShape(Note.D4);
+//
+//        if (x < 40 && y > 50 && y <= 100) {
+//            paint.setColor(Color.RED);
+//            for (int i = 0; i < midlesOfStrings.length; i++) {
+//                for (int j = 0; j < midlesOfFrets.length; j++) {
+//                    canvas.drawCircle(midlesOfFrets[j], midlesOfStrings[i], 10, paint);
+//                }
+//            }
+//        } else if (x < 40 && y > 100 && y <= 150) {
+//            List<Position> positions = aShape.degree2Positions(Degree.SEVEN);
+//            for (Position p : positions) {
+//                canvas.drawCircle(midlesOfFrets[p.fret], midlesOfStrings[p.string], 10, paint);
+//            }
+//
+//        } else if (x < 40 && y > 150) {
+//            List<Position> positions = aShape.strongPositions();
+//            for (Position p : positions) {
+//                canvas.drawCircle(midlesOfFrets[p.fret], midlesOfStrings[p.string], 10, paint);
+//            }
+//
+//        }
+//
+//        paint.setColor(Color.GREEN);
+//
+//        canvas.drawCircle(x, 2, 5, paint);
+//        canvas.drawCircle(40, y, 5, paint);
+//        canvas.drawCircle(x, y, 10, paint);
+//    }
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
@@ -101,13 +107,33 @@ public class FretImageView extends ImageView {
         return true;
     }
 
-    private List<Position> positions2Vizualize = new ArrayList<Position>();
+    public void showOnFret(int color, GridShape... gridShape) {
+        for (GridShape gs : gridShape) {
+            List<Position> strongs = gs.strongPositions();
+            for (Position position : strongs) {
+                showOnFret(color, position);
+            }
+        }        
+    }
     
-    public void showOnFret(List<Position> positions) {
-        if (positions == null)
-            return;
+    public void showOnFret(int color, List<Position> positions) {
+        for (Position position : positions) {
+            positionsAndColor.put(position, color);
+        }
+    }
 
-        positions2Vizualize = positions;
+    public void showOnFret(int color, Position... positions) {
+        for (Position position : positions) {
+            positionsAndColor.put(position, color);
+        }
+    }
+    
+    public void draw() {
+        invalidate();
+    }
+    
+    public void clear() {
+        positionsAndColor.clear();
         invalidate();
     }
 }

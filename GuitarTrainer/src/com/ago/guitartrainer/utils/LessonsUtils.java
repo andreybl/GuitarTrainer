@@ -2,14 +2,14 @@ package com.ago.guitartrainer.utils;
 
 import java.util.List;
 
-import com.ago.guitartrainer.gridshapes.AlphaGridShape;
+import com.ago.guitartrainer.gridshapes.GridShape;
 import com.ago.guitartrainer.notation.Position;
 
 public class LessonsUtils {
 
 
-    public static Position pickPosition(AlphaGridShape aShape) {
-        List<Position> strongPositions = aShape.getStrongPositions();
+    public static Position pickPosition(GridShape gridShape) {
+        List<Position> strongPositions = gridShape.strongPositions();
 
         int randomMin = 0;
         int randomMax = strongPositions.size();

@@ -12,6 +12,7 @@ package com.ago.guitartrainer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -19,6 +20,7 @@ import java.util.List;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder.AudioSource;
+import android.sax.StartElementListener;
 import android.util.Log;
 
 import com.ago.guitartrainer.events.INoteEventListener;
@@ -44,22 +46,20 @@ public class PitchDetector implements Runnable {
     private final static int ENCODING = AudioFormat.ENCODING_PCM_16BIT;
 
     private final static int BUFFER_SIZE_IN_MS = 4000;
-    private final static int CHUNK_SIZE_IN_SAMPLES = 4096; 
-    
+    private final static int CHUNK_SIZE_IN_SAMPLES = 4096;
+
     private final static int CHUNK_SIZE_IN_MS = 1000 * CHUNK_SIZE_IN_SAMPLES / RATE;
     private final static int BUFFER_SIZE_IN_BYTES = RATE * BUFFER_SIZE_IN_MS / 1000 * 2;
     private final static int CHUNK_SIZE_IN_BYTES = RATE * CHUNK_SIZE_IN_MS / 1000 * 2;
     private final static int MIN_FREQUENCY = 50; // HZ
-    private final static int MAX_FREQUENCY = 600; // HZ - it's for guitar,
+    private final static int MAX_FREQUENCY = 700; // HZ - it's for guitar,
                                                   // should be enough
     private final static int DRAW_FREQUENCY_STEP = 5;
 
     private AudioRecord recorder_;
 
-//    private List<INoteEventListener> fingerboardListeners = new ArrayList<INoteEventListener>();
-
     private List<INoteEventListener> listeners = new ArrayList<INoteEventListener>();
-    
+
     /**
      * 
      * Taken from which took it from Numerical Recipes in C++, p.513
@@ -83,100 +83,107 @@ public class PitchDetector implements Runnable {
     }
 
     private Note prevNote = null;
-    
+
     public void run() {
+
+        final int min_frequency_fft = Math.round(MIN_FREQUENCY * CHUNK_SIZE_IN_SAMPLES / RATE);
+
+        final int max_frequency_fft = Math.round(MAX_FREQUENCY * CHUNK_SIZE_IN_SAMPLES / RATE);
+
         NoteStave noteScale = NoteStave.getInstance();
-        
+
         android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
         recorder_ = new AudioRecord(AudioSource.MIC, RATE, CHANNEL_MODE, ENCODING, 6144);
         if (recorder_.getState() != AudioRecord.STATE_INITIALIZED) {
             Log.w(TAG, "Can't initialize AudioRecord");
             return;
         }
+
+        /*
+         * The "audio_data" contains a buffer to put the raw audio output into it. It is also an input to FFT algorithm.
+         */
         short[] audio_data = new short[BUFFER_SIZE_IN_BYTES / 2];
+
+        /*-
+         * The "data" is a in/out variable.  
+         * 
+         * The output of FFT is saved in "data". In this case the "data" must be considered
+         * as the slots. Each slot is holding the amplitude of certain 
+         * frequency. The frequency can be calculated from the index of the slot.
+         * 
+         * The number of slots is huge - like, 8192. We analyze only part of the slots, 
+         * which corresponds to frequencies interesting for us.
+         */
         double[] data = new double[CHUNK_SIZE_IN_SAMPLES * 2];
-        final int min_frequency_fft = Math.round(MIN_FREQUENCY * CHUNK_SIZE_IN_SAMPLES / RATE);
-        final int max_frequency_fft = Math.round(MAX_FREQUENCY * CHUNK_SIZE_IN_SAMPLES / RATE);
+
+        long tstStartReading = 0;
+        long tstEndReading = 0;
+        long tstStartAnalyzis = 0;
+        long tstEndAnalyzis = 0;
+
         while (!Thread.interrupted()) {
 
+            tstStartReading = System.currentTimeMillis();
+
+            // read audion stream in
             recorder_.startRecording();
             recorder_.read(audio_data, 0, CHUNK_SIZE_IN_BYTES / 2);
             recorder_.stop();
 
-            /*
-             * 
-             * TODO: the problem here: the sound played outside of the start()/stop() is not catched.
-             * 
-             * The solution could be to implement the capturing of audion in the separate thread as making the FFT.
-             */
+            tstEndReading = System.currentTimeMillis();
+
+            tstStartAnalyzis = System.currentTimeMillis();
 
             for (int i = 0; i < CHUNK_SIZE_IN_SAMPLES; i++) {
                 data[i * 2] = audio_data[i];
                 data[i * 2 + 1] = 0;
             }
 
-            // FFT !
+            /*-
+             * do FFT, put results into "data"
+             */
             DoFFT(data, CHUNK_SIZE_IN_SAMPLES);
 
-            /*
-             * The result of a (forward) Fast Fourier Transform represents the spectrum of the signal at discrete
-             * frequencies.
-             * 
-             * The results of the FFT can be represented as the slots, where each slot is staying for the (discreet)
-             * frequency and the value in this slot corresponds to the frequency's amplitude.
-             * 
-             * As a result, we must iterate over all slots and find out the slot with the highest amplitude assigned to
-             * it. Instead of "slot" we use the word "frequency".
-             */
+            // cache the raw amplitude for each frequency
+            HashMap<Double, Double> freqToAmpli = new HashMap<Double, Double>();
 
-            /*
-             * the frequency which was recongnized as the most dominating up to now based on the amplitude value.
-             */
-            double best_frequency = min_frequency_fft;
-            double best_amplitude = 0;
-
-            HashMap<Double, Double> slotsFrequency2Amplitude = new HashMap<Double, Double>();
-
-            
-            double[][] slotsFrequency2NormalizedAmplitude = new double[data.length][2];
+            // cache the normalized amplitude for each frequency
+            HashMap<Double, Double> freqToNormAmpli = new HashMap<Double, Double>();
 
             final double freqStep = 1.0 * RATE / CHUNK_SIZE_IN_SAMPLES;
 
             for (int i = min_frequency_fft; i <= max_frequency_fft; i++) {
-                final double slotFrequency = i * freqStep;
+                // calculate freq. Take its amli and calcualte the normal ampli
+                final double freqOfSlot = i * freqStep;
 
-                final double draw_frequency = Math.round((slotFrequency - MIN_FREQUENCY) / DRAW_FREQUENCY_STEP)
+                final double indexOfSlot = Math.round((freqOfSlot - MIN_FREQUENCY) / DRAW_FREQUENCY_STEP)
                         * DRAW_FREQUENCY_STEP + MIN_FREQUENCY;
 
-                final double slotAmplitude = Math.pow(data[i * 2], 2) + Math.pow(data[i * 2 + 1], 2);
+                final double ampliOfSlot = Math.pow(data[i * 2], 2) + Math.pow(data[i * 2 + 1], 2);
 
-                final double normalized_amplitude = slotAmplitude * Math.pow(MIN_FREQUENCY * MAX_FREQUENCY, 0.5)
-                        / slotFrequency;
+                final double normAmpliOfSlot = ampliOfSlot * Math.pow(MIN_FREQUENCY * MAX_FREQUENCY, 0.5) / freqOfSlot;
 
-                Double sumForSlot = slotsFrequency2Amplitude.get(draw_frequency);
+                Double sumForSlot = freqToNormAmpli.get(indexOfSlot);
 
                 if (sumForSlot == null)
                     sumForSlot = 0.0;
 
-                slotsFrequency2Amplitude.put(draw_frequency, Math.pow(slotAmplitude, 0.5) / freqStep + sumForSlot);
+                // register for frequency: ampli and normal ampi
+                freqToAmpli.put(freqOfSlot, ampliOfSlot);
+                freqToNormAmpli.put(freqOfSlot, Math.pow(ampliOfSlot, 0.5) / freqStep + sumForSlot);
 
-                slotsFrequency2NormalizedAmplitude[i][0] = slotFrequency;
-                slotsFrequency2NormalizedAmplitude[i][1] = normalized_amplitude;
-
-                
-                if (normalized_amplitude > best_amplitude) {
-                    best_frequency = slotFrequency;
-                    best_amplitude = normalized_amplitude;
-                }
             }
-            
-            Arrays.sort(slotsFrequency2NormalizedAmplitude, new Comparator<double[]>() {
+
+            List<Double> amplitudesNormalized = new ArrayList<Double>();
+            for (Double v : freqToNormAmpli.values()) {
+                amplitudesNormalized.add(v);
+            }
+
+            Collections.sort(amplitudesNormalized, new Comparator<Double>() {
+
                 @Override
-                public int compare(final double[] entry1, final double[] entry2) {
-                    final Double time1 = entry1[1];
-                    final Double time2 = entry2[1];
-                        
-                    return time1.compareTo(time2)*-1;
+                public int compare(Double lhs, Double rhs) {
+                    return rhs.compareTo(lhs);
                 }
             });
 
@@ -192,36 +199,53 @@ public class PitchDetector implements Runnable {
              * The listeners must be notified taking all above into account. Also note: 
              * the frequencies aboce can be sorted for easier handling.
              */
-            int numOfStrings = 6;
-            double[][] freqsMatched = new double[numOfStrings][2];
-            for (int i = 0; i < numOfStrings; i++) {
-                freqsMatched[i][0] = slotsFrequency2NormalizedAmplitude[i][0];
-                freqsMatched[i][1] = slotsFrequency2NormalizedAmplitude[i][1];
+
+            List<Double> subAmplitudesNormalized = amplitudesNormalized.subList(0, 5);
+
+            double pitch = 0;
+            double ampli = 0;
+            double ampliNorm = 0;
+            for (Double freq : freqToNormAmpli.keySet()) {
+                Double a = freqToNormAmpli.get(freq);
+                if ((subAmplitudesNormalized.get(0) - a) == 0) {
+                    pitch = freq;
+                    ampli = freqToAmpli.get(freq);
+                    ampliNorm = freqToNormAmpli.get(freq);
+                    break;
+                }
             }
 
-            double pitch = freqsMatched[0][0];
-            double normalAmpli = freqsMatched[0][1];
-            
-            Note note = noteScale.resolveNote(pitch);
-            
+            Log.d(TAG, "pitch=" + pitch + ", norm.ampli=" + ampliNorm + ", ampli=" + freqToAmpli.get(pitch));
 
-            if (prevNote==null) {
-                prevNote = note;
-                Log.d(TAG, note+": " + normalAmpli);
-            } else {
-                if (prevNote.equals(note) || note.equals("D2di") || note.equals("F5")) {
-                } else {
-                    Log.d(TAG, note+": " + normalAmpli);
+            Note note = noteScale.resolveNote(pitch);
+
+            if (ampliNorm > 200000) {
+                if (note != null && !(note.equals("D2di") || note.equals("F5"))) {
+                    if (prevNote == null || !(prevNote.equals(note))) {
+                        NotePlayingEvent e = new NotePlayingEvent(note, pitch, ampliNorm,
+                                NoteEventType.NOTE_PLAY_STARTED, System.currentTimeMillis());
+
+                        Log.d(TAG,
+                                "NOTIFIED pitch=" + pitch + ", norm.ampli=" + ampliNorm + ", ampli="
+                                        + freqToAmpli.get(pitch));
+
+                        notifyListener(e);
+                    }
                 }
             }
             
-            NotePlayingEvent e = new NotePlayingEvent(note, pitch, normalAmpli, NoteEventType.NOTE_PLAY_STARTED, System.currentTimeMillis());
 
-            notifyListener(e);
+            tstEndAnalyzis = System.currentTimeMillis();
+
+            Log.d(TAG, "Timing: " + (tstEndReading - tstStartReading) + ", " + (tstEndAnalyzis - tstStartAnalyzis));
+
         }
     }
-    
+
     private void notifyListener(NotePlayingEvent e) {
+        if (e.note == Note.D2di || e.note == Note.F5)
+            return;
+
         for (INoteEventListener listener : listeners) {
             listener.noteStateChanged(e);
         }
@@ -230,12 +254,11 @@ public class PitchDetector implements Runnable {
     public void addNoteStateChangedListener(INoteEventListener listener) {
         this.listeners.add(listener);
     }
-    
 
     public void removeNoteStateChangedListener(INoteEventListener listener) {
         this.listeners.remove(listener);
     }
-    
+
     @Override
     protected void finalize() throws Throwable {
         super.finalize();

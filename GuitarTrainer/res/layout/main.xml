@@ -10,6 +10,68 @@
         android:adjustViewBounds="true"
         android:src="@drawable/guitar_12_frets" />
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10px"
+        android:text="Select fret:"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <SeekBar
+        android:id="@+id/sbar_fretselection"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10px"
+            android:text="Select grid:"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <RadioGroup
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <RadioButton
+                android:id="@+id/cb_gridselection_alpha"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="alpha" />
+
+            <RadioButton
+                android:id="@+id/cb_gridselection_beta"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="beta" />
+
+            <RadioButton
+                android:id="@+id/cb_gridselection_gamma"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="gamma" />
+
+            <RadioButton
+                android:id="@+id/cb_gridselection_delta"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="delta" />
+
+            <RadioButton
+                android:id="@+id/cb_gridselection_epsilon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="epsilon" />
+        </RadioGroup>
+    </LinearLayout>
+
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -18,13 +80,15 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Play Note: " />
+            android:text="Play Note: "
+            android:textAppearance="?android:attr/textAppearanceSmall" />
 
         <TextView
             android:id="@+id/txt_playnote"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="-" />
+            android:text="-"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
     </LinearLayout>
 
     <LinearLayout
@@ -36,8 +100,14 @@
             android:id="@+id/btn_start_lesson"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Start lesson" />
-        
+            android:text="Start lessons" />
+
+        <TextView
+            android:id="@+id/txt_lessonresults"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="- - -"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
     </LinearLayout>
 
 </LinearLayout>

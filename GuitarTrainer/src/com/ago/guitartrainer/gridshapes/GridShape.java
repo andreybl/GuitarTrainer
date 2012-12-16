@@ -5,6 +5,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
+import com.ago.guitartrainer.R;
 import com.ago.guitartrainer.notation.Degree;
 import com.ago.guitartrainer.notation.Note;
 import com.ago.guitartrainer.notation.NoteStave;
@@ -15,24 +16,33 @@ public abstract class GridShape {
 
     /* [string][fret] */
 
-    private int[] rootStrings;
-
-    // private Note key;
+    // /**
+    // * the original mapping of degree to position, which will not be modified once initialized in constructor.
+    // */
+    // private Map<Degree, List<Position>> degreeToPositionOriginal = new Hashtable<Degree, List<Position>>();
 
     /** original mapping from degree to position, as calculated relative to the zero fret */
     private Map<Degree, List<Position>> degreeToPosition = new Hashtable<Degree, List<Position>>();
+
     private Map<Position, Degree> positionToDegree = new Hashtable<Position, Degree>();
 
     /*
      * shifts of the shape required relatively to the fret "0", so that the root key is positioned on the place of note
      * defined in "key" variable.
      */
-    private int fretShifts = -1;
+    // TODO: remove
+    // private int fretShifts = -1;
+
+    private int startingFret = -1;
+
+    private int endingFret = -1;
 
     /**
-     * define how many frets belong to the shape
+     * Define how many frets belong to the shape. Required during decision about actual starting fret.
      */
-    private int frets = 0;
+    private int numOfFrets = 0;
+
+    public static int FRETS_ON_GUITAR = 12;
 
     private Degree[] degreesStrong = new Degree[] { Degree.ONE, Degree.TWO, Degree.THREE, Degree.FOUR, Degree.FIVE,
             Degree.SIX, Degree.SEVEN };
@@ -48,37 +58,77 @@ public abstract class GridShape {
      * 
      * @param zeroFretDegrees
      *            degrees of the grid for the zero fret
-     * @param frets
+     * @param numOfFrets
      *            number of frets over which the shape expands
      * @param rootStrings
      *            strings on which the root of the shape is located
      */
+    protected GridShape(Degree[] zeroFretDegrees, int numOfFrets, int[] rootStrings, int suggestedStartingFret) {
+        this.numOfFrets = numOfFrets;
+        initByStartingFret(zeroFretDegrees, suggestedStartingFret);
+
+    }
+
+    protected GridShape(Degree[] zeroFretDegrees, int numOfFrets, int[] rootStrings, Note note) {
+        this.numOfFrets = numOfFrets; 
+        int fretOfRoot = calculateFretForNote(note, rootStrings);
+        initByRootFret(zeroFretDegrees, fretOfRoot);
+
+    }
+    
+    private void initByRootFret(Degree[] zeroFretDegrees, int rootFret) {
+        
+    }
+
     /*
      * TODO: calculate the rootStrings from the shape itself. It can be done after degreeToPosition is calculated
      */
-    protected GridShape(Degree[] zeroFretDegrees, int frets, int[] rootStrings) {
-        this.rootStrings = rootStrings;
+    private void initByStartingFret(Degree[] zeroFretDegrees, int suggestedStartingFret) {
+        // this.rootStrings = rootStrings;
 
-        // NoteStave notes = NoteStave.getInstance();
+        startingFret = calculateStartingFret(suggestedStartingFret);
+        endingFret = startingFret + numOfFrets - 1;
 
         // initialize mapping of degrees to positions
-        for (int i = 0; i < zeroFretDegrees.length; i++) {
-            Degree d = zeroFretDegrees[i];
-            for (int f = 0; f < frets; f++) {
-                Degree calcD = d.addFrets(f);
+        for (int iString = 0; iString < zeroFretDegrees.length; iString++) {
+            Degree d = zeroFretDegrees[iString];
+            for (int iFret = 0; iFret < numOfFrets; iFret++) {
+                // Degree is shift-independent
+                Degree calcD = d.addFrets(iFret);
                 {
-                    calcD = d.addFrets(f);
+                    calcD = d.addFrets(iFret);
                 }
 
                 if (!degreeToPosition.containsKey(calcD)) {
                     degreeToPosition.put(calcD, new ArrayList<Position>());
                 }
 
-                Position position = new Position(i, f);
+                // the position must be shifted
+                Position position = new Position(iString, iFret + startingFret);
                 degreeToPosition.get(calcD).add(position);
                 positionToDegree.put(position, calcD);
             }
         }
+    }
+
+    /**
+     * Construct the grid shape projection, assuming it starts from the fret specified as parameter.
+     * 
+     * The projection is set in the way, that all its positions are between 0..12 frets inclusive.
+     * 
+     * @param suggestedStartFret
+     *            the from from which the grid start.
+     */
+    private int calculateStartingFret(int suggestedStartFret) {
+        int startFret = suggestedStartFret;
+        int overestimate = (suggestedStartFret + numOfFrets) - FRETS_ON_GUITAR;
+        if (suggestedStartFret < 0) {
+            startFret = 0;
+        } else if (overestimate > 0) {
+            startFret = suggestedStartFret - overestimate + 1;
+        }
+
+        return startFret;
     }
 
     /**
@@ -87,20 +137,19 @@ public abstract class GridShape {
      * @param key
      *            the note which must be the root of the shape
      */
-    protected void setKey(Note key) {
-        // this.key = key;
-
+    private int calculateFretForNote(Note key, int[] rootStrings) {
         NoteStave notes = NoteStave.getInstance();
-
+        int noteFret = 0;
         outerloop: for (int i = 0; i <= 12; i++) {
             for (int j = 0; j < rootStrings.length; j++) {
                 Note n = notes.resolveNote(rootStrings[j], i);
                 if (n == key) {
-                    fretShifts = (i - 1);
+                    noteFret = i;
                     break outerloop;
                 }
             }
         }
+        return noteFret;
     }
 
     /**
@@ -112,7 +161,7 @@ public abstract class GridShape {
      * @param degree
      * @return
      */
-    public List<Note> calculateNotes(Degree degree) {
+    public List<Note> degree2Notes(Degree degree) {
 
         NoteStave notes = NoteStave.getInstance();
 
@@ -120,7 +169,7 @@ public abstract class GridShape {
 
         List<Note> results = new ArrayList<Note>();
         for (Position pos : positions) {
-            Note n = notes.resolveNote(pos.string, pos.fret + fretShifts);
+            Note n = notes.resolveNote(pos.string, pos.fret); // +fretShifts
             results.add(n);
         }
 
@@ -133,24 +182,24 @@ public abstract class GridShape {
      * @param degree
      *            which positions must be returned
      */
-    public List<Position> calculatePositions(Degree degree) {
-        List<Position> shiftedPositions = new ArrayList<Position>();
+    public List<Position> degree2Positions(Degree degree) {
+        List<Position> positions = new ArrayList<Position>();
 
         for (Position position : degreeToPosition.get(degree)) {
-            shiftedPositions.add(new Position(position.string, position.fret + fretShifts));
+            positions.add(new Position(position.string, position.fret)); // +fretShifts
         }
 
-        return shiftedPositions;
+        return positions;
     }
 
-    public List<Position> getStrongPositions() {
+    public List<Position> strongPositions() {
         List<Position> positions = new ArrayList<Position>();
 
         for (Degree d : degreeToPosition.keySet()) {
             if (ArrayUtils.inArray(d, degreesStrong)) {
                 List<Position> origPositions = degreeToPosition.get(d);
                 for (Position origPosition : origPositions) {
-                    positions.add(new Position(origPosition.string, origPosition.fret + fretShifts));
+                    positions.add(new Position(origPosition.string, origPosition.fret)); // +fretShifts
                 }
 
             }
@@ -159,8 +208,17 @@ public abstract class GridShape {
         return positions;
     }
 
-    public Degree position2Degree(Position lessonPosition) {
-        return positionToDegree.get(lessonPosition);
+    /**
+     * Return the degree of the position in the context of current grid shape projection.
+     * 
+     * Null is returned, if the position is outside of the current projection.
+     * 
+     * @param position
+     *            for which the degree must be returned
+     * @return degree of the position in context of shape projection
+     */
+    public Degree position2Degree(Position position) {
+        return positionToDegree.get(position);
     }
 
     /**
@@ -171,8 +229,9 @@ public abstract class GridShape {
      * 
      * The weak positions will not be taken into account and are NOT in the returned value
      * 
-     * @param positions to project onto grid shape
-     * @return subset of positions from original list, which are strong in current grind shape 
+     * @param positions
+     *            to project onto grid shape
+     * @return subset of positions from original list, which are strong in current grind shape
      */
     public List<Position> applyShape(List<Position> positions) {
         List<Position> projected = new ArrayList<Position>();
@@ -181,11 +240,10 @@ public abstract class GridShape {
          * we assume, the grid shapes are always defined starting from the zero fret. So the 0 in the equation. The
          * start/end frets for range checking are inclusive
          */
-        int startInclFret = 0 + fretShifts;
-        int endInclFret = startInclFret + frets;
+        // int startInclFret = 0 + fretShifts;
 
         for (Position position : positions) {
-            if (position.fret >= startInclFret && position.fret <= endInclFret) {
+            if (position.fret >= startingFret && position.fret <= endingFret) {
                 Degree d = positionToDegree.get(position);
                 if (d.isStrong()) {
                     projected.add(position);
@@ -195,4 +253,67 @@ public abstract class GridShape {
 
         return projected;
     }
+
+    public static GridShape create(Class<? extends GridShape> clazz, int progress) {
+        GridShape gs = null;
+
+        if (clazz.equals(AlphaGridShape.class)) {
+            gs = new AlphaGridShape(progress);
+        } else if (clazz.equals(BetaGridShape.class)) {
+            gs = new BetaGridShape(progress);
+        } else if (clazz.equals(GammaGridShape.class)) {
+            gs = new GammaGridShape(progress);
+        } else if (clazz.equals(DeltaGridShape.class)) {
+            gs = new DeltaGridShape(progress);
+        } else if (clazz.equals(EpsilonGridShape.class)) {
+            gs = new EpsilonGridShape(progress);
+        }
+
+        return gs;
+    }
+
+    public static GridShape create(int checkboxResourceId, int progress) {
+        GridShape gs = null;
+        switch (checkboxResourceId) {
+        case R.id.cb_gridselection_alpha:
+            gs = new AlphaGridShape(progress);
+            break;
+        case R.id.cb_gridselection_beta:
+            gs = new BetaGridShape(progress);
+            break;
+        case R.id.cb_gridselection_gamma:
+            gs = new GammaGridShape(progress);
+            break;
+        case R.id.cb_gridselection_delta:
+            gs = new DeltaGridShape(progress);
+            break;
+        case R.id.cb_gridselection_epsilon:
+            gs = new EpsilonGridShape(progress);
+            break;
+
+        default:
+            break;
+        }
+
+        return gs;
+    }
+
+    private static GridShape create(Class<AlphaGridShape> clazz, Note note) {
+        GridShape gs = null;
+
+        if (clazz.equals(AlphaGridShape.class)) {
+            gs = new AlphaGridShape(note);
+        } else if (clazz.equals(BetaGridShape.class)) {
+            gs = new BetaGridShape(note);
+        } else if (clazz.equals(GammaGridShape.class)) {
+            gs = new GammaGridShape(note);
+        } else if (clazz.equals(DeltaGridShape.class)) {
+            gs = new DeltaGridShape(note);
+        } else if (clazz.equals(EpsilonGridShape.class)) {
+            gs = new EpsilonGridShape(note);
+        }
+
+        return gs;
+    }
+
 }

@@ -25,18 +25,18 @@ public class Main {
             Degree x = Degree.SEVEN.addFrets(0);
             System.out.println(x.toString()); // SEVEN
         }
-        System.out.println("---------");
-        {
-            GridShape al = new AlphaGridShape(Note.D4);
-            List<Note> notes = al.calculateNotes(Degree.SEVEN);
-            System.out.println(notes); // expected: C4di, C3di
-        }
+//        System.out.println("---------");
+//        {
+//            GridShape al = new AlphaGridShape(Note.D4);
+//            List<Note> notes = al.degree2Notes(Degree.SEVEN);
+//            System.out.println(notes); // expected: C4di, C3di
+//        }
         
-        {
-            GridShape al = new AlphaGridShape(Note.C4);
-            List<Note> notes = al.calculateNotes(Degree.SEVEN);
-            System.out.println(notes); // expected: B3, B2
-        }
+//        {
+//            GridShape al = new AlphaGridShape(Note.C4);
+//            List<Note> notes = al.degree2Notes(Degree.SEVEN);
+//            System.out.println(notes); // expected: B3, B2
+//        }
         
     }
 }

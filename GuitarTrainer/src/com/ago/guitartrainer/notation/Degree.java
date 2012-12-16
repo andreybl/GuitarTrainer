@@ -58,6 +58,12 @@ public enum Degree {
             return false;
     }
     
+    /**
+     * The current degree instance is unmodified 
+     * 
+     * @param frets
+     * @return
+     */
     public Degree addFrets(int frets) {
 
         int f = frets % 12;
@@ -68,4 +74,5 @@ public enum Degree {
 
         return mapDoubleToDegree.get(f2);
     }
+    
 }

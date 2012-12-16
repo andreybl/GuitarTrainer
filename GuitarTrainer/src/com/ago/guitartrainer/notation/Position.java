@@ -39,6 +39,6 @@ public class Position {
     
     @Override
     public String toString() {
-        return "["+string+"]["+fret+"]";
+        return "[string="+(string+1)+"/fret="+fret+"]";
     }
 }

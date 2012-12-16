@@ -1,6 +1,7 @@
 package com.ago.guitartrainer.notation;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -241,7 +242,10 @@ public class NoteStave {
     }
 
     public List<Position> resolvePositions(Note n) {
-        return mapNote2Positions.get(n);
+        if (mapNote2Positions.containsKey(n))
+            return mapNote2Positions.get(n);
+        else 
+            return Collections.emptyList();
     }
 
 }
