@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" >
+
+    
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Shapes"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <GridLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:columnCount="3"
+        android:rowCount="3" >
+
+        <Button
+            android:id="@+id/gridshape_alpha"
+            android:text="α" />
+
+        <Button
+            android:id="@+id/gridshape_beta"
+            android:text="β" />
+
+        <Button
+            android:id="@+id/gridshape_gamma"
+            android:text="γ" />
+
+        <Button
+            android:id="@+id/gridshape_delta"
+            android:text="δ" />
+
+        <Button
+            android:id="@+id/gridshape_epsilon"
+            android:text="ε" />
+    </GridLayout>
+    
+</LinearLayout>

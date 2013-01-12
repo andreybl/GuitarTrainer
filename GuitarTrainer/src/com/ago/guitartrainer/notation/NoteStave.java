@@ -10,6 +10,24 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import com.ago.guitartrainer.utils.MultiMap;
+
+/**
+ * The notes representation used - like, E2 - is a Scientific Pitch Notation. For the guitar, the following are the
+ * notes in this notation on the strings:
+ * <ul>
+ * <li>The first string is E4
+ * <li>The second string is B3
+ * <li>The third string is G3
+ * <li>The fourth string D3
+ * <li>The fifth string is A2
+ * <li>The sixth string is E2
+ * </ul>
+ * 
+ * @author Andrej Golovko - jambit GmbH
+ * @link http://guitar-trivia.blogspot.de/2011_06_01_archive.html
+ * 
+ */
 public class NoteStave {
 
     private static NoteStave INSTANCE;
@@ -17,21 +35,23 @@ public class NoteStave {
      * the format of the array is:
      * [string][fret] 
      * 
-     * The fret==0 has the mening of "open fret".
+     * The fret==0 has the meaning of "open fret".
      */
     private Note[][] notesOnFret = new Note[6][13];
-    
+
     private Map<Note, List<Position>> mapNote2Positions = new Hashtable<Note, List<Position>>();
 
-    private SortedMap<Note, Double> mapNote2Frequency;
+    private SortedMap<Note, Double> mapNote2Frequency = new TreeMap<Note, Double>();
+
+    private MultiMap<Key, Octave, Note> mapKeyOctave2Note = new MultiMap<Key, Octave, Note>();
 
     private NoteStave() {
         initNotesOnFret();
         initNote2Freq();
     }
-    
+
     public static NoteStave getInstance() {
-        if (INSTANCE== null)
+        if (INSTANCE == null)
             INSTANCE = new NoteStave();
         return INSTANCE;
     }
@@ -127,16 +147,16 @@ public class NoteStave {
         notesOnFret[5][10] = Note.D3;
         notesOnFret[5][11] = Note.D3di;
         notesOnFret[5][12] = Note.E3;
-        
-//        
+
+        //
         for (int iString = 0; iString < notesOnFret.length; iString++) {
             for (int iFret = 0; iFret < notesOnFret[iString].length; iFret++) {
                 Note note = notesOnFret[iString][iFret];
-                
+
                 if (!mapNote2Positions.containsKey(note)) {
                     mapNote2Positions.put(note, new ArrayList<Position>());
                 }
-                
+
                 mapNote2Positions.get(note).add(new Position(iString, iFret));
             }
         }
@@ -144,49 +164,57 @@ public class NoteStave {
     }
 
     private void initNote2Freq() {
-        Map<Note, Double> tmp = new Hashtable<Note, Double>();
-        tmp.put(Note.D2di, 77.78);
-        tmp.put(Note.E2, 82.407);
-        tmp.put(Note.F2, 87.31);
-        tmp.put(Note.F2di, 92.5);
-        tmp.put(Note.G2, 98.0);
-        tmp.put(Note.G2di, 103.83);
-        tmp.put(Note.A2, 110d);
-        tmp.put(Note.A2di, 116.54);
-        tmp.put(Note.B2, 123.47);
-        tmp.put(Note.C3, 130.81);
-        tmp.put(Note.C3di, 138.59);
-        tmp.put(Note.D3, 146.83);
-        tmp.put(Note.D3di, 155.56);
-        tmp.put(Note.E3, 164.81);
-        tmp.put(Note.F3, 174.61);
-        tmp.put(Note.F3di, 185d);
-        tmp.put(Note.G3, 196d);
-        tmp.put(Note.G3di, 207.65);
-        tmp.put(Note.A3, 220d);
-        tmp.put(Note.A3di, 233.08);
-        tmp.put(Note.B3, 246.94);
-        tmp.put(Note.C4, 261.63);
-        tmp.put(Note.C4di, 277.18);
-        tmp.put(Note.D4, 293.67);
-        tmp.put(Note.D4di, 311.13);
-        tmp.put(Note.E4, 329.63);
-        tmp.put(Note.F4, 349.23);
-        tmp.put(Note.F4di, 369.99);
-        tmp.put(Note.G4, 392d);
-        tmp.put(Note.G4di, 415.3);
-        tmp.put(Note.A4, 440d);
-        tmp.put(Note.A4di, 466.16);
-        tmp.put(Note.B4, 493.88);
-        tmp.put(Note.C5, 523.25);
-        tmp.put(Note.C5di, 554.37);
-        tmp.put(Note.D5, 587.33);
-        tmp.put(Note.D5di, 622.25);
-        tmp.put(Note.E5, 659.26);
-        tmp.put(Note.F5, 698.46);
 
-        mapNote2Frequency = new TreeMap(new ValueComparer(tmp));
-        mapNote2Frequency.putAll(tmp);
+        registerNote(Note.D2di);
+        registerNote(Note.E2);
+        registerNote(Note.F2);
+        registerNote(Note.F2di);
+        registerNote(Note.G2);
+        registerNote(Note.G2di);
+        registerNote(Note.A2);
+        registerNote(Note.A2di);
+        registerNote(Note.B2);
+        registerNote(Note.C3);
+        registerNote(Note.C3di);
+        registerNote(Note.D3);
+        registerNote(Note.D3di);
+        registerNote(Note.E3);
+        registerNote(Note.F3);
+        registerNote(Note.F3di);
+        registerNote(Note.G3);
+        registerNote(Note.G3di);
+        registerNote(Note.A3);
+        registerNote(Note.A3di);
+        registerNote(Note.B3);
+        registerNote(Note.C4);
+        registerNote(Note.C4di);
+        registerNote(Note.D4);
+        registerNote(Note.D4di);
+        registerNote(Note.E4);
+        registerNote(Note.F4);
+        registerNote(Note.F4di);
+        registerNote(Note.G4);
+        registerNote(Note.G4di);
+        registerNote(Note.A4);
+        registerNote(Note.A4di);
+        registerNote(Note.B4);
+        registerNote(Note.C5);
+        registerNote(Note.C5di);
+        registerNote(Note.D5);
+        registerNote(Note.D5di);
+        registerNote(Note.E5);
+        registerNote(Note.F5);
+
+    }
+
+    private void registerNote(Note note) {
+        // TODO: add sorting to mapNote2Frequency, like it was once with the code:
+        // Map<Note, Double> tmp = new Hashtable<Note, Double>();
+        // mapNote2Frequency = new TreeMap(new ValueComparer(tmp));
+        // mapNote2Frequency.putAll(tmp);
+
+        mapNote2Frequency.put(note, note.getPitch());
+        mapKeyOctave2Note.put(note.getKey(), note.getOctave(), note);
 
     }
 
@@ -234,9 +262,6 @@ public class NoteStave {
         }
     }
 
-    
-
-
     public Note resolveNote(int str, int fret) {
         return notesOnFret[str][fret];
     }
@@ -244,8 +269,14 @@ public class NoteStave {
     public List<Position> resolvePositions(Note n) {
         if (mapNote2Positions.containsKey(n))
             return mapNote2Positions.get(n);
-        else 
+        else
             return Collections.emptyList();
+    }
+
+    public Note resolveNote(Key key, Octave octave) {
+        Note note = mapKeyOctave2Note.get(key, octave);
+
+        return note;
     }
 
 }

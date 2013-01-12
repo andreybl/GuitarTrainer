@@ -1,10 +1,8 @@
 package com.ago.guitartrainer.lessons;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeSet;
 
 import android.graphics.Color;
@@ -21,10 +19,17 @@ import com.ago.guitartrainer.notation.Note;
 import com.ago.guitartrainer.notation.NoteStave;
 import com.ago.guitartrainer.notation.Position;
 import com.ago.guitartrainer.ui.FretImageView;
-import com.ago.guitartrainer.utils.ArrayUtils;
 import com.ago.guitartrainer.utils.LessonsUtils;
 
-public class Lesson {
+/**
+ * Encapsulate the logic used to which evaluates correctness user answers.
+ * 
+ * The logic behind the quest, which can tell whether the user answered the question correctly.
+ * 
+ * @author Andrej Golovko - jambit GmbH
+ * 
+ */
+public class AnswerEvaluator {
 
     private final String TAG = "GuTr-Lesson";
 
@@ -44,14 +49,18 @@ public class Lesson {
     private boolean lessonFailed = false;
 
     private final FretImageView fretImageView;
-    
+
     private Degree degree;
-    
+
     private static int MS_IN_SECOND = 1000;
-    
+
     private int lessonsCounter = 0;
 
-    public Lesson(GuitarTrainerActivity activity) {
+    public Map<Degree, Long> statistics = new HashMap<Degree, Long>();
+
+    private int progress;
+
+    public AnswerEvaluator(GuitarTrainerActivity activity) {
         this.activity = activity;
         fretImageView = activity.fretImageView;
     }
@@ -60,16 +69,14 @@ public class Lesson {
         return isActive;
     }
 
-    public Map<Degree, Long> statistics = new HashMap<Degree, Long>();
-    
     public void startLesson() {
-        
+
         lessonsCounter++;
-        
+
         // 2. pick at random the degree to play in the projection
         lessonPosition = LessonsUtils.pickPosition(currentGridShape);
         degree = currentGridShape.position2Degree(lessonPosition);
-        
+
         isActive = true;
         // 3. request the user to play degree
         // Note: "Tip" is shown for debug purposes only
@@ -110,12 +117,12 @@ public class Lesson {
 
             if (statistics.containsKey(degree)) {
                 Long val = statistics.get(degree);
-                Long statValue = Math.abs((val+diff)/2);
+                Long statValue = Math.abs((val + diff) / 2);
                 statistics.put(degree, statValue);
             } else {
                 statistics.put(degree, diff);
             }
-            
+
             isCorrect = true;
         }
 
@@ -128,28 +135,26 @@ public class Lesson {
                 fretImageView.showOnFret(Color.RED, positionsAll);
                 fretImageView.showOnFret(Color.GREEN, positionsInShape);
                 fretImageView.draw();
-                
+
                 String str = prepareResultsString();
                 activity.txtLessonResults.setText(str);
             }
         });
-        
 
         return isCorrect;
 
     }
 
     private String prepareResultsString() {
-        String result = lessonsCounter+": ";
-        TreeSet<Degree> degrees = new TreeSet<Degree>(statistics.keySet()); 
+        String result = lessonsCounter + ": ";
+        TreeSet<Degree> degrees = new TreeSet<Degree>(statistics.keySet());
         for (Degree d : degrees) {
-            result += d.name()+":"+Math.abs(statistics.get(d)/MS_IN_SECOND) + "; ";
+            result += d.name() + ":" + Math.abs(statistics.get(d) / MS_IN_SECOND) + "; ";
         }
-        
-        return result; 
+
+        return result;
     }
-    
-    private int progress;
+
     /**
      * On seekbar, with which the fret can be selected
      * 
@@ -160,8 +165,8 @@ public class Lesson {
 
         @Override
         public void onProgressChanged(SeekBar seekBar, final int progress, boolean fromUser) {
-            Lesson.this.progress = progress;
-            
+            AnswerEvaluator.this.progress = progress;
+
             if (currentGridShape != null) {
                 activity.runOnUiThread(new Runnable() {
 
@@ -203,7 +208,7 @@ public class Lesson {
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 
             if (isChecked) {
-                currentGridShape = GridShape.create(buttonView.getId(), Lesson.this.progress);
+                currentGridShape = GridShape.create(buttonView.getId(), AnswerEvaluator.this.progress);
 
                 activity.runOnUiThread(new Runnable() {
 
@@ -218,5 +223,5 @@ public class Lesson {
 
         }
 
-    }    
+    }
 }

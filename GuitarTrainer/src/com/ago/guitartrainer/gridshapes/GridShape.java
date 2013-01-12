@@ -12,26 +12,26 @@ import com.ago.guitartrainer.notation.NoteStave;
 import com.ago.guitartrainer.notation.Position;
 import com.ago.guitartrainer.utils.ArrayUtils;
 
+/**
+ * Holds the information for the grid shape projection:
+ *   <ul>
+ *   <li> fret at which the projection starts
+ *   <li> layout of degrees inside of the shape
+ *   </ul> 
+ * 
+ * @author Andrej Golovko - jambit GmbH
+ *
+ */
 public abstract class GridShape {
 
-    /* [string][fret] */
-
-    // /**
-    // * the original mapping of degree to position, which will not be modified once initialized in constructor.
-    // */
-    // private Map<Degree, List<Position>> degreeToPositionOriginal = new Hashtable<Degree, List<Position>>();
-
+    public enum Type {
+        ALPHA, BETA, GAMMA, DELTA, EPSILON
+    }
+    
     /** original mapping from degree to position, as calculated relative to the zero fret */
     private Map<Degree, List<Position>> degreeToPosition = new Hashtable<Degree, List<Position>>();
 
     private Map<Position, Degree> positionToDegree = new Hashtable<Position, Degree>();
-
-    /*
-     * shifts of the shape required relatively to the fret "0", so that the root key is positioned on the place of note
-     * defined in "key" variable.
-     */
-    // TODO: remove
-    // private int fretShifts = -1;
 
     private int startingFret = -1;
 
@@ -275,19 +275,19 @@ public abstract class GridShape {
     public static GridShape create(int checkboxResourceId, int progress) {
         GridShape gs = null;
         switch (checkboxResourceId) {
-        case R.id.cb_gridselection_alpha:
+        case R.id.gridshape_alpha:
             gs = new AlphaGridShape(progress);
             break;
-        case R.id.cb_gridselection_beta:
+        case R.id.gridshape_beta:
             gs = new BetaGridShape(progress);
             break;
-        case R.id.cb_gridselection_gamma:
+        case R.id.gridshape_gamma:
             gs = new GammaGridShape(progress);
             break;
-        case R.id.cb_gridselection_delta:
+        case R.id.gridshape_delta:
             gs = new DeltaGridShape(progress);
             break;
-        case R.id.cb_gridselection_epsilon:
+        case R.id.gridshape_epsilon:
             gs = new EpsilonGridShape(progress);
             break;
 

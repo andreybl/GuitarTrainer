@@ -7,9 +7,10 @@
     <application
         android:icon="@drawable/icon"
         android:label="Guitar Trainer" >
+        <activity android:name="com.ichi2.anki.DeckPicker" />
         <activity
             android:screenOrientation="landscape"
-            android:name=".GuitarTrainerActivity"
+            android:name=".GuitarTrainerActivity2"
             android:label="Guitar Trainer" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -51,10 +51,6 @@ public class FretImageView extends ImageView {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-//        debugMode(canvas);
-        
-        
-
         for (Position position : positionsAndColor.keySet()) {
             int pxFret = midlesOfFrets[position.fret];
             int pxStr = midlesOfStrings[position.string];
@@ -65,38 +61,6 @@ public class FretImageView extends ImageView {
         }
         
     }
-
-//    private void debugMode(Canvas canvas) {
-//        paint.setColor(Color.RED);
-//        AlphaGridShape aShape = new AlphaGridShape(Note.D4);
-//
-//        if (x < 40 && y > 50 && y <= 100) {
-//            paint.setColor(Color.RED);
-//            for (int i = 0; i < midlesOfStrings.length; i++) {
-//                for (int j = 0; j < midlesOfFrets.length; j++) {
-//                    canvas.drawCircle(midlesOfFrets[j], midlesOfStrings[i], 10, paint);
-//                }
-//            }
-//        } else if (x < 40 && y > 100 && y <= 150) {
-//            List<Position> positions = aShape.degree2Positions(Degree.SEVEN);
-//            for (Position p : positions) {
-//                canvas.drawCircle(midlesOfFrets[p.fret], midlesOfStrings[p.string], 10, paint);
-//            }
-//
-//        } else if (x < 40 && y > 150) {
-//            List<Position> positions = aShape.strongPositions();
-//            for (Position p : positions) {
-//                canvas.drawCircle(midlesOfFrets[p.fret], midlesOfStrings[p.string], 10, paint);
-//            }
-//
-//        }
-//
-//        paint.setColor(Color.GREEN);
-//
-//        canvas.drawCircle(x, 2, 5, paint);
-//        canvas.drawCircle(40, y, 5, paint);
-//        canvas.drawCircle(x, y, 10, paint);
-//    }
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {

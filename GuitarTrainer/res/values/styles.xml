@@ -1,5 +1,26 @@
-<resources>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <style name="AppTheme" parent="android:Theme.Light" />
+
+    <dimen name="buttonHeight">30dp</dimen>
+    <dimen name="buttonWidth">30dp</dimen>
+
+    <color name="red">#FF4444</color>
+    <color name="black">#000000</color>
+    <color name="green">#33FF00</color>
+    <color name="yellow">#FFFF00</color>
+    <color name="blue">#0099FF</color>
+    <color name="white">#FFFFFF</color>
+    
+    
+
+    <style name="Button_InViews">
+        <item name="android:gravity">center</item>
+        <item name="android:padding">0dp</item>
+        <item name="android:drawablePadding">0dp</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:lineSpacingExtra">0dp</item>
+        <item name="android:lineSpacingMultiplier">1</item>
+    </style>
 
 </resources>
