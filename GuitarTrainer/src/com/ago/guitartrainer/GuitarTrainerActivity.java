@@ -32,14 +32,11 @@ import com.ago.guitartrainer.ui.FretImageView;
  * The pitch detection runs in a separate thread and stops only when the activity stops.
  * 
  * @author Andrej Golovko - jambit GmbH
- * 
+ * @deprecated
  */
 public class GuitarTrainerActivity extends Activity {
 
     public static String TAG = "GuitarTrainer";
-
-    /** view with fretboard */
-    // private DrawableView fingerboardView;
 
     /** a thread in which the internal audio source is used to detect the pitch */
     private Thread threadPitchDetector;
@@ -72,12 +69,6 @@ public class GuitarTrainerActivity extends Activity {
 
         OnSeekBarChangeListener seekBarListener = currentLesson.new InnerOnSeekBarChangeListener();
         sbarFretSelection.setOnSeekBarChangeListener(seekBarListener);
-        OnCheckedChangeListener onCheckedListener = currentLesson.new InnerOnCheckedChangeListener();
-        // cbGridAlpha.setOnCheckedChangeListener(onCheckedListener);
-        // cbGridBeta.setOnCheckedChangeListener(onCheckedListener);
-        // cbGridGamma.setOnCheckedChangeListener(onCheckedListener);
-        // cbGridDelta.setOnCheckedChangeListener(onCheckedListener);
-        // cbGridEpsilon.setOnCheckedChangeListener(onCheckedListener);
 
         btnStartLesson.setOnClickListener(new InnerOnClickListener());
 

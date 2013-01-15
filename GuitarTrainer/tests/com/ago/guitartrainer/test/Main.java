@@ -1,4 +1,4 @@
-package com.ago.guitartrainer;
+package com.ago.guitartrainer.test;
 
 import java.util.List;
 

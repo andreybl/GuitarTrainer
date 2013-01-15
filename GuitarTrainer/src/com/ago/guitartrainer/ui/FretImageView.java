@@ -18,6 +18,7 @@ import com.ago.guitartrainer.notation.Degree;
 import com.ago.guitartrainer.notation.Note;
 import com.ago.guitartrainer.notation.Position;
 
+// TODO: make it private to FretView?
 public class FretImageView extends ImageView {
 
     private int[] midlesOfFrets = new int[] { 40, 116, 229, 343, 453, 553, 650, 743, 831, 912, 991, 1074, 1151 };

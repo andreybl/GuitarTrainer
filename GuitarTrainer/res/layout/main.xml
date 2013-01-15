@@ -4,6 +4,8 @@
     android:layout_height="fill_parent"
     android:orientation="vertical" >
 
+    <!-- DEPRECATED layout, see main2.xml -->
+    
     <com.ago.guitartrainer.ui.FretImageView
         android:id="@+id/img_fretimageview"
         android:layout_width="wrap_content"

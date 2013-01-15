@@ -1,4 +1,4 @@
-package com.ago.guitartrainer;
+package com.ago.guitartrainer.db;
 
 import com.ago.guitartrainer.lessons.UserAnswer;
 import com.ago.guitartrainer.lessons.QuestionParams;

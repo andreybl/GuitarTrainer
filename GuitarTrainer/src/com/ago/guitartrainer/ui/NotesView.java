@@ -1,8 +1,6 @@
 package com.ago.guitartrainer.ui;
 
-import java.util.ArrayList;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Map;
 
 import android.app.Activity;
@@ -169,7 +167,7 @@ public class NotesView extends LinearLayout {
             Button b = (Button) v;
             b.setTextColor(Color.GREEN);
 
-            selectedKey = btn2Key.get(v.getId());
+            selectedKey = btn2Key.get(v);
 
             showNote(selectedKey, selectedOctave);
 
@@ -190,7 +188,7 @@ public class NotesView extends LinearLayout {
             Button b = (Button) v;
             b.setTextColor(Color.GREEN);
 
-            selectedOctave = btn2Octave.get(v.getId());
+            selectedOctave = btn2Octave.get(v);
 
             showNote(selectedKey, selectedOctave);
 

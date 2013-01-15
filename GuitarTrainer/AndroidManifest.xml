@@ -4,14 +4,20 @@
     android:versionCode="2"
     android:versionName="2.0" >
 
+    <uses-sdk
+        android:minSdkVersion="14"
+        android:targetSdkVersion="14" />
+
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
     <application
         android:icon="@drawable/icon"
         android:label="Guitar Trainer" >
         <activity android:name="com.ichi2.anki.DeckPicker" />
         <activity
-            android:screenOrientation="landscape"
-            android:name=".GuitarTrainerActivity2"
-            android:label="Guitar Trainer" >
+            android:name=".MasterActivity"
+            android:label="Guitar Trainer"
+            android:screenOrientation="landscape" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -19,12 +25,5 @@
             </intent-filter>
         </activity>
     </application>
-
-    <uses-sdk
-        android:minSdkVersion="14"
-        android:targetSdkVersion="14" />
-
-    <uses-permission android:name="android.permission.RECORD_AUDIO" >
-    </uses-permission>
 
 </manifest>
