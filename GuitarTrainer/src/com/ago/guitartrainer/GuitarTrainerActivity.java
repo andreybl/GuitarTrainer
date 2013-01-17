@@ -44,6 +44,7 @@ public class GuitarTrainerActivity extends Activity {
     private Button btnStartLesson;
 
     public TextView txtPlayNote;
+    
     public TextView txtLessonResults;
 
     public FretImageView fretImageView;
