@@ -6,6 +6,7 @@
     android:orientation="vertical" >
 
     <com.ago.guitartrainer.ui.FretView
+        android:id="@+id/view_fretview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
@@ -14,16 +15,58 @@
         android:layout_height="wrap_content" >
 
         <com.ago.guitartrainer.ui.ShapesView
+            android:id="@+id/view_shapesview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
         <com.ago.guitartrainer.ui.DegreesView
+            android:id="@+id/view_degreesview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
         <com.ago.guitartrainer.ui.NotesView
+            android:id="@+id/view_notesview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/btn_lesson_select"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Select Lesson" />
+
+        <Button
+            android:id="@+id/btn_lesson_start"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Start" />
+
+        <Button
+            android:id="@+id/btn_lesson_next"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Next" />
+
+        <Button
+            android:id="@+id/btn_lesson_stop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Stop" />
+
+        <!-- text shows the current lesson count, the color shows the previous lesson status -->
+
+        <TextView
+            android:id="@+id/tv_lesson_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="--"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
     </LinearLayout>
 
 </LinearLayout>

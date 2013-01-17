@@ -1,13 +1,15 @@
 package com.ago.guitartrainer.utils;
 
 import java.util.List;
+import java.util.Random;
 
 import com.ago.guitartrainer.gridshapes.GridShape;
 import com.ago.guitartrainer.notation.Position;
 
 public class LessonsUtils {
 
-
+    private static Random random = new Random();
+    
     public static Position pickPosition(GridShape gridShape) {
         List<Position> strongPositions = gridShape.strongPositions();
 
@@ -19,4 +21,16 @@ public class LessonsUtils {
         return (strongPositions.size()>0) ? strongPositions.get(randomNum) : null;
     }
 
+    /**
+     * Returns random integer in the range specified.
+     * 
+     * @param min value allowed for random integer
+     * @param max value allowed for the random integer
+     * @return random integer
+     */
+    public static int random(int min, int max) {
+        
+        int i1 = random.nextInt(max - min + 1) + min;
+        return i1;
+    }
 }

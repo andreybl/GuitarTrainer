@@ -262,8 +262,13 @@ public class NoteStave {
         }
     }
 
-    public Note resolveNote(int str, int fret) {
-        return notesOnFret[str][fret];
+    /**
+     * Resolve note on the guitar fret by indexing it with string and fret. 
+     * 
+     * @return
+     */
+    public Note resolveNote(Position p) {
+        return notesOnFret[p.getStringIndex()][p.getFret()];
     }
 
     public List<Position> resolvePositions(Note n) {

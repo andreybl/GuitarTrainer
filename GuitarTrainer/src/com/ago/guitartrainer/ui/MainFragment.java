@@ -1,73 +1,177 @@
 package com.ago.guitartrainer.ui;
 
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnDismissListener;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
-import com.ago.guitartrainer.MasterActivity;
 import com.ago.guitartrainer.R;
-import com.ago.guitartrainer.ui.sideout.MenuFragment;
-import com.ago.guitartrainer.ui.sideout.SlideoutHelper;
+import com.ago.guitartrainer.lessons.ILesson;
 
 public class MainFragment extends Fragment {
 
-    private SlideoutHelper mSlideoutHelper;
+    private Button btnSideOutMenu;
 
-    public SlideoutHelper getSlideoutHelper() {
-        return mSlideoutHelper;
-    }
+    private Button btnSelectLessonDialog;
+
+    private Button btnStartLesson;
+
+    private Button btnNextLesson;
+
+    private Button btnStopLesson;
+
+    private ILesson currentLesson;
+
+    private FretView fretView;
+
+    private ShapesView shapestView;
+
+    private DegreesView degreesView;
+
+    private NotesView notesView;
+
+    private TextView tvLessonStatus;
+
+    /*
+     * TODO: rework the concept. The fragment - and basically its views - are required in lessons. But getting the
+     * fragment in such way as singleton is not nice.
+     */
+    private static MainFragment instance;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         LinearLayout mainLayout = (LinearLayout) inflater.inflate(R.layout.main2, container, false);
+        /* Start: custom views: fret/shape/notes etc. */
+        fretView = (FretView) mainLayout.findViewById(R.id.view_fretview);
+        shapestView = (ShapesView) mainLayout.findViewById(R.id.view_shapesview);
+        degreesView = (DegreesView) mainLayout.findViewById(R.id.view_degreesview);
+        notesView = (NotesView) mainLayout.findViewById(R.id.view_notesview);
+        tvLessonStatus = (TextView) mainLayout.findViewById(R.id.tv_lesson_status);
+        /* End: custom views: fret/shape/notes etc. */
 
         OnClickListener innerOnClickListener = new InnerOnClickListener();
-        View btnSideOutMenu = mainLayout.findViewById(R.id.btn_sideout_menu);
-        btnSideOutMenu.setOnClickListener(innerOnClickListener);
+
+        /* Start: buttons for lesson control */
+        btnSelectLessonDialog = (Button) mainLayout.findViewById(R.id.btn_lesson_select);
+        btnStartLesson = (Button) mainLayout.findViewById(R.id.btn_lesson_start);
+        btnNextLesson = (Button) mainLayout.findViewById(R.id.btn_lesson_next);
+        btnStopLesson = (Button) mainLayout.findViewById(R.id.btn_lesson_stop);
+
+        btnSelectLessonDialog.setOnClickListener(innerOnClickListener);
+        btnStartLesson.setOnClickListener(innerOnClickListener);
+        btnNextLesson.setOnClickListener(innerOnClickListener);
+        btnStopLesson.setOnClickListener(innerOnClickListener);
+
+        btnStartLesson.setEnabled(false);
+        btnNextLesson.setEnabled(false);
+        btnStopLesson.setEnabled(false);
+
+        /* end: buttons for lesson control */
+
+//        btnSideOutMenu = (Button) mainLayout.findViewById(R.id.btn_sideout_menu);
+//        btnSideOutMenu.setOnClickListener(innerOnClickListener);
+
+        instance = this;
 
         return mainLayout;
+    }
+
+    public static MainFragment getInstance() {
+        return instance;
+    }
+
+    public FretView getFretView() {
+        return fretView;
+    }
+
+    public ShapesView getShapestView() {
+        return shapestView;
+    }
+
+    public DegreesView getDegreesView() {
+        return degreesView;
+    }
+
+    public NotesView getNotesView() {
+        return notesView;
+    }
+
+    public TextView getLessonStatusView() {
+        return tvLessonStatus;
     }
 
     /*
      * INNER CLASSES ******
      */
+    /**
+     * Listener for clicks on lesson control buttons and on slide-out menu button.
+     * 
+     * The listener does not take into account any events on custom view.
+     * 
+     * @author Andrej Golovko - jambit GmbH
+     * 
+     */
     private class InnerOnClickListener implements OnClickListener {
         @Override
         public void onClick(View v) {
-            int width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 40, getResources()
-                    .getDisplayMetrics());
 
-            width = 460;
+            switch (v.getId()) {
+            case R.id.btn_lesson_select: {
+                final LessonSelectionDialog lessonDialog = new LessonSelectionDialog(getActivity());
+                lessonDialog.setOnDismissListener(new OnDismissListener() {
 
-            /*
-             * make screenshot of the main view
-             */
-            SlideoutHelper.prepareScreenshot(getActivity(), R.id.layout_main_view, width);
+                    @Override
+                    public void onDismiss(DialogInterface dialog) {
+                        currentLesson = lessonDialog.currentLesson();
+                        if (currentLesson != null) {
+                            btnStartLesson.setEnabled(true);
+                            btnSelectLessonDialog.setText(currentLesson.getTitle());
+                        }
+                    }
+                });
 
-            /*
-             * show the slide-out menu in a separate activity. Note, that no standard animation is applied during the
-             * transition to MenuActivity
-             */
-            // startActivity(new Intent(GuitarTrainerActivity2.this, MenuActivity.class));
-            // overridePendingTransition(0, 0);
+                lessonDialog.show();
 
-            mSlideoutHelper = new SlideoutHelper(getActivity(), false);
-            mSlideoutHelper.activate();
+                break;
+            }
+            case R.id.btn_lesson_start: {
+                btnStartLesson.setEnabled(false);
+                btnSelectLessonDialog.setEnabled(false);
+                btnStopLesson.setEnabled(true);
+                btnNextLesson.setEnabled(true);
 
-//            FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
-//            transaction = transaction.add(new MenuFragment(), "menu");
-//            transaction.commit();
+                if (currentLesson != null)
+                    currentLesson.start();
+                break;
+            }
+            case R.id.btn_lesson_next: {
+                // we skip to the next Question inside of the lesson,
+                // we do NOT skip to the next lesson here
 
-//            MasterActivity activity = (MasterActivity)getActivity();
-//            activity.startFragment(MenuFragment.class);
-            
-            mSlideoutHelper.open();
+                // TODO: implement the skipping
+                break;
+            }
+            case R.id.btn_lesson_stop: {
+                btnSelectLessonDialog.setEnabled(true);
+                btnStartLesson.setEnabled(true);
+                btnStopLesson.setEnabled(false);
+                btnNextLesson.setEnabled(false);
+                if (currentLesson!=null)
+                    currentLesson.stop();
+                break;
+            }
+            default:
+                break;
+            }
+
         }
     }
 }

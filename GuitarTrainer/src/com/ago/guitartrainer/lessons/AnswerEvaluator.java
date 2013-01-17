@@ -18,7 +18,6 @@ import com.ago.guitartrainer.notation.Degree;
 import com.ago.guitartrainer.notation.Note;
 import com.ago.guitartrainer.notation.NoteStave;
 import com.ago.guitartrainer.notation.Position;
-import com.ago.guitartrainer.ui.FretImageView;
 import com.ago.guitartrainer.utils.LessonsUtils;
 
 /**
@@ -27,7 +26,8 @@ import com.ago.guitartrainer.utils.LessonsUtils;
  * The logic behind the quest, which can tell whether the user answered the question correctly.
  * 
  * @author Andrej Golovko - jambit GmbH
- * 
+ * @deprecated use one of the {@link ILesson} implementations insteas. Maybe intro kind of AbstractLesson for common
+ *             behaviour.
  */
 public class AnswerEvaluator {
 
@@ -48,7 +48,7 @@ public class AnswerEvaluator {
     // if true, the lesson finished by countdown interrupt
     private boolean lessonFailed = false;
 
-    private final FretImageView fretImageView;
+//    private final FretImageView fretImageView;
 
     private Degree degree;
 
@@ -62,7 +62,7 @@ public class AnswerEvaluator {
 
     public AnswerEvaluator(GuitarTrainerActivity activity) {
         this.activity = activity;
-        fretImageView = activity.fretImageView;
+//        fretImageView = activity.fretImageView;
     }
 
     public boolean isActive() {
@@ -130,11 +130,11 @@ public class AnswerEvaluator {
 
         activity.runOnUiThread(new Runnable() {
             public void run() {
-                fretImageView.clear();
-                fretImageView.showOnFret(Color.BLUE, currentGridShape);
-                fretImageView.showOnFret(Color.RED, positionsAll);
-                fretImageView.showOnFret(Color.GREEN, positionsInShape);
-                fretImageView.draw();
+//                fretImageView.clear();
+//                fretImageView.showOnFret(Color.BLUE, currentGridShape);
+//                fretImageView.showOnFret(Color.RED, positionsAll);
+//                fretImageView.showOnFret(Color.GREEN, positionsInShape);
+//                fretImageView.draw();
 
                 String str = prepareResultsString();
                 activity.txtLessonResults.setText(str);
@@ -173,9 +173,9 @@ public class AnswerEvaluator {
                     @Override
                     public void run() {
                         currentGridShape = GridShape.create(currentGridShape.getClass(), progress);
-                        fretImageView.clear();
-                        fretImageView.showOnFret(Color.BLUE, currentGridShape);
-                        fretImageView.draw();
+//                        fretImageView.clear();
+//                        fretImageView.showOnFret(Color.BLUE, currentGridShape);
+//                        fretImageView.draw();
                     }
                 });
             }
@@ -214,9 +214,9 @@ public class AnswerEvaluator {
 
                     @Override
                     public void run() {
-                        fretImageView.clear();
-                        fretImageView.showOnFret(Color.BLUE, currentGridShape);
-                        fretImageView.draw();
+//                        fretImageView.clear();
+//                        fretImageView.showOnFret(Color.BLUE, currentGridShape);
+//                        fretImageView.draw();
                     }
                 });
             }

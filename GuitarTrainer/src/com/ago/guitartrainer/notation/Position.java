@@ -6,16 +6,27 @@ package com.ago.guitartrainer.notation;
  * The same note can be played in different positions. But the position itself is unique in terms of the notes: you can
  * play only one note in some specific position.
  * 
- * The counting is from 0. So the open fret is equal to "0". The first string is referenced as "0". The last sixth
- * string is referenced as "5".
+ * The allowed strings range is 1..6, the allow frets range is 0..12.
  * 
  * @author Andrej Golovko - jambit GmbH
  * 
  */
 public class Position {
-    public int fret;
-    public int string;
 
+    /** guitar fret in range 0..12 */
+    private int fret;
+
+    /** guitar string in range 1..6 */
+    private int string;
+
+    /**
+     * Constructor for position on guitar
+     * 
+     * @param string
+     *            guitar string in range 1..6
+     * @param fret
+     *            of guitar in range 0..12
+     */
     public Position(int string, int fret) {
         this.string = string;
         this.fret = fret;
@@ -31,14 +42,27 @@ public class Position {
 
         return false;
     }
-    
+
     @Override
     public int hashCode() {
-        return 37*fret + string;
+        return 37 * fret + string;
     }
-    
+
     @Override
     public String toString() {
-        return "[string="+(string+1)+"/fret="+fret+"]";
+        return "[string=" + (string) + "/fret=" + fret + "]";
+    }
+
+    /**
+     * Calculate the guitar string index as it is used in array working with the {@link Position} instances.
+     * 
+     * @return string index in range 0..5
+     * */
+    public int getStringIndex() {
+        return this.string - 1;
+    }
+
+    public int getFret() {
+        return fret;
     }
 }
