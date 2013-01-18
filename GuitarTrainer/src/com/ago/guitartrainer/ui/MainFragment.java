@@ -4,17 +4,16 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnDismissListener;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.ago.guitartrainer.R;
 import com.ago.guitartrainer.lessons.ILesson;
-import com.ago.guitartrainer.ui.sideout.SlideoutHelper;
 
 public class MainFragment extends Fragment {
 
@@ -30,14 +29,39 @@ public class MainFragment extends Fragment {
 
     private ILesson currentLesson;
 
+    private FretView fretView;
+
+    private ShapesView shapestView;
+
+    private DegreesView degreesView;
+
+    private NotesView notesView;
+
+    private TextView tvLessonStatus;
+
+    /*
+     * TODO: rework the concept. The fragment - and basically its views - are required in lessons. But getting the
+     * fragment in such way as singleton is not nice.
+     */
+    private static MainFragment instance;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         LinearLayout mainLayout = (LinearLayout) inflater.inflate(R.layout.main2, container, false);
+        /* Start: custom views: fret/shape/notes etc. */
+        fretView = (FretView) mainLayout.findViewById(R.id.view_fretview);
+        shapestView = (ShapesView) mainLayout.findViewById(R.id.view_shapesview);
+        degreesView = (DegreesView) mainLayout.findViewById(R.id.view_degreesview);
+        notesView = (NotesView) mainLayout.findViewById(R.id.view_notesview);
+        tvLessonStatus = (TextView) mainLayout.findViewById(R.id.tv_lesson_status);
+        /* End: custom views: fret/shape/notes etc. */
 
         btnSideOutMenu = (Button) mainLayout.findViewById(R.id.btn_sideout_menu);
 
         OnClickListener innerOnClickListener = new InnerOnClickListener();
+
+        /* Start: buttons for lesson control */
         btnSelectLessonDialog = (Button) mainLayout.findViewById(R.id.btn_lesson_select);
         btnStartLesson = (Button) mainLayout.findViewById(R.id.btn_lesson_start);
         btnNextLesson = (Button) mainLayout.findViewById(R.id.btn_lesson_next);
@@ -53,12 +77,50 @@ public class MainFragment extends Fragment {
         btnStopLesson.setEnabled(false);
 
         btnSideOutMenu.setOnClickListener(innerOnClickListener);
+        /* end: buttons for lesson control */
+
+//        btnSideOutMenu = (Button) mainLayout.findViewById(R.id.btn_sideout_menu);
+//        btnSideOutMenu.setOnClickListener(innerOnClickListener);
+
+        instance = this;
 
         return mainLayout;
     }
 
+    public static MainFragment getInstance() {
+        return instance;
+    }
+
+    public FretView getFretView() {
+        return fretView;
+    }
+
+    public ShapesView getShapestView() {
+        return shapestView;
+    }
+
+    public DegreesView getDegreesView() {
+        return degreesView;
+    }
+
+    public NotesView getNotesView() {
+        return notesView;
+    }
+
+    public TextView getLessonStatusView() {
+        return tvLessonStatus;
+    }
+
     /*
      * INNER CLASSES ******
+     */
+    /**
+     * Listener for clicks on lesson control buttons and on slide-out menu button.
+     * 
+     * The listener does not take into account any events on custom view.
+     * 
+     * @author Andrej Golovko - jambit GmbH
+     * 
      */
     private class InnerOnClickListener implements OnClickListener {
         @Override
@@ -88,6 +150,9 @@ public class MainFragment extends Fragment {
                 btnSelectLessonDialog.setEnabled(false);
                 btnStopLesson.setEnabled(true);
                 btnNextLesson.setEnabled(true);
+
+                if (currentLesson != null)
+                    currentLesson.start();
                 break;
             }
             case R.id.btn_lesson_next: {
@@ -102,6 +167,8 @@ public class MainFragment extends Fragment {
                 btnStartLesson.setEnabled(true);
                 btnStopLesson.setEnabled(false);
                 btnNextLesson.setEnabled(false);
+                if (currentLesson!=null)
+                    currentLesson.stop();
                 break;
             }
             default:

@@ -62,8 +62,12 @@ public class LessonSelectionDialog extends Dialog {
      */
     private List<ILesson> tmpAvailableLesons() {
         List<ILesson> lessons = new ArrayList<ILesson>();
-        lessons.add(new SimpleLesson());
-        lessons.add(new SimpleLesson());
+        
+        SimpleLesson lesson1 = new SimpleLesson();
+        SimpleLesson lesson2 = new SimpleLesson();
+        
+        lessons.add(lesson1);
+        lessons.add(lesson2);
 
         return lessons;
     }

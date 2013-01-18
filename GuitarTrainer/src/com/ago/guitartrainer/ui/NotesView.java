@@ -1,6 +1,8 @@
 package com.ago.guitartrainer.ui;
 
+import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 
 import android.app.Activity;
@@ -14,6 +16,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import com.ago.guitartrainer.R;
+import com.ago.guitartrainer.events.OnViewSelectionListener;
 import com.ago.guitartrainer.notation.Key;
 import com.ago.guitartrainer.notation.Note;
 import com.ago.guitartrainer.notation.NoteStave;
@@ -51,6 +54,14 @@ public class NotesView extends LinearLayout {
     private Map<Button, Key> btn2Key = new Hashtable<Button, Key>();
 
     private Map<Button, Octave> btn2Octave = new Hashtable<Button, Octave>();
+
+    /**
+     * Listeners for the selections in current view.
+     * 
+     * Only valid selections made by the user are fired. If the selection - here, a {@link Note} - was randomly set by
+     * the program, the event is not fired.
+     */
+    private List<OnViewSelectionListener> listeners = new ArrayList<OnViewSelectionListener>();
 
     private static Map<Note, Integer> note2DrawableId = new Hashtable<Note, Integer>();
     {
@@ -134,7 +145,16 @@ public class NotesView extends LinearLayout {
         showNote(selectedKey, selectedOctave);
     }
 
-    private void showNote(Key selectedKey2, Octave selectedOctave2) {
+    /**
+     * Show the note image in the view.
+     * 
+     * @param selectedKey2
+     * @param selectedOctave2
+     */
+    /*
+     * TODO: the buttons must be colored correctly, for the case the showNote() is called outside of the view
+     */
+    private void showNote(final Key selectedKey2, final Octave selectedOctave2) {
 
         Activity activity = (Activity) getContext();
         activity.runOnUiThread(new Runnable() {
@@ -146,7 +166,7 @@ public class NotesView extends LinearLayout {
                     int idOfNoteDrawable = note2DrawableId.get(selectedNote);
                     imgNote.setImageResource(idOfNoteDrawable);
                 } else {
-                    Log.w(TAG, "Failed to resolve image for: " + selectedKey + "/" + selectedOctave);
+                    Log.w(TAG, "Failed to resolve image for: " + selectedKey2 + "/" + selectedOctave2);
                 }
 
             }
@@ -169,9 +189,21 @@ public class NotesView extends LinearLayout {
 
             selectedKey = btn2Key.get(v);
 
+            Note selectedNote = NoteStave.getInstance().resolveNote(selectedKey, selectedOctave);
+
             showNote(selectedKey, selectedOctave);
 
             // TODO: maybe disable Octave buttons, which are not possible with selected Key
+
+            notifyListeners(selectedNote);
+        }
+    }
+
+    private void notifyListeners(Note note) {
+        if (note != null) {
+            for (OnViewSelectionListener<Note> listener : listeners) {
+                listener.onViewElementSelected(note);
+            }
         }
     }
 
@@ -193,7 +225,14 @@ public class NotesView extends LinearLayout {
             showNote(selectedKey, selectedOctave);
 
             // TODO: maybe disable Key buttons, which are not possible with selected Octave
+
+            Note selectedNote = NoteStave.getInstance().resolveNote(selectedKey, selectedOctave);
+            notifyListeners(selectedNote);
         }
+    }
+
+    public void registerElementSelectedListener(OnViewSelectionListener<Note> listener) {
+        listeners.add(listener);
     }
 
 }

@@ -5,13 +5,12 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 
 import com.ago.guitartrainer.ui.MainFragment;
-import com.slidingmenu.lib.SlidingMenu;
 
 public class MasterActivity extends FragmentActivity {
 
     private static String TAG = "GT-MasterActivity";
 
-    private SlidingMenu menu;
+//    private SlidingMenu menu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,14 +27,14 @@ public class MasterActivity extends FragmentActivity {
         getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, new MainFragment()).commit();
 
         // configure the SlidingMenu
-        menu = new SlidingMenu(this);
-        menu.setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
-        menu.setShadowWidthRes(R.dimen.shadow_width);
-        menu.setShadowDrawable(R.drawable.shadow);
-        menu.setBehindOffsetRes(R.dimen.slidingmenu_offset);
-        menu.setFadeDegree(0.35f);
-        menu.attachToActivity(this, SlidingMenu.SLIDING_CONTENT);
-        menu.setMenu(R.layout.menu_frame);
+//        menu = new SlidingMenu(this);
+//        menu.setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
+//        menu.setShadowWidthRes(R.dimen.shadow_width);
+//        menu.setShadowDrawable(R.drawable.shadow);
+//        menu.setBehindOffsetRes(R.dimen.slidingmenu_offset);
+//        menu.setFadeDegree(0.35f);
+//        menu.attachToActivity(this, SlidingMenu.SLIDING_CONTENT);
+//        menu.setMenu(R.layout.menu_frame);
     }
 
 //    @Override

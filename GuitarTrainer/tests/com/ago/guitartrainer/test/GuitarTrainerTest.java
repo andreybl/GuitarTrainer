@@ -18,6 +18,7 @@ import java.util.List;
 import android.test.ActivityInstrumentationTestCase2;
 
 import com.ago.guitartrainer.GuitarTrainerActivity;
+import com.ago.guitartrainer.MasterActivity;
 import com.ago.guitartrainer.gridshapes.AlphaGridShape;
 import com.ago.guitartrainer.gridshapes.GridShape;
 import com.ago.guitartrainer.notation.Degree;
@@ -25,12 +26,12 @@ import com.ago.guitartrainer.notation.Note;
 import com.ago.guitartrainer.notation.Position;
 import com.jayway.android.robotium.solo.Solo;
 
-public class GuitarTrainerTest extends ActivityInstrumentationTestCase2<GuitarTrainerActivity> {
+public class GuitarTrainerTest extends ActivityInstrumentationTestCase2<MasterActivity> {
 
     private Solo solo;
 
     public GuitarTrainerTest() {
-        super(GuitarTrainerActivity.class);
+        super(MasterActivity.class);
 
     }
 
@@ -75,8 +76,8 @@ public class GuitarTrainerTest extends ActivityInstrumentationTestCase2<GuitarTr
         // expect [2/5], because only it is in the shape
         List<Position> inShape = gs.applyShape(positions);
         assertEquals(1, inShape.size());
-        assertEquals(2, inShape.get(0).string);
-        assertEquals(4, inShape.get(0).fret);
+        assertEquals(2, inShape.get(0).getStringIndex());
+        assertEquals(4, inShape.get(0).getFret());
     }
 
     // public void testAddNote() throws Exception {

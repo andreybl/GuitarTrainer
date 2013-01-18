@@ -142,7 +142,7 @@ public abstract class GridShape {
         int noteFret = 0;
         outerloop: for (int i = 0; i <= 12; i++) {
             for (int j = 0; j < rootStrings.length; j++) {
-                Note n = notes.resolveNote(rootStrings[j], i);
+                Note n = notes.resolveNote(new Position(rootStrings[j]+1, i));
                 if (n == key) {
                     noteFret = i;
                     break outerloop;
@@ -169,7 +169,7 @@ public abstract class GridShape {
 
         List<Note> results = new ArrayList<Note>();
         for (Position pos : positions) {
-            Note n = notes.resolveNote(pos.string, pos.fret); // +fretShifts
+            Note n = notes.resolveNote(pos); // +fretShifts
             results.add(n);
         }
 
@@ -186,7 +186,7 @@ public abstract class GridShape {
         List<Position> positions = new ArrayList<Position>();
 
         for (Position position : degreeToPosition.get(degree)) {
-            positions.add(new Position(position.string, position.fret)); // +fretShifts
+            positions.add(new Position(position.getStringIndex(), position.getFret())); // +fretShifts
         }
 
         return positions;
@@ -199,7 +199,7 @@ public abstract class GridShape {
             if (ArrayUtils.inArray(d, degreesStrong)) {
                 List<Position> origPositions = degreeToPosition.get(d);
                 for (Position origPosition : origPositions) {
-                    positions.add(new Position(origPosition.string, origPosition.fret)); // +fretShifts
+                    positions.add(new Position(origPosition.getStringIndex(), origPosition.getFret())); // +fretShifts
                 }
 
             }
@@ -243,7 +243,7 @@ public abstract class GridShape {
         // int startInclFret = 0 + fretShifts;
 
         for (Position position : positions) {
-            if (position.fret >= startingFret && position.fret <= endingFret) {
+            if (position.getFret() >= startingFret && position.getFret() <= endingFret) {
                 Degree d = positionToDegree.get(position);
                 if (d.isStrong()) {
                     projected.add(position);

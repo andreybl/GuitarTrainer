@@ -15,7 +15,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
@@ -24,7 +23,6 @@ import com.ago.guitartrainer.events.INoteEventListener;
 import com.ago.guitartrainer.events.NotePlayingEvent;
 import com.ago.guitartrainer.lessons.AnswerEvaluator;
 import com.ago.guitartrainer.notation.NoteStave;
-import com.ago.guitartrainer.ui.FretImageView;
 
 /**
  * An activity which controls the pitch detection continuously and presents the results of detection.
@@ -47,7 +45,7 @@ public class GuitarTrainerActivity extends Activity {
     
     public TextView txtLessonResults;
 
-    public FretImageView fretImageView;
+//    public FretImageView fretImageView;
 
     private SeekBar sbarFretSelection;
 
@@ -61,7 +59,7 @@ public class GuitarTrainerActivity extends Activity {
         txtPlayNote = (TextView) findViewById(R.id.txt_playnote);
         txtLessonResults = (TextView) findViewById(R.id.txt_lessonresults);
         btnStartLesson = (Button) findViewById(R.id.btn_start_lesson);
-        fretImageView = (FretImageView) findViewById(R.id.img_fretimageview);
+//        fretImageView = (FretImageView) findViewById(R.id.img_fretimageview);
         sbarFretSelection = (SeekBar) findViewById(R.id.sbar_fretselection);
 
         sbarFretSelection.setMax(12);
