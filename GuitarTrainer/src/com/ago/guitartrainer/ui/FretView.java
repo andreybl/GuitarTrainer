@@ -1,5 +1,6 @@
 package com.ago.guitartrainer.ui;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,14 +15,63 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.RadioGroup.OnCheckedChangeListener;
 
+import com.ago.guitartrainer.PitchDetector;
 import com.ago.guitartrainer.R;
+import com.ago.guitartrainer.events.INoteEventListener;
+import com.ago.guitartrainer.events.NotePlayingEvent;
+import com.ago.guitartrainer.events.OnViewSelectionListener;
 import com.ago.guitartrainer.gridshapes.GridShape;
+import com.ago.guitartrainer.midi.FFTPitchDetectorListener;
+import com.ago.guitartrainer.midi.PitchDetectorPhase;
+import com.ago.guitartrainer.notation.Note;
+import com.ago.guitartrainer.notation.NoteStave;
 import com.ago.guitartrainer.notation.Position;
 
+/**
+ * The view with a fret of a guitar. Consists of the fret image and some control widgets arround it.
+ * 
+ * One of the controls is a switch between mode of input for the view:
+ * <ul>
+ * <li>manual input - the positions are input'ed by touching the image of the fret
+ * <li>sound input - the app listens for sound, detect the frequency, transform it to position(-s)
+ * <li>
+ * </ul>
+ * 
+ * @author Andrej Golovko - jambit GmbH
+ * 
+ */
 public class FretView extends LinearLayout {
 
     private FretImageView fretImageView;
+
+    private RadioGroup radioGroup;
+
+    /** ImageView's used to represent the status of the FFT */
+    private ImageView imgStatusRunning;
+    private ImageView imgStatusSampling;
+    private ImageView imgStatusDoFFT;
+    private ImageView imgStatusFFTAnalyze;
+
+    /**
+     * mapping from pitch detection phase to the image representing this phase.
+     * 
+     * The image has two colors: gray color (phase is not active) and any other color (phase is active). For instance,
+     * the active {@link PitchDetectorPhase#PITCH_DETECTION} phase is presented by the red square.
+     * 
+     * */
+    private Map<PitchDetectorPhase, ImageView> phase2Image = new HashMap<PitchDetectorPhase, ImageView>();
+
+    /**
+     * 
+     * The listeners which are notified when a note is selected. The note can be selected in two modes: either in manual
+     * (touch on screen) or in sound-sampling mode (playing on guitar).
+     * 
+     * */
+    private List<OnViewSelectionListener<NotePlayingEvent>> listeners = new ArrayList<OnViewSelectionListener<NotePlayingEvent>>();
 
     public FretView(Context context) {
         super(context);
@@ -45,6 +95,32 @@ public class FretView extends LinearLayout {
         View mainLayout = ((Activity) getContext()).getLayoutInflater().inflate(R.layout.fret_view, this, true);
 
         fretImageView = (FretImageView) mainLayout.findViewById(R.id.img_fretimageview);
+        fretImageView.registerFretView(this);
+
+        radioGroup = (RadioGroup) mainLayout.findViewById(R.id.rb_group_lessons);
+
+        /*
+         * TODO: read here previous state from SharedPreferences, set button appropriately.
+         * 
+         * Also, if rb_lesson2 selected - start the sound input mode
+         */
+
+        RadioButton rbLesson1 = (RadioButton) mainLayout.findViewById(R.id.rb_lesson1);
+        rbLesson1.setChecked(true);
+
+        imgStatusRunning = (ImageView) mainLayout.findViewById(R.id.pitchdetector_status_running);
+        imgStatusSampling = (ImageView) mainLayout.findViewById(R.id.pitchdetector_status_sampling);
+        imgStatusDoFFT = (ImageView) mainLayout.findViewById(R.id.pitchdetector_status_dofft);
+        imgStatusFFTAnalyze = (ImageView) mainLayout.findViewById(R.id.pitchdetector_status_fftanalyze);
+
+        // register images for each phase
+        phase2Image.put(PitchDetectorPhase.PITCH_DETECTION, imgStatusRunning);
+        phase2Image.put(PitchDetectorPhase.AUDIO_SAMPLING, imgStatusSampling);
+        phase2Image.put(PitchDetectorPhase.DO_FFT, imgStatusDoFFT);
+        phase2Image.put(PitchDetectorPhase.ANALYZE_FFT, imgStatusFFTAnalyze);
+
+        InnerOnInputModeChangedListener innerOnRadioListener = new InnerOnInputModeChangedListener();
+        radioGroup.setOnCheckedChangeListener(innerOnRadioListener);
 
         // TODO: register listeners for the fretImageView or for the current view
 
@@ -60,14 +136,134 @@ public class FretView extends LinearLayout {
         fretImageView.invalidate();
     }
 
+    private void notifyListeners(NotePlayingEvent npe) {
+        for (OnViewSelectionListener<NotePlayingEvent> listener : listeners) {
+            listener.onViewElementSelected(npe);
+        }
+    }
+
+    public void registerListener(OnViewSelectionListener<NotePlayingEvent> listener) {
+        listeners.add(listener);
+    }
+    
     /*
      * **** INNER CLASSES
      */
-    private class InnerOnClickListener implements OnClickListener {
+
+    private Thread pitchDetectorThread;
+
+    private class InnerFFTPitchDetectorListener implements FFTPitchDetectorListener {
+
+        // long tstStartReading = 0;
+        // long tstEndReading = 0;
+        // long tstStartAnalyzis = 0;
+        // long tstEndAnalyzis = 0;
+        // Log.d(TAG, "Timing: " + (tstEndReading - tstStartReading) + ", " + (tstEndAnalyzis - tstStartAnalyzis));
 
         @Override
-        public void onClick(View v) {
-            System.out.println("xxx");
+        public void startedPhase(final PitchDetectorPhase phase) {
+
+            Activity activity = (Activity) getContext();
+            activity.runOnUiThread(new Runnable() {
+
+                @Override
+                public void run() {
+                    ImageView imageView = phase2Image.get(phase);
+                    imageView.setImageResource(R.drawable.icon_square_red);
+                }
+            });
+
+        }
+
+        @Override
+        public void finishedPhase(final PitchDetectorPhase phase) {
+            Activity activity = (Activity) getContext();
+            activity.runOnUiThread(new Runnable() {
+
+                @Override
+                public void run() {
+                    ImageView imageView = phase2Image.get(phase);
+                    imageView.setImageResource(R.drawable.icon_square_gray);
+                }
+            });
+
+        }
+    }
+
+    /**
+     * Listens for notes which were detected in FFT pitch detector.
+     * 
+     * The listener is used only when the pitch detector is running. With help of this listener the note received from
+     * FFT pitch detector is:
+     * <ul>
+     * <li>visualized on the fret as a (several) dots
+     * <li>re-fired to listeners registered on FretView
+     * </ul>
+     * 
+     * @author Andrej Golovko - jambit GmbH
+     * 
+     */
+    private class InnerNotesListener implements INoteEventListener {
+
+        @Override
+        public void noteStateChanged(NotePlayingEvent e) {
+            NoteStave noteStave = NoteStave.getInstance();
+            List<Position> positions = noteStave.resolvePositions(e.note);
+            fretImageView.clear();
+            fretImageView.showOnFret(Color.BLUE, positions);
+            fretImageView.draw();
+
+            notifyListeners(e);
+            // TODO: re-fire, position actually can, but must not be included.
+        }
+
+    }
+
+    /**
+     * Listens on clicks on radio buttons for input selection mode.
+     * 
+     * @author Andrej Golovko - jambit GmbH
+     * 
+     */
+    public class InnerOnInputModeChangedListener implements OnCheckedChangeListener {
+
+        @Override
+        public void onCheckedChanged(RadioGroup group, int checkedId) {
+            if (group == radioGroup) {
+                switch (checkedId) {
+                case R.id.rb_lesson1:
+                    // manual input mode
+                    if (pitchDetectorThread != null && pitchDetectorThread.isAlive())
+                        pitchDetectorThread.interrupt();
+
+                    fretImageView.clear();
+                    break;
+                case R.id.rb_lesson2:
+                    /*-
+                     * sound input mode
+                     * 
+                     * The notes are inputed with help of the guitar itself. Two listeners are registered on FFT
+                     * detector: 
+                     *     - one listens for notes detected, 
+                     *     - another listens for FFT detector internals phases
+                     *     
+                     * Both events are used for visualization:
+                     *     - notes are transformed to positions and are shown
+                     *     - FFT detector phases are visualized with dots
+                     */
+                    FFTPitchDetectorListener innerFFTListener = new InnerFFTPitchDetectorListener();
+                    INoteEventListener innerNotesListener = new InnerNotesListener();
+                    PitchDetector pd = new PitchDetector(innerFFTListener);
+                    pd.registerNotesListener(innerNotesListener);
+                    pitchDetectorThread = new Thread(pd);
+                    fretImageView.clear();
+                    pitchDetectorThread.start();
+                    break;
+
+                default:
+                    break;
+                }
+            }
         }
     }
 
@@ -95,28 +291,30 @@ public class FretView extends LinearLayout {
      * @author Andrej Golovko - jambit GmbH
      * 
      */
-    // TODO: introduce the Visitor patter, where the logic of drawing is incapsulated in a class
+    // TODO: introduce the Visitor patter, where the logic of drawing is encapsulated in a class
     public static class FretImageView extends ImageView {
 
         /*
-         * Note: the coordinates for the @drawable/guitar_12_frets image 
+         * Note: the coordinates for the @drawable/guitar_12_frets image
          * 
          * private int[] midlesOfFrets = new int[] { 40, 116, 229, 343, 453, 553, 650, 743, 831, 912, 991, 1074, 1151 };
          * private int[] midlesOfStrings = new int[] { 22, 52, 82, 109, 139, 169 };
          */
 
-        /* 
+        /*
          * 
-         * the coordinates for @drawable/guitar_12_frets_50percent image 
+         * the coordinates for @drawable/guitar_12_frets_50percent image
          * 
          * Note that the 0-position of midlesOfFrest must be the middle of the 0-fret
-         * */ 
+         */
         private int[] midlesOfFrets = new int[] { 38, 100, 200, 300, 400, 484, 573, 650, 743, 731, 804, 873, 942, 1012 };
         private int[] midlesOfStrings = new int[] { 22, 42, 69, 96, 122, 149 };
 
-        
         /** paint object used to draw on the canvas */
         Paint paint = new Paint();
+
+        // associated parent fretView
+        private FretView fretView;
 
         /* x-coordinate of the touch on the screen */
         private int x;
@@ -128,6 +326,10 @@ public class FretView extends LinearLayout {
 
         public FretImageView(Context context) {
             super(context);
+        }
+
+        public void registerFretView(FretView fv) {
+            this.fretView = fv;
         }
 
         public FretImageView(Context context, AttributeSet attrs) {
@@ -155,11 +357,58 @@ public class FretView extends LinearLayout {
 
         @Override
         public boolean dispatchTouchEvent(MotionEvent event) {
+            // x - for frets
             x = (int) event.getX();
+
+            // y - for strings
             y = (int) event.getY();
-            System.out.println("IMAGE:" + x + ";" + y);
-            invalidate();
+
+            /*
+             * resolve the best match of fret and string for the current touch, use it to resolve position.
+             * 
+             * These steps are required to draw the user touches snapped to the fret/string.
+             */
+            int xClosest = indexOfClosest(x, midlesOfFrets);
+            int yClosest = indexOfClosest(y, midlesOfStrings);
+
+            Position pos = new Position(yClosest + 1, xClosest);
+            clear();
+            showOnFret(Color.RED, pos);
+            draw();
+
+            Note note = NoteStave.getInstance().resolveNote(pos);
+            NotePlayingEvent npe = new NotePlayingEvent(note, pos);
+            if (fretView != null)
+                fretView.notifyListeners(npe);
             return true;
+        }
+
+        /**
+         * Calculated the index of the closest match for <code>values</code> inside of the <code>values</code> array.
+         * 
+         * For example, for find="34" and values=(12, 33, 51) the returned values must equal 1 (index of 33).
+         * 
+         * @param find
+         *            is the value to be matched
+         * @param values
+         *            is the array to look search through
+         * @return index of best match
+         */
+        private int indexOfClosest(int find, int... values) {
+            int closest = values[0];
+            int indexOfClosest = 0;
+
+            int distance = Math.abs(closest - find);
+            for (int index = 0; index < values.length; index++) {
+                int val = values[index];
+                int distanceI = Math.abs(val - find);
+                if (distance > distanceI) {
+                    closest = val;
+                    indexOfClosest = index;
+                    distance = distanceI;
+                }
+            }
+            return indexOfClosest;
         }
 
         protected void showOnFret(int color, GridShape... gridShape) {
@@ -184,12 +433,28 @@ public class FretView extends LinearLayout {
         }
 
         public void draw() {
-            invalidate();
+            Activity ctx = (Activity) getContext();
+            ctx.runOnUiThread(new Runnable() {
+
+                @Override
+                public void run() {
+                    invalidate();
+                }
+            });
+
         }
 
         public void clear() {
-            positionsAndColor.clear();
-            invalidate();
+            Activity ctx = (Activity) getContext();
+            ctx.runOnUiThread(new Runnable() {
+
+                @Override
+                public void run() {
+                    positionsAndColor.clear();
+                    invalidate();
+                }
+            });
+
         }
     }
 }

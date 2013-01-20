@@ -17,7 +17,7 @@ import com.ago.guitartrainer.lessons.ILesson;
 
 public class MainFragment extends Fragment {
 
-    private Button btnSideOutMenu;
+//    private Button btnSideOutMenu;
 
     private Button btnSelectLessonDialog;
 
@@ -57,7 +57,7 @@ public class MainFragment extends Fragment {
         tvLessonStatus = (TextView) mainLayout.findViewById(R.id.tv_lesson_status);
         /* End: custom views: fret/shape/notes etc. */
 
-        btnSideOutMenu = (Button) mainLayout.findViewById(R.id.btn_sideout_menu);
+//        btnSideOutMenu = (Button) mainLayout.findViewById(R.id.btn_sideout_menu);
 
         OnClickListener innerOnClickListener = new InnerOnClickListener();
 
@@ -76,7 +76,7 @@ public class MainFragment extends Fragment {
         btnNextLesson.setEnabled(false);
         btnStopLesson.setEnabled(false);
 
-        btnSideOutMenu.setOnClickListener(innerOnClickListener);
+//        btnSideOutMenu.setOnClickListener(innerOnClickListener);
         /* end: buttons for lesson control */
 
 //        btnSideOutMenu = (Button) mainLayout.findViewById(R.id.btn_sideout_menu);

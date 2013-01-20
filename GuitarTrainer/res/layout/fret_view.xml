@@ -4,19 +4,90 @@
     android:layout_height="fill_parent"
     android:orientation="horizontal" >
 
-    <Button
-        android:id="@+id/btn_sideout_menu"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text=">" />
+        android:orientation="horizontal" >
 
-    <!-- I user "class" here to be able to use inner class for a view -->
-    <view xmlns:android="http://schemas.android.com/apk/res/android"
-        class="com.ago.guitartrainer.ui.FretView$FretImageView"
-        android:id="@+id/img_fretimageview"
+        <RadioGroup
+            android:id="@+id/rb_group_lessons"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+
+            <RadioButton
+                android:id="@+id/rb_lesson1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="" />
+
+            <RadioButton
+                android:id="@+id/rb_lesson2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="" />
+        </RadioGroup>
+    </LinearLayout>
+
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:adjustViewBounds="false"
-        android:src="@drawable/guitar_12_frets_50percent" />
+        android:orientation="vertical" >
+
+        <!-- I user "class" here to be able to use inner class for a view -->
+
+        <view
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/img_fretimageview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            class="com.ago.guitartrainer.ui.FretView$FretImageView"
+            android:adjustViewBounds="false"
+            android:src="@drawable/guitar_12_frets_50percent" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <ImageView
+                android:id="@+id/pitchdetector_status_running"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/icon_square_gray" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/icon_square_transparent" />
+
+            <ImageView
+                android:id="@+id/pitchdetector_status_sampling"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/icon_square_gray" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/icon_square_transparent" />
+
+            <ImageView
+                android:id="@+id/pitchdetector_status_dofft"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/icon_square_gray" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/icon_square_transparent" />
+
+            <ImageView
+                android:id="@+id/pitchdetector_status_fftanalyze"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/icon_square_gray" />
+        </LinearLayout>
+    </LinearLayout>
 
 </LinearLayout>

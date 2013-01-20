@@ -11,7 +11,6 @@
 package com.ago.guitartrainer;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -20,17 +19,21 @@ import java.util.List;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder.AudioSource;
-import android.sax.StartElementListener;
 import android.util.Log;
 
 import com.ago.guitartrainer.events.INoteEventListener;
 import com.ago.guitartrainer.events.NoteEventType;
 import com.ago.guitartrainer.events.NotePlayingEvent;
+import com.ago.guitartrainer.midi.FFTPitchDetectorListener;
+import com.ago.guitartrainer.midi.PitchDetectorPhase;
 import com.ago.guitartrainer.notation.Note;
 import com.ago.guitartrainer.notation.NoteStave;
 
 /**
- * The thread, in pich the pitch detection takes place
+ * The thread, where the pitch detection takes place.
+ * 
+ * IMPORTANT: leave the class in the current packages. The name of pack and name of JNI function must correspond to each
+ * other.
  * 
  * @author Andrej Golovko - jambit GmbH
  * 
@@ -38,6 +41,22 @@ import com.ago.guitartrainer.notation.NoteStave;
 public class PitchDetector implements Runnable {
 
     private final String TAG = "GuitarTrainer";
+
+    /**
+     * listener for internal phases of the pitch detection. It is usually implemented by the view, which can visualize
+     * the phases of the {@link PitchDetector}.
+     */
+    private FFTPitchDetectorListener phasesListener;
+
+    /**
+     * 
+     * listeners for the results of pitch detector.
+     * 
+     * The listeners are notified, only if some note was detected. The {@link #phasesListener} on the other hand is
+     * notified all time during the pitch detector runs.
+     * 
+     * */
+    private List<INoteEventListener> listeners = new ArrayList<INoteEventListener>();
 
     // Currently, only this combination of rate, encoding and channel mode
     // actually works.
@@ -58,8 +77,6 @@ public class PitchDetector implements Runnable {
 
     private AudioRecord recorder_;
 
-    private List<INoteEventListener> listeners = new ArrayList<INoteEventListener>();
-
     /**
      * 
      * Taken from which took it from Numerical Recipes in C++, p.513
@@ -78,8 +95,23 @@ public class PitchDetector implements Runnable {
      **/
     public native void DoFFT(double[] data, int size);
 
+    /**
+     * @deprecated
+     * */
     public PitchDetector() {
         System.loadLibrary("jni");
+    }
+
+    /**
+     * Pitch detector initialized with a view, which can be used to visualize the pitch detector activities.
+     * 
+     * @param view
+     *            to be used by the pitch detector, can be null
+     */
+    public PitchDetector(FFTPitchDetectorListener view) {
+        System.loadLibrary("jni");
+
+        this.phasesListener = view;
     }
 
     private Note prevNote = null;
@@ -116,34 +148,28 @@ public class PitchDetector implements Runnable {
          */
         double[] data = new double[CHUNK_SIZE_IN_SAMPLES * 2];
 
-        long tstStartReading = 0;
-        long tstEndReading = 0;
-        long tstStartAnalyzis = 0;
-        long tstEndAnalyzis = 0;
-
+        phasesListener.startedPhase(PitchDetectorPhase.PITCH_DETECTION);
         while (!Thread.interrupted()) {
 
-            tstStartReading = System.currentTimeMillis();
+            phasesListener.startedPhase(PitchDetectorPhase.AUDIO_SAMPLING);
 
-            // read audion stream in
+            // make a sample of audio stream
             recorder_.startRecording();
             recorder_.read(audio_data, 0, CHUNK_SIZE_IN_BYTES / 2);
             recorder_.stop();
-
-            tstEndReading = System.currentTimeMillis();
-
-            tstStartAnalyzis = System.currentTimeMillis();
 
             for (int i = 0; i < CHUNK_SIZE_IN_SAMPLES; i++) {
                 data[i * 2] = audio_data[i];
                 data[i * 2 + 1] = 0;
             }
+            phasesListener.finishedPhase(PitchDetectorPhase.AUDIO_SAMPLING);
 
-            /*-
-             * do FFT, put results into "data"
-             */
+            // do FFT, put results into "data"
+            phasesListener.startedPhase(PitchDetectorPhase.DO_FFT);
             DoFFT(data, CHUNK_SIZE_IN_SAMPLES);
+            phasesListener.finishedPhase(PitchDetectorPhase.DO_FFT);
 
+            phasesListener.startedPhase(PitchDetectorPhase.ANALYZE_FFT);
             // cache the raw amplitude for each frequency
             HashMap<Double, Double> freqToAmpli = new HashMap<Double, Double>();
 
@@ -172,7 +198,7 @@ public class PitchDetector implements Runnable {
                 freqToAmpli.put(freqOfSlot, ampliOfSlot);
                 freqToNormAmpli.put(freqOfSlot, Math.pow(ampliOfSlot, 0.5) / freqStep + sumForSlot);
 
-            }
+            } // for, min..max frequency fft
 
             List<Double> amplitudesNormalized = new ArrayList<Double>();
             for (Double v : freqToNormAmpli.values()) {
@@ -220,26 +246,25 @@ public class PitchDetector implements Runnable {
             Note note = noteScale.resolveNote(pitch);
 
             if (ampliNorm > 200000) {
-                if (note != null && !(note.equals("D2di") || note.equals("F5"))) {
-                    if (prevNote == null || !(prevNote.equals(note))) {
-                        NotePlayingEvent e = new NotePlayingEvent(note, pitch, ampliNorm,
-                                NoteEventType.NOTE_PLAY_STARTED, System.currentTimeMillis());
+                if (note != null) {
+                    if (note.equals("D2di") || note.equals("F5")) {
+                        // DO NOTHING: pitches outside of the guitar playing range
+                    } else {
+                        if (prevNote == null || !(prevNote.equals(note))) {
+                            NotePlayingEvent e = new NotePlayingEvent(note, pitch, ampliNorm,
+                                    NoteEventType.NOTE_PLAY_STARTED, System.currentTimeMillis());
 
-                        Log.d(TAG,
-                                "NOTIFIED pitch=" + pitch + ", norm.ampli=" + ampliNorm + ", ampli="
-                                        + freqToAmpli.get(pitch));
-
-                        notifyListener(e);
+                            notifyListener(e);
+                        }
                     }
                 }
             }
-            
 
-            tstEndAnalyzis = System.currentTimeMillis();
+            phasesListener.finishedPhase(PitchDetectorPhase.ANALYZE_FFT);
 
-            Log.d(TAG, "Timing: " + (tstEndReading - tstStartReading) + ", " + (tstEndAnalyzis - tstStartAnalyzis));
+        } // while, !Thread.interrupted()
 
-        }
+        phasesListener.finishedPhase(PitchDetectorPhase.PITCH_DETECTION);
     }
 
     private void notifyListener(NotePlayingEvent e) {
@@ -251,7 +276,7 @@ public class PitchDetector implements Runnable {
         }
     }
 
-    public void addNoteStateChangedListener(INoteEventListener listener) {
+    public void registerNotesListener(INoteEventListener listener) {
         this.listeners.add(listener);
     }
 

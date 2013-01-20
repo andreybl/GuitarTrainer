@@ -114,6 +114,7 @@ public class SimpleLesson implements ILesson {
         counter++;
 
         fretView.clearFret();
+        
         MainFragment.getInstance().getActivity().runOnUiThread(new Runnable() {
 
             @Override

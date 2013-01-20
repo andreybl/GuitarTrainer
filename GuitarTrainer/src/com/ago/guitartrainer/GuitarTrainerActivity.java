@@ -78,7 +78,7 @@ public class GuitarTrainerActivity extends Activity {
         super.onStart();
         PitchDetector pitchDetector = new PitchDetector();
 
-        pitchDetector.addNoteStateChangedListener(new InnerNotesListener());
+        pitchDetector.registerNotesListener(new InnerNotesListener());
 
         threadPitchDetector = new Thread(pitchDetector);
         threadPitchDetector.start();
