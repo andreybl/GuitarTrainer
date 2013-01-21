@@ -11,6 +11,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.AttributeSet;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
@@ -48,13 +49,18 @@ public class FretView extends LinearLayout {
 
     private FretImageView fretImageView;
 
-    private RadioGroup radioGroup;
+    /** radio groupd for selection between two input modes: either manual or by playing guitar */
+    private RadioGroup rgInputMode;
 
     /** ImageView's used to represent the status of the FFT */
     private ImageView imgStatusRunning;
     private ImageView imgStatusSampling;
     private ImageView imgStatusDoFFT;
     private ImageView imgStatusFFTAnalyze;
+
+    private LinearLayout mainLayout;
+
+    private Activity currentContext;
 
     /**
      * mapping from pitch detection phase to the image representing this phase.
@@ -92,12 +98,14 @@ public class FretView extends LinearLayout {
     }
 
     private void init() {
-        View mainLayout = ((Activity) getContext()).getLayoutInflater().inflate(R.layout.fret_view, this, true);
+        currentContext = (Activity) getContext();
+        LayoutInflater inflater = (currentContext).getLayoutInflater();
+        mainLayout = (LinearLayout) inflater.inflate(R.layout.fret_view, this, true);
 
         fretImageView = (FretImageView) mainLayout.findViewById(R.id.img_fretimageview);
         fretImageView.registerFretView(this);
 
-        radioGroup = (RadioGroup) mainLayout.findViewById(R.id.rb_group_lessons);
+        rgInputMode = (RadioGroup) mainLayout.findViewById(R.id.rb_group_lessons);
 
         /*
          * TODO: read here previous state from SharedPreferences, set button appropriately.
@@ -120,7 +128,7 @@ public class FretView extends LinearLayout {
         phase2Image.put(PitchDetectorPhase.ANALYZE_FFT, imgStatusFFTAnalyze);
 
         InnerOnInputModeChangedListener innerOnRadioListener = new InnerOnInputModeChangedListener();
-        radioGroup.setOnCheckedChangeListener(innerOnRadioListener);
+        rgInputMode.setOnCheckedChangeListener(innerOnRadioListener);
 
         // TODO: register listeners for the fretImageView or for the current view
 
@@ -142,10 +150,50 @@ public class FretView extends LinearLayout {
         }
     }
 
+    // TODO: subject for interface/superclass
     public void registerListener(OnViewSelectionListener<NotePlayingEvent> listener) {
         listeners.add(listener);
     }
-    
+
+    // private boolean isParameter = false;
+
+    // // TODO: subject for interface/superclass
+    // public void isParameter(boolean isParam) {
+    // this.isParameter = isParam;
+    // // TODO: enable child views
+    // // TODO: change highlighting
+    // if (isParameter) {
+    // int bgColorId = getResources().getColor(R.color.orange);
+    // mainLayout.setBackgroundColor(bgColorId);
+    // fretImageView.setEnabled(true);
+    // rgInputMode.setEnabled(true);
+    // } else {
+    // int bgColorId = getResources().getColor(R.color.black);
+    // mainLayout.setBackgroundColor(bgColorId);
+    // fretImageView.setEnabled(false);
+    // rgInputMode.setEnabled(false);
+    //
+    // // TODO: stop FFT pitch detector
+    // }
+    // }
+
+    @Override
+    public void setEnabled(boolean enabled) {
+        rgInputMode.setEnabled(enabled);
+        rgInputMode.getChildAt(0).setEnabled(enabled);
+        rgInputMode.getChildAt(1).setEnabled(enabled);
+
+        fretImageView.setEnabled(enabled);
+
+        if (!enabled) {
+            if (pitchDetectorThread != null && pitchDetectorThread.isAlive())
+                pitchDetectorThread.interrupt();
+        }
+        
+        super.setEnabled(enabled);
+
+    }
+
     /*
      * **** INNER CLASSES
      */
@@ -214,7 +262,6 @@ public class FretView extends LinearLayout {
             fretImageView.draw();
 
             notifyListeners(e);
-            // TODO: re-fire, position actually can, but must not be included.
         }
 
     }
@@ -229,7 +276,7 @@ public class FretView extends LinearLayout {
 
         @Override
         public void onCheckedChanged(RadioGroup group, int checkedId) {
-            if (group == radioGroup) {
+            if (group == rgInputMode) {
                 switch (checkedId) {
                 case R.id.rb_lesson1:
                     // manual input mode
@@ -357,6 +404,15 @@ public class FretView extends LinearLayout {
 
         @Override
         public boolean dispatchTouchEvent(MotionEvent event) {
+
+            if (!fretView.isEnabled()) {
+                /*
+                 * ignore all touch events, if the view is disabled. We assume the view is disabled exactly when the
+                 * fretView is disabled.
+                 */
+                return true;
+            }
+
             // x - for frets
             x = (int) event.getX();
 
@@ -442,6 +498,16 @@ public class FretView extends LinearLayout {
                 }
             });
 
+        }
+
+        @Override
+        public void setEnabled(boolean enabled) {
+            if (!enabled)
+                setImageResource(R.drawable.guitar_12_frets_50percent_gray);
+            else
+                setImageResource(R.drawable.guitar_12_frets_50percent);
+
+            super.setEnabled(enabled);
         }
 
         public void clear() {

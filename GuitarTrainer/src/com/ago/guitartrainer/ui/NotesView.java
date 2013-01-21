@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import android.app.Activity;
 import android.content.Context;
@@ -207,6 +208,43 @@ public class NotesView extends LinearLayout {
         }
     }
 
+    private int lastSelectedNoteDrawable = -1;
+
+    @Override
+    public void setEnabled(boolean enabled) {
+        Set<Button> keyButtons = btn2Key.keySet();
+        for (Button button : keyButtons) {
+            button.setEnabled(enabled);
+        }
+
+        Set<Button> octaveButtons = btn2Octave.keySet();
+        for (Button button : octaveButtons) {
+            button.setEnabled(enabled);
+        }
+
+        if (!enabled) {
+            /*
+             * when disabling, cache the ID of the drawable for last note.
+             * 
+             * for some reason we can not get it from ImageView - eg. not imgNote.getImageResource(), so we use a
+             * workarround.
+             */
+            Note selectedNote = NoteStave.getInstance().resolveNote(selectedKey, selectedOctave);
+            lastSelectedNoteDrawable = note2DrawableId.get(selectedNote);
+
+            imgNote.setImageResource(R.drawable.note_disabled);
+        } else {
+            if (lastSelectedNoteDrawable > 0) {
+                imgNote.setImageResource(lastSelectedNoteDrawable);
+            }
+        }
+
+        super.setEnabled(enabled);
+    }
+
+    /*
+     * **** INNER CLASSES
+     */
     private class OctaveOnClickListener implements OnClickListener {
 
         @Override

@@ -2,17 +2,17 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:background="@color/red"
     android:orientation="vertical" >
 
     <TextView
-        android:id="@+id/textView1"
+        android:id="@+id/txt_view_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Degrees"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <GridLayout
+        android:id="@+id/grid_for_buttons"
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

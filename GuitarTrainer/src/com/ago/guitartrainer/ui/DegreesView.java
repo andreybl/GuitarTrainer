@@ -2,13 +2,16 @@ package com.ago.guitartrainer.ui;
 
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.Set;
 
 import android.app.Activity;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.Button;
+import android.widget.GridLayout;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.ago.guitartrainer.R;
 import com.ago.guitartrainer.notation.Degree;
@@ -16,6 +19,14 @@ import com.ago.guitartrainer.notation.Degree;
 public class DegreesView extends LinearLayout {
 
     private Map<Button, Degree> btn2Degree = new Hashtable<Button, Degree>();
+
+    /** title of the view */
+    private TextView tvViewTitle;
+
+    /** grid layout, where buttons are located */
+    private GridLayout gridForButtons;
+
+    private View mainLayout;
 
     public DegreesView(Context context) {
         super(context);
@@ -36,7 +47,11 @@ public class DegreesView extends LinearLayout {
     }
 
     private void init() {
-        View mainLayout = ((Activity) getContext()).getLayoutInflater().inflate(R.layout.degrees_view, this, true);
+        mainLayout = ((Activity) getContext()).getLayoutInflater().inflate(R.layout.degrees_view, this, true);
+
+        tvViewTitle = (TextView) mainLayout.findViewById(R.id.txt_view_title);
+
+        gridForButtons = (GridLayout) mainLayout.findViewById(R.id.grid_for_buttons);
 
         btn2Degree.put((Button) mainLayout.findViewById(R.id.degree_1), Degree.ONE);
         btn2Degree.put((Button) mainLayout.findViewById(R.id.degree_2), Degree.TWO);
@@ -63,6 +78,27 @@ public class DegreesView extends LinearLayout {
 
             System.out.println("Clicked: " + selected);
         }
+    }
+
+    @Override
+    public void setEnabled(boolean enabled) {
+        tvViewTitle.setEnabled(enabled);
+
+        /*- 
+         * 
+         * Note: no following calls here, they lead to recursion:
+         *        mainLayout.setEnabled(enabled);
+         *        setEnabled(enabled);
+         * 
+         */
+        Set<Button> btns = btn2Degree.keySet();
+        for (Button button : btns) {
+            button.setEnabled(enabled);
+        }
+
+        gridForButtons.setEnabled(enabled);
+        
+        super.setEnabled(enabled);
     }
 
 }

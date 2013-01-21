@@ -8,9 +8,11 @@ import com.ago.guitartrainer.events.OnViewSelectionListener;
 import com.ago.guitartrainer.notation.Note;
 import com.ago.guitartrainer.notation.NoteStave;
 import com.ago.guitartrainer.notation.Position;
+import com.ago.guitartrainer.ui.DegreesView;
 import com.ago.guitartrainer.ui.FretView;
 import com.ago.guitartrainer.ui.MainFragment;
 import com.ago.guitartrainer.ui.NotesView;
+import com.ago.guitartrainer.ui.ShapesView;
 import com.ago.guitartrainer.utils.LessonsUtils;
 
 /**
@@ -92,6 +94,16 @@ public class SimpleLesson implements ILesson {
         notesView = uiControls.getNotesView();
         tvLessonStatus = uiControls.getLessonStatusView();
 
+//        fretView.isParameter(true);
+        fretView.setEnabled(false);
+        notesView.setEnabled(false);
+        
+        DegreesView degreesView = uiControls.getDegreesView();
+        degreesView.setEnabled(false);
+        
+        ShapesView shapesView = uiControls.getShapestView();
+        shapesView.setEnabled(false);
+        
         OnViewSelectionListener<Note> onSelectionListener = new InnerOnSelectionListener();
         notesView.registerElementSelectedListener(onSelectionListener);
 
