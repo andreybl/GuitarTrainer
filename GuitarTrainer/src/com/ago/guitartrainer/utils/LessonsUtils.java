@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Random;
 
 import com.ago.guitartrainer.gridshapes.GridShape;
+import com.ago.guitartrainer.notation.Note;
+import com.ago.guitartrainer.notation.NoteStave;
 import com.ago.guitartrainer.notation.Position;
 
 public class LessonsUtils {
@@ -33,4 +35,5 @@ public class LessonsUtils {
         int i1 = random.nextInt(max - min + 1) + min;
         return i1;
     }
+
 }

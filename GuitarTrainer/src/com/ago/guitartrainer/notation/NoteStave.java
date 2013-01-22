@@ -1,14 +1,17 @@
 package com.ago.guitartrainer.notation;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import com.ago.guitartrainer.utils.MultiMap;
 
@@ -157,7 +160,8 @@ public class NoteStave {
                     mapNote2Positions.put(note, new ArrayList<Position>());
                 }
 
-                mapNote2Positions.get(note).add(new Position(iString, iFret));
+                int string = (iString+1);
+                mapNote2Positions.get(note).add(new Position(string, iFret));
             }
         }
 
@@ -207,14 +211,19 @@ public class NoteStave {
 
     }
 
+    private List<Note> notesOrdered = new ArrayList<Note>();
+
     private void registerNote(Note note) {
-        // TODO: add sorting to mapNote2Frequency, like it was once with the code:
-        // Map<Note, Double> tmp = new Hashtable<Note, Double>();
-        // mapNote2Frequency = new TreeMap(new ValueComparer(tmp));
-        // mapNote2Frequency.putAll(tmp);
 
         mapNote2Frequency.put(note, note.getPitch());
         mapKeyOctave2Note.put(note.getKey(), note.getOctave(), note);
+
+        /** IMPORTANT: assumption is, that the registerNote() is called on notes in ordered manner. */
+        /*
+         * TODO: the next() and previouse are using the notesOrdered. Implement them in a way, so that the notesOrdered
+         * are not required.
+         */
+        notesOrdered.add(note);
 
     }
 
@@ -263,7 +272,7 @@ public class NoteStave {
     }
 
     /**
-     * Resolve note on the guitar fret by indexing it with string and fret. 
+     * Resolve note on the guitar fret by indexing it with string and fret.
      * 
      * @return
      */
@@ -282,6 +291,45 @@ public class NoteStave {
         Note note = mapKeyOctave2Note.get(key, octave);
 
         return note;
+    }
+
+    /**
+     * Return the next note relative to the <code>note</code> passed as parameter.
+     * 
+     * For instance, the next to the A3 is A3di.
+     * 
+     * @param note relative to which the next note must be returned
+     * @return next note relative to parameter note
+     */
+    public Note next(Note note) {
+
+        int index = notesOrdered.indexOf(note);
+        int nextIndex = (index + 1);
+        Note next = note;
+        if (nextIndex < notesOrdered.size()) {
+            next = notesOrdered.get(nextIndex);
+        }
+
+        return next;
+    }
+
+    /**
+     * Return the previous note relative to the <code>note</code> passed as parameter.
+     * 
+     * For instance, the previous to the A3 is G3di.
+     * 
+     * @param note relative to which the previous note must be returned
+     * @return next note relative to parameter note
+     */
+    public Note previouse(Note note) {
+        int index = notesOrdered.indexOf(note);
+        int prevIndex = (index - 1);
+        Note next = note;
+        if (prevIndex >= 0) {
+            next = notesOrdered.get(prevIndex);
+        }
+
+        return next;
     }
 
 }

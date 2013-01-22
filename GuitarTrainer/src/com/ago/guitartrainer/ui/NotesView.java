@@ -11,6 +11,10 @@ import android.content.Context;
 import android.graphics.Color;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.GestureDetector.OnDoubleTapListener;
+import android.view.GestureDetector.OnGestureListener;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -55,6 +59,11 @@ public class NotesView extends LinearLayout {
     private Map<Button, Key> btn2Key = new Hashtable<Button, Key>();
 
     private Map<Button, Octave> btn2Octave = new Hashtable<Button, Octave>();
+
+    private GestureDetector gestures;
+
+    /** the note selected, must be in sync with {@link #selectedKey} and {@link #selectedOctave}. */
+    private Note selectedNote = Note.E2;
 
     /**
      * Listeners for the selections in current view.
@@ -143,7 +152,28 @@ public class NotesView extends LinearLayout {
                 btn.setTextColor(Color.GREEN);
         }
 
+        gestures = new GestureDetector(getContext(), new GestureListener());
+
         showNote(selectedKey, selectedOctave);
+    }
+    
+    public void showNote(Note note) {
+        showNote(note.getKey(), note.getOctave());
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        /**
+         * make the GestureDetector the final word in all touch events for this custom View. However, the
+         * GestureDetector doesn’t actually do anything with motion events, it simply recognizes them and makes a call
+         * to the registered GestureListener class.
+         */
+
+        /*
+         * TODO: if I touch the screen, hold it a second and only after that make a drawing - such kind of drawing seems
+         * NOT to be recognized as a gesture.
+         */
+        return gestures.onTouchEvent(event);
     }
 
     /**
@@ -155,19 +185,21 @@ public class NotesView extends LinearLayout {
     /*
      * TODO: the buttons must be colored correctly, for the case the showNote() is called outside of the view
      */
-    private void showNote(final Key selectedKey2, final Octave selectedOctave2) {
+    private void showNote(final Key key, final Octave octave) {
 
         Activity activity = (Activity) getContext();
         activity.runOnUiThread(new Runnable() {
 
             @Override
             public void run() {
-                Note selectedNote = NoteStave.getInstance().resolveNote(selectedKey, selectedOctave);
+                Note selectedNote = NoteStave.getInstance().resolveNote(key, octave);
                 if (selectedNote != null) {
-                    int idOfNoteDrawable = note2DrawableId.get(selectedNote);
-                    imgNote.setImageResource(idOfNoteDrawable);
+                    if (note2DrawableId.containsKey(selectedNote)) {
+                        int idOfNoteDrawable = note2DrawableId.get(selectedNote);
+                        imgNote.setImageResource(idOfNoteDrawable);
+                    }
                 } else {
-                    Log.w(TAG, "Failed to resolve image for: " + selectedKey2 + "/" + selectedOctave2);
+                    Log.w(TAG, "Failed to resolve image for: " + key + "/" + octave);
                 }
 
             }
@@ -190,13 +222,12 @@ public class NotesView extends LinearLayout {
 
             selectedKey = btn2Key.get(v);
 
-            Note selectedNote = NoteStave.getInstance().resolveNote(selectedKey, selectedOctave);
-
             showNote(selectedKey, selectedOctave);
 
             // TODO: maybe disable Octave buttons, which are not possible with selected Key
 
-            notifyListeners(selectedNote);
+            // Note selectedNote = NoteStave.getInstance().resolveNote(selectedKey, selectedOctave);
+            // notifyListeners(selectedNote);
         }
     }
 
@@ -227,7 +258,7 @@ public class NotesView extends LinearLayout {
              * when disabling, cache the ID of the drawable for last note.
              * 
              * for some reason we can not get it from ImageView - eg. not imgNote.getImageResource(), so we use a
-             * workarround.
+             * workaround.
              */
             Note selectedNote = NoteStave.getInstance().resolveNote(selectedKey, selectedOctave);
             lastSelectedNoteDrawable = note2DrawableId.get(selectedNote);
@@ -240,6 +271,10 @@ public class NotesView extends LinearLayout {
         }
 
         super.setEnabled(enabled);
+    }
+
+    public void registerElementSelectedListener(OnViewSelectionListener<Note> listener) {
+        listeners.add(listener);
     }
 
     /*
@@ -264,13 +299,91 @@ public class NotesView extends LinearLayout {
 
             // TODO: maybe disable Key buttons, which are not possible with selected Octave
 
-            Note selectedNote = NoteStave.getInstance().resolveNote(selectedKey, selectedOctave);
-            notifyListeners(selectedNote);
+            // Note selectedNote = NoteStave.getInstance().resolveNote(selectedKey, selectedOctave);
+            // notifyListeners(selectedNote);
         }
     }
 
-    public void registerElementSelectedListener(OnViewSelectionListener<Note> listener) {
-        listeners.add(listener);
-    }
+    private class GestureListener implements OnGestureListener, OnDoubleTapListener {
 
+        @Override
+        public boolean onDoubleTap(MotionEvent e) {
+            // TODO Auto-generated method stub
+            /*
+             * With double-tap the user confirm its selection.
+             * 
+             * The note visible as image is considered as being selected.
+             */
+            notifyListeners(selectedNote);
+
+            return true;
+        }
+
+        @Override
+        public boolean onDoubleTapEvent(MotionEvent e) {
+            // DO NOTHING
+            return false;
+        }
+
+        @Override
+        public boolean onSingleTapConfirmed(MotionEvent e) {
+            // DO NOTHING
+            return false;
+        }
+
+        @Override
+        public boolean onDown(MotionEvent e) {
+            /**
+             * the false from the isEnabled() results in no touch event is processed by the current GestureLiseter.
+             * 
+             * In other words, the touch on the screen take no effect.
+             **/
+            return isEnabled();
+        }
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            // TODO Auto-generated method stub
+            return false;
+        }
+
+        @Override
+        public void onLongPress(MotionEvent e) {
+            // TODO Auto-generated method stub
+
+        }
+
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            /**
+             * the method is called every time the user move the finger.
+             * 
+             * The MotionEvent.getY() returns the different to the touch position, which was the start of the gesture.
+             * The distanceY specify the direction of the gestures on the Y-axis.
+             */
+
+            if (e2.getY() > 2) {
+                if (distanceY > 0) {
+                    selectedNote = NoteStave.getInstance().next(selectedNote);
+                } else {
+                    selectedNote = NoteStave.getInstance().previouse(selectedNote);
+                }
+                NotesView.this.showNote(selectedNote.getKey(), selectedNote.getOctave());
+            }
+
+            return true;
+        }
+
+        @Override
+        public void onShowPress(MotionEvent e) {
+            // TODO Auto-generated method stub
+            
+        }
+
+        @Override
+        public boolean onSingleTapUp(MotionEvent e) {
+            // TODO Auto-generated method stub
+            return false;
+        }
+    }
 }

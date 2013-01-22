@@ -28,6 +28,15 @@ public class Position {
      *            of guitar in range 0..12
      */
     public Position(int string, int fret) {
+        if (string < 1 || string > 6) {
+            throw new IndexOutOfBoundsException("The \"string\" parameter of Position is wrong [min/max/current]: 1/6/"
+                    + string);
+        }
+        if (fret < 0 || fret > 12) {
+            throw new IndexOutOfBoundsException("The \"string\" parameter of Position is wrong [min/max/current]: 1/6/"
+                    + string);
+        }
+
         this.string = string;
         this.fret = fret;
     }

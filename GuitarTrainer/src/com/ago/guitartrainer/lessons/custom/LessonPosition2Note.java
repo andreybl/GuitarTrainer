@@ -1,10 +1,11 @@
-package com.ago.guitartrainer.lessons;
+package com.ago.guitartrainer.lessons.custom;
 
 import android.graphics.Color;
 import android.util.Log;
 import android.widget.TextView;
 
 import com.ago.guitartrainer.events.OnViewSelectionListener;
+import com.ago.guitartrainer.lessons.ILesson;
 import com.ago.guitartrainer.notation.Note;
 import com.ago.guitartrainer.notation.NoteStave;
 import com.ago.guitartrainer.notation.Position;
@@ -29,7 +30,7 @@ import com.ago.guitartrainer.utils.LessonsUtils;
  * 
  */
 
-public class SimpleLesson implements ILesson {
+public class LessonPosition2Note implements ILesson {
 
     private String TAG = "GT-SimpleLesson";
 
@@ -46,7 +47,7 @@ public class SimpleLesson implements ILesson {
 
     @Override
     public String getTitle() {
-        return getClass().getSimpleName();
+        return "Position 2 Note";
     }
 
     @Override
@@ -56,7 +57,7 @@ public class SimpleLesson implements ILesson {
     }
 
     @Override
-    public void start() {
+    public void prepareUi() {
         /*-
          * TODO:
          *   * highlight the fret as input (with red background)
@@ -94,16 +95,12 @@ public class SimpleLesson implements ILesson {
         notesView = uiControls.getNotesView();
         tvLessonStatus = uiControls.getLessonStatusView();
 
-//        fretView.isParameter(true);
-        fretView.setEnabled(false);
-        notesView.setEnabled(false);
-        
-        DegreesView degreesView = uiControls.getDegreesView();
-        degreesView.setEnabled(false);
-        
-        ShapesView shapesView = uiControls.getShapestView();
-        shapesView.setEnabled(false);
-        
+        fretView.setEnabled(true);
+        notesView.setEnabled(true);
+
+        uiControls.getDegreesView().setEnabled(false);
+        uiControls.getShapestView().setEnabled(false);
+
         OnViewSelectionListener<Note> onSelectionListener = new InnerOnSelectionListener();
         notesView.registerElementSelectedListener(onSelectionListener);
 
@@ -121,12 +118,13 @@ public class SimpleLesson implements ILesson {
      * The answer results are not important.
      * 
      **/
-    private void next() {
+    @Override
+    public void next() {
 
         counter++;
 
         fretView.clearFret();
-        
+
         MainFragment.getInstance().getActivity().runOnUiThread(new Runnable() {
 
             @Override
@@ -168,7 +166,7 @@ public class SimpleLesson implements ILesson {
                 public void run() {
                     Log.d(TAG, "Notes soll/ist: " + expectedNote + "/" + note);
                     if (note.equals(expectedNote)) {
-                        SimpleLesson.this.next();
+                        LessonPosition2Note.this.next();
                         tvLessonStatus.setBackgroundColor(Color.GREEN);
                     } else {
                         tvLessonStatus.setBackgroundColor(Color.RED);

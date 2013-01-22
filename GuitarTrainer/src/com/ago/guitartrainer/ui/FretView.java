@@ -404,6 +404,9 @@ public class FretView extends LinearLayout {
 
         @Override
         public boolean dispatchTouchEvent(MotionEvent event) {
+            
+            if (event.getAction() != MotionEvent.ACTION_UP)
+                return true;
 
             if (!fretView.isEnabled()) {
                 /*

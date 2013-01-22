@@ -23,6 +23,7 @@ import com.ago.guitartrainer.gridshapes.AlphaGridShape;
 import com.ago.guitartrainer.gridshapes.GridShape;
 import com.ago.guitartrainer.notation.Degree;
 import com.ago.guitartrainer.notation.Note;
+import com.ago.guitartrainer.notation.NoteStave;
 import com.ago.guitartrainer.notation.Position;
 import com.jayway.android.robotium.solo.Solo;
 
@@ -78,6 +79,14 @@ public class GuitarTrainerTest extends ActivityInstrumentationTestCase2<MasterAc
         assertEquals(1, inShape.size());
         assertEquals(2, inShape.get(0).getStringIndex());
         assertEquals(4, inShape.get(0).getFret());
+    }
+    
+    public void test_NoteStave() {
+        NoteStave noteStave = NoteStave.getInstance();
+        Note note = Note.A3;
+        Note next = noteStave.next(note);
+        assertEquals(Note.A3di, next);
+        
     }
 
     // public void testAddNote() throws Exception {

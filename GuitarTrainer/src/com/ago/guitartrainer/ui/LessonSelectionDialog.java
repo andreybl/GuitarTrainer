@@ -14,7 +14,8 @@ import android.widget.ListView;
 
 import com.ago.guitartrainer.R;
 import com.ago.guitartrainer.lessons.ILesson;
-import com.ago.guitartrainer.lessons.SimpleLesson;
+import com.ago.guitartrainer.lessons.custom.LessonNote2Position;
+import com.ago.guitartrainer.lessons.custom.LessonPosition2Note;
 
 /**
  * Dialog for selecting one of the predefine lessons.
@@ -63,8 +64,8 @@ public class LessonSelectionDialog extends Dialog {
     private List<ILesson> tmpAvailableLesons() {
         List<ILesson> lessons = new ArrayList<ILesson>();
         
-        SimpleLesson lesson1 = new SimpleLesson();
-        SimpleLesson lesson2 = new SimpleLesson();
+        LessonPosition2Note lesson1 = new LessonPosition2Note();
+        LessonNote2Position lesson2 = new LessonNote2Position();
         
         lessons.add(lesson1);
         lessons.add(lesson2);
@@ -91,6 +92,7 @@ public class LessonSelectionDialog extends Dialog {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int pos, long id) {
             currentSelection = adapter.getItem(pos);
+            currentSelection.prepareUi();
             LessonSelectionDialog.this.dismiss();
 
         }
