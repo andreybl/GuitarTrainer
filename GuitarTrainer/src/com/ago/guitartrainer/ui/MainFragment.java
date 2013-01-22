@@ -76,12 +76,7 @@ public class MainFragment extends Fragment {
         btnNextLesson.setEnabled(false);
         btnStopLesson.setEnabled(false);
 
-        // btnSideOutMenu.setOnClickListener(innerOnClickListener);
-        /* end: buttons for lesson control */
-
-        // btnSideOutMenu = (Button) mainLayout.findViewById(R.id.btn_sideout_menu);
-        // btnSideOutMenu.setOnClickListener(innerOnClickListener);
-
+        
         instance = this;
 
         return mainLayout;

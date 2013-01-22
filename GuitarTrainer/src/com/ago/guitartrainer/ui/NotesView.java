@@ -42,6 +42,7 @@ import com.ago.guitartrainer.notation.Octave;
  * 
  * The scientific notation is used to represent notes.
  * 
+ * 
  * @author Andrej Golovko - jambit GmbH
  * 
  */
@@ -72,6 +73,20 @@ public class NotesView extends LinearLayout {
      * the program, the event is not fired.
      */
     private List<OnViewSelectionListener> listeners = new ArrayList<OnViewSelectionListener>();
+
+    /**
+     * if true, the input to the view is allowed.
+     * 
+     * E.g. the user may press the buttons in the view, touch on associated image(-s) etc. Note, that the isEnabled and
+     * isEnabledInput relation can be expressed with boolean expression:
+     * 
+     * <pre>
+     *      isEnabled or (not isEnabled and not isEnabledInput)
+     * </pre>
+     * 
+     * For instance, if "not isEnabled" applies, must also apply the "not isEnabledInput".
+     * */
+    private boolean isEnabledInput = true;
 
     private static Map<Note, Integer> note2DrawableId = new Hashtable<Note, Integer>();
     {
@@ -156,7 +171,7 @@ public class NotesView extends LinearLayout {
 
         showNote(selectedKey, selectedOctave);
     }
-    
+
     public void showNote(Note note) {
         showNote(note.getKey(), note.getOctave());
     }
@@ -212,6 +227,9 @@ public class NotesView extends LinearLayout {
         @Override
         public void onClick(View v) {
 
+            if (!isEnabledInput)
+                return;
+
             // make selected another button
             for (Button btn : btn2Key.keySet()) {
                 btn.setTextColor(Color.WHITE);
@@ -241,6 +259,13 @@ public class NotesView extends LinearLayout {
 
     private int lastSelectedNoteDrawable = -1;
 
+    /**
+     * {@inheritDoc}
+     * 
+     * In the isEnabled state the view widgets - e.g. buttons, images etc. - are enabled. It means they are not gray'ed
+     * out or so. But it does not mean that input to the view is possible. Like, it is still possible that no buttons
+     * are allowed to be pressed in the isEnabled view.
+     */
     @Override
     public void setEnabled(boolean enabled) {
         Set<Button> keyButtons = btn2Key.keySet();
@@ -270,7 +295,17 @@ public class NotesView extends LinearLayout {
             }
         }
 
+        if (!enabled)
+            setEnabledInput(enabled);
+
         super.setEnabled(enabled);
+    }
+
+    public void setEnabledInput(boolean enabledInput) {
+        this.isEnabledInput = enabledInput;
+
+        if (enabledInput)
+            setEnabled(enabledInput);
     }
 
     public void registerElementSelectedListener(OnViewSelectionListener<Note> listener) {
@@ -284,6 +319,9 @@ public class NotesView extends LinearLayout {
 
         @Override
         public void onClick(View v) {
+
+            if (!isEnabledInput)
+                return;
 
             // make selected another button
             for (Button btn : btn2Octave.keySet()) {
@@ -338,7 +376,7 @@ public class NotesView extends LinearLayout {
              * 
              * In other words, the touch on the screen take no effect.
              **/
-            return isEnabled();
+            return isEnabledInput;
         }
 
         @Override
@@ -362,13 +400,17 @@ public class NotesView extends LinearLayout {
              * The distanceY specify the direction of the gestures on the Y-axis.
              */
 
-            if (e2.getY() > 2) {
+            if (e2.getY() > 25) {
                 if (distanceY > 0) {
-                    selectedNote = NoteStave.getInstance().next(selectedNote);
+                    selectedNote = NoteStave.getInstance().nextHasNoSharpsFlats(selectedNote);
                 } else {
-                    selectedNote = NoteStave.getInstance().previouse(selectedNote);
+                    selectedNote = NoteStave.getInstance().previousHasNoSharpsFlats(selectedNote);
                 }
+
+                // TODO: update key/octave buttons here. or remove them
+
                 NotesView.this.showNote(selectedNote.getKey(), selectedNote.getOctave());
+                
             }
 
             return true;
@@ -377,7 +419,7 @@ public class NotesView extends LinearLayout {
         @Override
         public void onShowPress(MotionEvent e) {
             // TODO Auto-generated method stub
-            
+
         }
 
         @Override

@@ -8,10 +8,8 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 import com.ago.guitartrainer.utils.MultiMap;
 
@@ -160,7 +158,7 @@ public class NoteStave {
                     mapNote2Positions.put(note, new ArrayList<Position>());
                 }
 
-                int string = (iString+1);
+                int string = (iString + 1);
                 mapNote2Positions.get(note).add(new Position(string, iFret));
             }
         }
@@ -298,7 +296,8 @@ public class NoteStave {
      * 
      * For instance, the next to the A3 is A3di.
      * 
-     * @param note relative to which the next note must be returned
+     * @param note
+     *            relative to which the next note must be returned
      * @return next note relative to parameter note
      */
     public Note next(Note note) {
@@ -314,14 +313,34 @@ public class NoteStave {
     }
 
     /**
+     * Basically the same as {@link #next(Note)}, but return the {@link Note} with no sharp/flat.
+     * 
+     * @param note
+     * @return
+     */
+    public Note nextHasNoSharpsFlats(Note note) {
+        Key[] mainDegrees = new Key[] { Key.C, Key.D, Key.E, Key.F, Key.G, Key.A, Key.B };
+        Note noteHighest = Note.values()[0];
+        Note result = note;
+        boolean finishSearch = false;
+        do {
+            result = next(result);
+            finishSearch = Arrays.binarySearch(mainDegrees, result.getKey()) >= 0 || result==noteHighest;
+        } while (!finishSearch);
+
+        return result;
+    }
+
+    /**
      * Return the previous note relative to the <code>note</code> passed as parameter.
      * 
      * For instance, the previous to the A3 is G3di.
      * 
-     * @param note relative to which the previous note must be returned
+     * @param note
+     *            relative to which the previous note must be returned
      * @return next note relative to parameter note
      */
-    public Note previouse(Note note) {
+    public Note previous(Note note) {
         int index = notesOrdered.indexOf(note);
         int prevIndex = (index - 1);
         Note next = note;
@@ -332,4 +351,22 @@ public class NoteStave {
         return next;
     }
 
+    /**
+     * Basically the same as {@link #previous(Note)}, but return the {@link Note} with no sharp/flat.
+     * 
+     * @param note
+     * @return
+     */
+    public Note previousHasNoSharpsFlats(Note note) {
+        Key[] mainDegrees = new Key[] { Key.C, Key.D, Key.E, Key.F, Key.G, Key.A, Key.B };
+        Note result = note;
+        Note noteLowest = Note.values()[0];
+        boolean finishSearch = false;
+        do {
+            result = previous(result);
+            finishSearch = Arrays.binarySearch(mainDegrees, result.getKey()) >= 0 || result == noteLowest;
+        } while (!finishSearch);
+
+        return result;
+    }
 }

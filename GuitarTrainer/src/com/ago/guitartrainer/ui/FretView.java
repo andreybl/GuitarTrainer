@@ -13,7 +13,6 @@ import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
@@ -61,6 +60,13 @@ public class FretView extends LinearLayout {
     private LinearLayout mainLayout;
 
     private Activity currentContext;
+
+    /**
+     * the thread in which pitch detector runs.
+     * 
+     * the thread is used as a ultimate indicator for the input mode: it is not null and active.
+     * */
+    private Thread pitchDetectorThread;
 
     /**
      * mapping from pitch detection phase to the image representing this phase.
@@ -144,6 +150,21 @@ public class FretView extends LinearLayout {
         fretImageView.invalidate();
     }
 
+    /**
+     * Indicate the input mode for the view.
+     * 
+     * We have currently only two input modes for the fret: manual and sound-based. If true, the input mode is manual:
+     * e.g. user must touch the fret image to input the played position. If false, the input mode is sound-based: e.g.
+     * the user must play something on real guitar, so that the sound is sampled and FFT-processed to detect the played
+     * position.
+     * 
+     * @return
+     */
+    private boolean isManualInput() {
+        boolean isSound = pitchDetectorThread != null && pitchDetectorThread.isAlive();
+        return !isSound;
+    }
+
     private void notifyListeners(NotePlayingEvent npe) {
         for (OnViewSelectionListener<NotePlayingEvent> listener : listeners) {
             listener.onViewElementSelected(npe);
@@ -154,28 +175,6 @@ public class FretView extends LinearLayout {
     public void registerListener(OnViewSelectionListener<NotePlayingEvent> listener) {
         listeners.add(listener);
     }
-
-    // private boolean isParameter = false;
-
-    // // TODO: subject for interface/superclass
-    // public void isParameter(boolean isParam) {
-    // this.isParameter = isParam;
-    // // TODO: enable child views
-    // // TODO: change highlighting
-    // if (isParameter) {
-    // int bgColorId = getResources().getColor(R.color.orange);
-    // mainLayout.setBackgroundColor(bgColorId);
-    // fretImageView.setEnabled(true);
-    // rgInputMode.setEnabled(true);
-    // } else {
-    // int bgColorId = getResources().getColor(R.color.black);
-    // mainLayout.setBackgroundColor(bgColorId);
-    // fretImageView.setEnabled(false);
-    // rgInputMode.setEnabled(false);
-    //
-    // // TODO: stop FFT pitch detector
-    // }
-    // }
 
     @Override
     public void setEnabled(boolean enabled) {
@@ -189,7 +188,7 @@ public class FretView extends LinearLayout {
             if (pitchDetectorThread != null && pitchDetectorThread.isAlive())
                 pitchDetectorThread.interrupt();
         }
-        
+
         super.setEnabled(enabled);
 
     }
@@ -197,8 +196,6 @@ public class FretView extends LinearLayout {
     /*
      * **** INNER CLASSES
      */
-
-    private Thread pitchDetectorThread;
 
     private class InnerFFTPitchDetectorListener implements FFTPitchDetectorListener {
 
@@ -404,10 +401,16 @@ public class FretView extends LinearLayout {
 
         @Override
         public boolean dispatchTouchEvent(MotionEvent event) {
-            
+
             if (event.getAction() != MotionEvent.ACTION_UP)
                 return true;
+            
+            /* ignore user touching the screen, if the input mode is sound-based */
+            if (!fretView.isManualInput()) 
+                return true;
 
+            // TODO: also ignore event, if isEnabledInput==false
+            
             if (!fretView.isEnabled()) {
                 /*
                  * ignore all touch events, if the view is disabled. We assume the view is disabled exactly when the

@@ -13,9 +13,9 @@ public interface ILesson {
     public long getDuration();
 
     public void prepareUi();
-    
+
     public void next();
-    
+
     public void stop();
 
 }

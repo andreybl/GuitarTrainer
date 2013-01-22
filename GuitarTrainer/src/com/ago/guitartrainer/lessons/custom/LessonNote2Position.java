@@ -1,5 +1,6 @@
 package com.ago.guitartrainer.lessons.custom;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import android.graphics.Color;
@@ -9,6 +10,7 @@ import android.widget.TextView;
 import com.ago.guitartrainer.events.NotePlayingEvent;
 import com.ago.guitartrainer.events.OnViewSelectionListener;
 import com.ago.guitartrainer.lessons.ILesson;
+import com.ago.guitartrainer.notation.Key;
 import com.ago.guitartrainer.notation.Note;
 import com.ago.guitartrainer.notation.NoteStave;
 import com.ago.guitartrainer.notation.Position;
@@ -44,8 +46,35 @@ public class LessonNote2Position implements ILesson {
     /** counts the lessons */
     private int counter = 0;
 
+    /** the note for which the fret position must be found */
     private Note questionedNote;
+
+    /**
+     * positions which are accepted as correct answer?
+     * 
+     * for simplicity, we currently allow several acceptable positions as input, because one note on guitar can usually
+     * be taken at several (maximally at three) positions.
+     * 
+     * */
     private List<Position> acceptedPositions;
+
+    /**
+     * specify the keys, in which the notes proposed as questions must be.
+     * 
+     * The keys corresponds to the main degrees of the C-major scale: C, D, E etc. The main reason to exclude keys with
+     * sharps/flats: the appropriate images are not currently not available in the {@link NotesView}. But on the other
+     * side it could be enough just to no the position of the main keys.
+     * */
+    private List<Key> mainKeys = new ArrayList<Key>();
+    {
+        mainKeys.add(Key.C);
+        mainKeys.add(Key.D);
+        mainKeys.add(Key.E);
+        mainKeys.add(Key.F);
+        mainKeys.add(Key.G);
+        mainKeys.add(Key.A);
+        mainKeys.add(Key.B);
+    }
 
     @Override
     public String getTitle() {
@@ -69,6 +98,7 @@ public class LessonNote2Position implements ILesson {
 
         fretView.setEnabled(true);
         notesView.setEnabled(true);
+        notesView.setEnabledInput(false);
 
         uiControls.getDegreesView().setEnabled(false);
         uiControls.getShapestView().setEnabled(false);
@@ -116,12 +146,17 @@ public class LessonNote2Position implements ILesson {
 
         // select random note
         Note[] notes = Note.values();
+
         
         // TODO: use this line, to train on the whole fret
-//        int index = LessonsUtils.random(0, notes.length - 1);
-        
-        int index = LessonsUtils.random(0, 5);
-        questionedNote = notes[index];
+        // int index = LessonsUtils.random(0, notes.length - 1);
+
+        do {
+
+            int index = LessonsUtils.random(0, 5);
+            questionedNote = notes[index];
+
+        } while (!mainKeys.contains(questionedNote.getKey()));
 
         // visualize it
         notesView.showNote(questionedNote);
@@ -146,12 +181,18 @@ public class LessonNote2Position implements ILesson {
         public void onViewElementSelected(final NotePlayingEvent npe) {
             // TODO: user UI widget to inform about answer correctness
 
+            /* the lesson has not started. So we ignore all events. */
+            if (acceptedPositions == null)
+                return;
+
             MainFragment.getInstance().getActivity().runOnUiThread(new Runnable() {
 
                 @Override
                 public void run() {
 
-                    if (npe.position!=null && acceptedPositions.contains(npe.position)) {
+                    // TODO: the npe.position is not set, when detected with FFT. It is not possible to
+                    // resolve unique position.
+                    if (npe.position != null && acceptedPositions.contains(npe.position)) {
                         LessonNote2Position.this.next();
                         tvLessonStatus.setBackgroundColor(Color.GREEN);
                         fretView.clearFret();
