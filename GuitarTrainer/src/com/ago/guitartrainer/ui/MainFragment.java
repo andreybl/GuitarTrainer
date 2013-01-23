@@ -2,8 +2,11 @@ package com.ago.guitartrainer.ui;
 
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnDismissListener;
+import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -14,10 +17,14 @@ import android.widget.TextView;
 
 import com.ago.guitartrainer.R;
 import com.ago.guitartrainer.lessons.ILesson;
+import com.ago.guitartrainer.lessons.custom.LessonNote2Position;
+import com.ago.guitartrainer.lessons.custom.LessonPosition2Note;
 
 public class MainFragment extends Fragment {
 
     // private Button btnSideOutMenu;
+
+    private static String TAG = "GT-MainFragment";
 
     private Button btnSelectLessonDialog;
 
@@ -75,9 +82,32 @@ public class MainFragment extends Fragment {
         btnStartLesson.setEnabled(false);
         btnNextLesson.setEnabled(false);
         btnStopLesson.setEnabled(false);
-
         
+        // Note: the assignment must be done before the ILesson is instantiated.
         instance = this;
+
+        /* try to recall the previous lesson type from the shared preferences */
+        String lastLessonClazz = PreferenceManager.getDefaultSharedPreferences(getActivity()).getString(
+                IPrefKeys.KEY_LESSON_CLAZZ, null);
+        if (lastLessonClazz != null) {
+            Class<?> clazz;
+            try {
+                clazz = Class.forName(lastLessonClazz);
+                currentLesson = (ILesson) clazz.newInstance();
+            } catch (ClassNotFoundException e) {
+                Log.e(TAG, e.getMessage());
+            } catch (java.lang.InstantiationException e) {
+                Log.e(TAG, e.getMessage());
+            } catch (IllegalAccessException e) {
+                Log.e(TAG, e.getMessage());
+            }
+
+            if (currentLesson != null) {
+                currentLesson.prepareUi();
+                btnStartLesson.setEnabled(true);
+                btnSelectLessonDialog.setText(currentLesson.getTitle());
+            }
+        }
 
         return mainLayout;
     }
@@ -129,6 +159,9 @@ public class MainFragment extends Fragment {
                     @Override
                     public void onDismiss(DialogInterface dialog) {
                         currentLesson = lessonDialog.currentLesson();
+                        Editor editor = PreferenceManager.getDefaultSharedPreferences(getActivity()).edit();
+                        editor.putString(IPrefKeys.KEY_LESSON_CLAZZ, currentLesson.getClass().getName());
+                        editor.commit();
                         if (currentLesson != null) {
                             btnStartLesson.setEnabled(true);
                             btnSelectLessonDialog.setText(currentLesson.getTitle());
