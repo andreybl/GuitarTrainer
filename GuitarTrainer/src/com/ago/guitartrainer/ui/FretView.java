@@ -1,8 +1,14 @@
 package com.ago.guitartrainer.ui;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 import android.app.Activity;
 import android.content.Context;
@@ -41,10 +47,22 @@ import com.ago.guitartrainer.notation.Position;
  * <li>
  * </ul>
  * 
+ * The listeners of the class are notified when a note is selected. The note can be selected in two modes: either in
+ * manual (touch on screen) or in sound-sampling mode (playing on guitar).
+ * 
  * @author Andrej Golovko - jambit GmbH
  * 
  */
 public class FretView extends AInoutView<NotePlayingEvent> {
+
+    /** z-index of the layer, which is used to draw user touches */
+    public final static int LAYER_Z_TOUCHES = 0;
+
+    /** z-index of the layer, which is used to draw notes detected with FFT */
+    public final static int LAYER_Z_FFT = 1;
+
+    /** z-index of the layer, where the lesson can draw/visualize its questions */
+    public final static int LAYER_Z_LESSON = 2;
 
     private FretImageView fretImageView;
 
@@ -79,16 +97,6 @@ public class FretView extends AInoutView<NotePlayingEvent> {
      * 
      * */
     private Map<PitchDetectorPhase, ImageView> phase2Image = new HashMap<PitchDetectorPhase, ImageView>();
-
-    // /**
-    // *
-    // * The listeners which are notified when a note is selected. The note can be selected in two modes: either in
-    // manual
-    // * (touch on screen) or in sound-sampling mode (playing on guitar).
-    // *
-    // * */
-    // private List<OnViewSelectionListener<NotePlayingEvent>> listeners = new
-    // ArrayList<OnViewSelectionListener<NotePlayingEvent>>();
 
     public FretView(Context context) {
         super(context);
@@ -147,14 +155,12 @@ public class FretView extends AInoutView<NotePlayingEvent> {
 
     }
 
-    public void show(Position p) {
-        fretImageView.show(Color.BLACK, p);
-        fretImageView.invalidate();
+    public void clearLayer(Layer layer) {
+        fretImageView.clearLayer(layer);
     }
 
-    public void clearFret() {
-        fretImageView.clear();
-        fretImageView.invalidate();
+    public void clearAllLayers() {
+        fretImageView.clearAllLayers();
     }
 
     /**
@@ -171,17 +177,6 @@ public class FretView extends AInoutView<NotePlayingEvent> {
         boolean isSound = pitchDetectorThread != null && pitchDetectorThread.isAlive();
         return !isSound;
     }
-
-    // private void notifyListeners(NotePlayingEvent npe) {
-    // for (OnViewSelectionListener<NotePlayingEvent> listener : listeners) {
-    // listener.onViewElementSelected(npe);
-    // }
-    // }
-
-    // // TODO: subject for interface/superclass
-    // public void registerListener(OnViewSelectionListener<NotePlayingEvent> listener) {
-    // listeners.add(listener);
-    // }
 
     @Override
     public void setEnabled(boolean enabled) {
@@ -200,14 +195,67 @@ public class FretView extends AInoutView<NotePlayingEvent> {
 
     }
 
-    public void show(GridShape gridShape) {
-        // TODO Auto-generated method stub
-        fretImageView.show(R.color.blue, gridShape);
+    public void show(Layer layer, GridShape gridShape) {
+        fretImageView.show(layer, gridShape);
+    }
+
+    public void show(Layer layer, Position... positions) {
+        fretImageView.show(layer, positions);
+    }
+
+    public void show(Layer layer, List<Position> positions) {
+        Position[] arrPositions = positions.toArray(new Position[positions.size()]);
+        fretImageView.show(layer, arrPositions);
     }
 
     /*
      * **** INNER CLASSES
      */
+
+    /**
+     * Layer to be drown in it.
+     * 
+     * @author Andrej Golovko - jambit GmbH
+     * 
+     */
+    public static class Layer implements Comparable<Layer> {
+
+        private UUID uuid;
+
+        /**
+         * the z-index of the layer, which control its order compared to other layers.
+         * */
+        private int zIndex;
+
+        private int colorId;
+
+        public Layer(int zIndex, int colorId) {
+            uuid = UUID.randomUUID();
+            this.zIndex = zIndex;
+            this.colorId = colorId;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+
+            if (o instanceof Layer) {
+                Layer l = (Layer) o;
+                return this.uuid == l.uuid;
+            }
+
+            return false;
+        }
+
+        @Override
+        public int compareTo(Layer l) {
+            if (this.zIndex < l.zIndex)
+                return -1;
+            else if (this.zIndex == l.zIndex)
+                return 0;
+            else
+                return 1;
+        }
+    }
 
     private class InnerFFTPitchDetectorListener implements FFTPitchDetectorListener {
 
@@ -261,13 +309,15 @@ public class FretView extends AInoutView<NotePlayingEvent> {
      * 
      */
     private class InnerNotesListener implements INoteEventListener {
+        /** layer in which we draw dots (notes), which were recognized with FFT */
+        Layer layerFFT = new Layer(LAYER_Z_FFT, getResources().getColor(R.color.green));
 
         @Override
         public void noteStateChanged(final NotePlayingEvent e) {
             NoteStave noteStave = NoteStave.getInstance();
             List<Position> positions = noteStave.resolvePositions(e.note);
-            fretImageView.clear();
-            show(Color.RED, positions);
+            fretImageView.clearLayer(layerFFT);
+            show(layerFFT, positions);
 
             if (e.position == null) {
                 e.possiblePositions = positions;
@@ -284,15 +334,6 @@ public class FretView extends AInoutView<NotePlayingEvent> {
 
             notifyListeners(e);
         }
-
-    }
-
-    public void show(int color, List<Position> positions) {
-        for (Position position : positions) {
-            fretImageView.positionsAndColor.put(position, color);
-        }
-
-        fretImageView.draw();
     }
 
     /**
@@ -312,7 +353,8 @@ public class FretView extends AInoutView<NotePlayingEvent> {
                     if (pitchDetectorThread != null && pitchDetectorThread.isAlive())
                         pitchDetectorThread.interrupt();
 
-                    fretImageView.clear();
+                    // NOTE: it would be possible also to clear only FFT layer
+                    clearAllLayers();
                     break;
                 case R.id.rb_lesson2:
                     /*-
@@ -332,7 +374,10 @@ public class FretView extends AInoutView<NotePlayingEvent> {
                     PitchDetector pd = new PitchDetector(innerFFTListener);
                     pd.registerNotesListener(innerNotesListener);
                     pitchDetectorThread = new Thread(pd);
-                    fretImageView.clear();
+
+                    // NOTE: it would be possible also to clear only touch layer
+                    clearAllLayers();
+
                     pitchDetectorThread.start();
                     break;
 
@@ -413,10 +458,63 @@ public class FretView extends AInoutView<NotePlayingEvent> {
         /* y-coordinate of the touch on the screen */
         private int y;
 
-        private Map<Position, Integer> positionsAndColor = new HashMap<Position, Integer>();
+        // private Map<Position, Integer> positionsAndColor = new HashMap<Position, Integer>();
+
+        private Map<Layer, Set<Position>> mapLayer2Positions = new Hashtable<Layer, Set<Position>>();
+
+        /** layer where the touches on the image itself will be drawn. */
+
+        private Layer layerTouches = new Layer(LAYER_Z_TOUCHES, getResources().getColor(R.color.red));
 
         public FretImageView(Context context) {
             super(context);
+        }
+
+        private void show(Layer layer, GridShape gridShape) {
+            List<Position> list = gridShape.strongPositions();
+            Position[] positions = list.toArray(new Position[list.size()]);
+            show(layer, positions);
+        }
+
+        private void show(Layer layer, Position... newPositions) {
+            // TODO: call in fretImageView?
+
+            Set<Position> existingPositions;
+            if (mapLayer2Positions.containsKey(layer)) {
+                existingPositions = mapLayer2Positions.get(layer);
+            } else {
+                existingPositions = new HashSet<Position>();
+                mapLayer2Positions.put(layer, existingPositions);
+            }
+
+            for (Position p : newPositions) {
+                existingPositions.add(p);
+            }
+
+            // TODO: works?
+            postInvalidate();
+
+            // Activity ctx = (Activity) getContext();
+            // ctx.runOnUiThread(new Runnable() {
+            //
+            // @Override
+            // public void run() {
+            // invalidate();
+            // // fretImageView.invalidate();
+            // }
+            // });
+        }
+
+        private void clearLayer(Layer layer) {
+            mapLayer2Positions.remove(layer);
+
+        }
+
+        private void clearAllLayers() {
+            mapLayer2Positions.clear();
+
+            // TODO: works?
+            // postInvalidate();
         }
 
         public void registerFretView(FretView fv) {
@@ -435,15 +533,28 @@ public class FretView extends AInoutView<NotePlayingEvent> {
         protected void onDraw(Canvas canvas) {
             super.onDraw(canvas);
 
-            for (Position position : positionsAndColor.keySet()) {
-                int pxFret = midlesOfFrets[position.getFret()];
-                int pxStr = midlesOfStrings[position.getStringIndex()];
+            /*
+             * The onDraw() operates on layers, each layer consits of positions (dots) in it.
+             * 
+             * First, we sort the Layers according to its z-index. Second, we draw the positions from each layer.
+             */
 
-                paint.setColor(positionsAndColor.get(position));
+            // order layer. The layer with z-index "0" is the lowest one
+            List<Layer> layers = new ArrayList<Layer>(mapLayer2Positions.keySet());
+            Collections.sort(layers);
 
-                canvas.drawCircle(pxFret, pxStr, 10, paint);
+            for (Layer layer : layers) {
+
+                Set<Position> positions = mapLayer2Positions.get(layer);
+                for (Position position : positions) {
+                    int pxFret = midlesOfFrets[position.getFret()];
+                    int pxStr = midlesOfStrings[position.getStringIndex()];
+
+                    paint.setColor(layer.colorId);
+
+                    canvas.drawCircle(pxFret, pxStr, 10, paint);
+                }
             }
-
         }
 
         @Override
@@ -486,9 +597,8 @@ public class FretView extends AInoutView<NotePlayingEvent> {
 
             Log.d("GT-FretViewImage", "X:" + x + ", Y:" + y + "; str:" + strClosest + ", fret:" + fretClosest);
 
-            clear();
-            show(Color.RED, pos);
-            draw();
+            clearLayer(layerTouches);
+            show(layerTouches, pos);
 
             Note note = NoteStave.getInstance().resolveNote(pos);
             NotePlayingEvent npe = new NotePlayingEvent(note, pos);
@@ -525,33 +635,6 @@ public class FretView extends AInoutView<NotePlayingEvent> {
             return indexOfClosest;
         }
 
-        protected void show(int color, GridShape... gridShape) {
-            for (GridShape gs : gridShape) {
-                List<Position> strongs = gs.strongPositions();
-                for (Position position : strongs) {
-                    show(color, position);
-                }
-            }
-        }
-
-        protected void show(int color, Position... positions) {
-            for (Position position : positions) {
-                positionsAndColor.put(position, color);
-            }
-        }
-
-        public void draw() {
-            Activity ctx = (Activity) getContext();
-            ctx.runOnUiThread(new Runnable() {
-
-                @Override
-                public void run() {
-                    invalidate();
-                }
-            });
-
-        }
-
         @Override
         public void setEnabled(boolean enabled) {
             if (!enabled)
@@ -562,18 +645,6 @@ public class FretView extends AInoutView<NotePlayingEvent> {
             super.setEnabled(enabled);
         }
 
-        private void clear() {
-            Activity ctx = (Activity) getContext();
-            ctx.runOnUiThread(new Runnable() {
-
-                @Override
-                public void run() {
-                    positionsAndColor.clear();
-                    invalidate();
-                }
-            });
-
-        }
     }
 
 }

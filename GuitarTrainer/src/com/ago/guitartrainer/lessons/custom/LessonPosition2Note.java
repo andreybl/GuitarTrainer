@@ -4,16 +4,16 @@ import android.graphics.Color;
 import android.util.Log;
 import android.widget.TextView;
 
+import com.ago.guitartrainer.R;
 import com.ago.guitartrainer.events.OnViewSelectionListener;
 import com.ago.guitartrainer.lessons.ILesson;
 import com.ago.guitartrainer.notation.Note;
 import com.ago.guitartrainer.notation.NoteStave;
 import com.ago.guitartrainer.notation.Position;
-import com.ago.guitartrainer.ui.DegreesView;
 import com.ago.guitartrainer.ui.FretView;
+import com.ago.guitartrainer.ui.FretView.Layer;
 import com.ago.guitartrainer.ui.MainFragment;
 import com.ago.guitartrainer.ui.NotesView;
-import com.ago.guitartrainer.ui.ShapesView;
 import com.ago.guitartrainer.utils.LessonsUtils;
 
 /**
@@ -44,6 +44,8 @@ public class LessonPosition2Note implements ILesson {
 
     /** counts the lessons */
     private int counter = 0;
+
+    private Layer layerLesson = new Layer(FretView.LAYER_Z_LESSON, MainFragment.getInstance().getResources().getColor(R.color.blue));
 
     @Override
     public String getTitle() {
@@ -109,7 +111,7 @@ public class LessonPosition2Note implements ILesson {
 
     @Override
     public void stop() {
-        fretView.clearFret();
+        fretView.clearLayer(layerLesson);
     }
 
     /**
@@ -123,7 +125,7 @@ public class LessonPosition2Note implements ILesson {
 
         counter++;
 
-        fretView.clearFret();
+        fretView.clearLayer(layerLesson);
 
         MainFragment.getInstance().getActivity().runOnUiThread(new Runnable() {
 
@@ -138,7 +140,7 @@ public class LessonPosition2Note implements ILesson {
         int fret = LessonsUtils.random(0, 5);
 
         Position pos = new Position(str, fret);
-        fretView.show(pos);
+        fretView.show(layerLesson, pos);
 
         expectedNote = NoteStave.getInstance().resolveNote(pos);
 

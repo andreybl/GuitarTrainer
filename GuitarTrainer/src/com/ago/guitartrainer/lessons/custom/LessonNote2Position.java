@@ -17,6 +17,7 @@ import com.ago.guitartrainer.notation.Note;
 import com.ago.guitartrainer.notation.NoteStave;
 import com.ago.guitartrainer.notation.Position;
 import com.ago.guitartrainer.ui.FretView;
+import com.ago.guitartrainer.ui.FretView.Layer;
 import com.ago.guitartrainer.ui.MainFragment;
 import com.ago.guitartrainer.ui.NotesView;
 import com.ago.guitartrainer.utils.LessonsUtils;
@@ -50,6 +51,8 @@ public class LessonNote2Position implements ILesson {
 
     /** the note for which the fret position must be found */
     private Note questionedNote;
+
+    private Layer layerLesson = new Layer(FretView.LAYER_Z_LESSON, MainFragment.getInstance().getResources().getColor(R.color.blue));
 
     /**
      * positions which are accepted as correct answer?
@@ -112,7 +115,7 @@ public class LessonNote2Position implements ILesson {
 
     @Override
     public void stop() {
-        fretView.clearFret();
+        fretView.clearLayer(layerLesson);
     }
 
     /**
@@ -126,7 +129,7 @@ public class LessonNote2Position implements ILesson {
 
         counter++;
 
-        fretView.clearFret();
+        fretView.clearLayer(layerLesson);
 
         MainFragment.getInstance().getActivity().runOnUiThread(new Runnable() {
 
@@ -213,8 +216,9 @@ public class LessonNote2Position implements ILesson {
 
                     if (isAnswerAccepted) {
                         tvLessonStatus.setBackgroundColor(Color.GREEN);
-                        fretView.show(R.color.blue, acceptedPositions);
-                        
+
+                        fretView.show(layerLesson, acceptedPositions);
+
                         CountDownTimer cdt = new CountDownTimer(5000, 1000) {
 
                             @Override

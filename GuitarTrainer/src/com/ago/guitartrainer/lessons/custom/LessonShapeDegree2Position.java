@@ -7,7 +7,6 @@ import java.util.List;
 import android.graphics.Color;
 import android.os.CountDownTimer;
 import android.util.Log;
-import android.widget.GridView;
 import android.widget.TextView;
 
 import com.ago.guitartrainer.R;
@@ -15,11 +14,10 @@ import com.ago.guitartrainer.events.NotePlayingEvent;
 import com.ago.guitartrainer.events.OnViewSelectionListener;
 import com.ago.guitartrainer.gridshapes.GridShape;
 import com.ago.guitartrainer.notation.Degree;
-import com.ago.guitartrainer.notation.Note;
-import com.ago.guitartrainer.notation.NoteStave;
 import com.ago.guitartrainer.notation.Position;
 import com.ago.guitartrainer.ui.DegreesView;
 import com.ago.guitartrainer.ui.FretView;
+import com.ago.guitartrainer.ui.FretView.Layer;
 import com.ago.guitartrainer.ui.MainFragment;
 import com.ago.guitartrainer.ui.ShapesView;
 import com.ago.guitartrainer.utils.LessonsUtils;
@@ -35,6 +33,8 @@ public class LessonShapeDegree2Position extends ALesson {
     private List<Position> acceptedPositions;
 
     private TextView tvLessonStatus;
+
+    private Layer layerLesson = new Layer(FretView.LAYER_Z_LESSON, MainFragment.getInstance().getResources().getColor(R.color.blue));
 
     @Override
     public String getTitle() {
@@ -72,7 +72,7 @@ public class LessonShapeDegree2Position extends ALesson {
 
     @Override
     public void stop() {
-        fretView.clearFret();
+        fretView.clearLayer(layerLesson);
     }
 
     /**
@@ -86,7 +86,7 @@ public class LessonShapeDegree2Position extends ALesson {
 
         final int newCounter = increaseCounter();
 
-        fretView.clearFret();
+        fretView.clearLayer(layerLesson);
 
         MainFragment.getInstance().getActivity().runOnUiThread(new Runnable() {
 
@@ -113,7 +113,7 @@ public class LessonShapeDegree2Position extends ALesson {
         // visualize it
         shapesView.show(gridShape.getType());
         degreesView.show(degree);
-        fretView.show(gridShape);
+        fretView.show(layerLesson, gridShape);
 
         Log.d(getTag(), "Shape: " + gridShape + ", Degree: " + degree + ", Expect positions: " + acceptedPositions);
     }
@@ -194,7 +194,7 @@ public class LessonShapeDegree2Position extends ALesson {
 
                     if (isAnswerAccepted) {
                         tvLessonStatus.setBackgroundColor(Color.GREEN);
-                        fretView.show(R.color.blue, acceptedPositions);
+                        fretView.show(layerLesson, acceptedPositions);
 
                         CountDownTimer cdt = new CountDownTimer(5000, 1000) {
 
