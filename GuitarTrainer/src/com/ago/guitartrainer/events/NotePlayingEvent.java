@@ -1,5 +1,7 @@
 package com.ago.guitartrainer.events;
 
+import java.util.List;
+
 import com.ago.guitartrainer.notation.Note;
 import com.ago.guitartrainer.notation.Position;
 
@@ -46,6 +48,13 @@ public class NotePlayingEvent {
     public long timestamp;
 
     /**
+     * possible positions, which could lead to the note being played.
+     * 
+     * With FFT it is not possible to detect the played position exactly, so we supply possible positions.
+     */
+    public List<Position> possiblePositions;
+
+    /**
      * Constructor to be used, when the event is generated as a result of pitch detection - like, with some FFT-based
      * algorithm.
      * 
@@ -57,7 +66,7 @@ public class NotePlayingEvent {
         this.pitch = pitch;
         this.normalAmpli = normalAmpli;
     }
-    
+
     public NotePlayingEvent(Note note, Position pos) {
         this.note = note;
         this.position = pos;

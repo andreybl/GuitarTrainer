@@ -245,7 +245,7 @@ public class PitchDetector implements Runnable {
 
             Note note = noteScale.resolveNote(pitch);
 
-            if (ampliNorm > 200000) {
+            if (ampliNorm > 100000) {
                 if (note != null) {
                     if (note.equals("D2di") || note.equals("F5")) {
                         // DO NOTHING: pitches outside of the guitar playing range

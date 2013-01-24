@@ -10,13 +10,12 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.Button;
 import android.widget.GridLayout;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.ago.guitartrainer.R;
 import com.ago.guitartrainer.notation.Degree;
 
-public class DegreesView extends LinearLayout {
+public class DegreesView extends AInoutView<Degree> {
 
     private Map<Button, Degree> btn2Degree = new Hashtable<Button, Degree>();
 
@@ -68,18 +67,6 @@ public class DegreesView extends LinearLayout {
 
     }
 
-    private class InnerOnClickListener implements OnClickListener {
-
-        Degree selected = null;
-
-        @Override
-        public void onClick(View v) {
-            selected = btn2Degree.get(v);
-
-            System.out.println("Clicked: " + selected);
-        }
-    }
-
     @Override
     public void setEnabled(boolean enabled) {
         tvViewTitle.setEnabled(enabled);
@@ -96,9 +83,46 @@ public class DegreesView extends LinearLayout {
             button.setEnabled(enabled);
         }
 
-        gridForButtons.setEnabled(enabled);
-        
+        // TODO: check compatibility problem. compiled fine once
+        // gridForButtons.setEnabled(enabled);
+
         super.setEnabled(enabled);
+    }
+
+    public void show(Degree degree) {
+        Set<Button> btns = btn2Degree.keySet();
+
+        Button selectedBtn = resolveDegree(btns, degree);
+
+        selectButton(btns, selectedBtn);
+
+    }
+
+    private Button resolveDegree(Set<Button> btns, Degree degree) {
+        Button selectedBtn = null;
+        for (Button button : btns) {
+            Degree d = btn2Degree.get(button);
+            if (degree == d) {
+                selectedBtn = button;
+                break;
+            }
+        }
+        return selectedBtn;
+    }
+
+    /*
+     * ***** INNER CLASSES
+     */
+    private class InnerOnClickListener implements OnClickListener {
+
+        Degree selected = null;
+
+        @Override
+        public void onClick(View v) {
+            selected = btn2Degree.get(v);
+
+            System.out.println("Clicked: " + selected);
+        }
     }
 
 }

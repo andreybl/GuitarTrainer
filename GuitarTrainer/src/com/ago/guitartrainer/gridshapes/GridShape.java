@@ -14,20 +14,40 @@ import com.ago.guitartrainer.utils.ArrayUtils;
 
 /**
  * Holds the information for the grid shape projection:
- *   <ul>
- *   <li> fret at which the projection starts
- *   <li> layout of degrees inside of the shape
- *   </ul> 
+ * <ul>
+ * <li>fret at which the projection starts
+ * <li>layout of degrees inside of the shape
+ * </ul>
  * 
  * @author Andrej Golovko - jambit GmbH
- *
+ * 
  */
 public abstract class GridShape {
 
     public enum Type {
-        ALPHA, BETA, GAMMA, DELTA, EPSILON
+        ALPHA(4),
+
+        BETA(5),
+
+        GAMMA(5),
+
+        DELTA(4),
+
+        EPSILON(5);
+
+        /* number of frets, which are taken by this grid shape */
+        private int numOfFrets;
+
+        Type(int numOfFrets) {
+            this.numOfFrets = numOfFrets;
+        }
+
+        public int numOfFrets() {
+            return numOfFrets;
+        }
+
     }
-    
+
     /** original mapping from degree to position, as calculated relative to the zero fret */
     private Map<Degree, List<Position>> degreeToPosition = new Hashtable<Degree, List<Position>>();
 
@@ -70,14 +90,32 @@ public abstract class GridShape {
     }
 
     protected GridShape(Degree[] zeroFretDegrees, int numOfFrets, int[] rootStrings, Note note) {
-        this.numOfFrets = numOfFrets; 
+        this.numOfFrets = numOfFrets;
         int fretOfRoot = calculateFretForNote(note, rootStrings);
-        initByRootFret(zeroFretDegrees, fretOfRoot);
+        // initByRootFret(zeroFretDegrees, fretOfRoot);
 
     }
-    
-    private void initByRootFret(Degree[] zeroFretDegrees, int rootFret) {
-        
+
+    // private void initByRootFret(Degree[] zeroFretDegrees, int rootFret) {
+    //
+    // }
+
+    public Type getType() {
+        if (this instanceof AlphaGridShape) {
+            return Type.ALPHA;
+        } else if (this instanceof BetaGridShape) {
+            return Type.BETA;
+        } else if (this instanceof GammaGridShape) {
+            return Type.GAMMA;
+        } else if (this instanceof DeltaGridShape) {
+            return Type.DELTA;
+        } else if (this instanceof EpsilonGridShape) {
+            return Type.EPSILON;
+        } else {
+            // TODO: actually, not possible. I must throw exception here.
+            return null;
+        }
+
     }
 
     /*
@@ -104,7 +142,8 @@ public abstract class GridShape {
                 }
 
                 // the position must be shifted
-                Position position = new Position(iString, iFret + startingFret);
+                int string = iString + 1;
+                Position position = new Position(string, iFret + startingFret);
                 degreeToPosition.get(calcD).add(position);
                 positionToDegree.put(position, calcD);
             }
@@ -140,9 +179,9 @@ public abstract class GridShape {
     private int calculateFretForNote(Note key, int[] rootStrings) {
         NoteStave notes = NoteStave.getInstance();
         int noteFret = 0;
-        outerloop: for (int i = 0; i <= 12; i++) {
+        outerloop: for (int i = 0; i <= GridShape.FRETS_ON_GUITAR; i++) {
             for (int j = 0; j < rootStrings.length; j++) {
-                Note n = notes.resolveNote(new Position(rootStrings[j]+1, i));
+                Note n = notes.resolveNote(new Position(rootStrings[j] + 1, i));
                 if (n == key) {
                     noteFret = i;
                     break outerloop;
@@ -179,6 +218,9 @@ public abstract class GridShape {
     /**
      * Calculates positions of the notes for the specific grid shape projection.
      * 
+     * Several positions with the same degree are possible for specific grid shape. But also keep in mind, that the
+     * notes for those positions are different.
+     * 
      * @param degree
      *            which positions must be returned
      */
@@ -186,7 +228,7 @@ public abstract class GridShape {
         List<Position> positions = new ArrayList<Position>();
 
         for (Position position : degreeToPosition.get(degree)) {
-            positions.add(new Position(position.getStringIndex(), position.getFret())); // +fretShifts
+            positions.add(new Position(position.getStringIndex()+1, position.getFret()));
         }
 
         return positions;
@@ -199,7 +241,7 @@ public abstract class GridShape {
             if (ArrayUtils.inArray(d, degreesStrong)) {
                 List<Position> origPositions = degreeToPosition.get(d);
                 for (Position origPosition : origPositions) {
-                    positions.add(new Position(origPosition.getStringIndex(), origPosition.getFret())); // +fretShifts
+                    positions.add(new Position(origPosition.getStringIndex()+1, origPosition.getFret()));
                 }
 
             }
@@ -254,6 +296,14 @@ public abstract class GridShape {
         return projected;
     }
 
+    /**
+     * 
+     * @param clazz
+     * @param progress
+     * @return
+     * 
+     * @Deprecated use {@link #create(Type, int)} instead
+     */
     public static GridShape create(Class<? extends GridShape> clazz, int progress) {
         GridShape gs = null;
 
@@ -267,6 +317,37 @@ public abstract class GridShape {
             gs = new DeltaGridShape(progress);
         } else if (clazz.equals(EpsilonGridShape.class)) {
             gs = new EpsilonGridShape(progress);
+        }
+
+        return gs;
+    }
+
+    public static GridShape create(GridShape.Type gridShapeType, int progress) {
+        GridShape gs = null;
+
+        switch (gridShapeType) {
+        case ALPHA: {
+            gs = new AlphaGridShape(progress);
+            break;
+        }
+        case BETA: {
+            gs = new BetaGridShape(progress);
+            break;
+        }
+        case GAMMA: {
+            gs = new GammaGridShape(progress);
+            break;
+        }
+        case DELTA: {
+            gs = new DeltaGridShape(progress);
+            break;
+        }
+        case EPSILON: {
+            gs = new EpsilonGridShape(progress);
+            break;
+        }
+        default:
+            break;
         }
 
         return gs;
@@ -298,7 +379,7 @@ public abstract class GridShape {
         return gs;
     }
 
-    private static GridShape create(Class<AlphaGridShape> clazz, Note note) {
+    private static GridShape create(Class clazz, Note note) {
         GridShape gs = null;
 
         if (clazz.equals(AlphaGridShape.class)) {

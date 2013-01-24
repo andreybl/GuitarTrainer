@@ -1,6 +1,5 @@
 package com.ago.guitartrainer.ui;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +10,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.widget.ImageView;
@@ -18,12 +18,12 @@ import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
+import android.widget.TextView;
 
 import com.ago.guitartrainer.PitchDetector;
 import com.ago.guitartrainer.R;
 import com.ago.guitartrainer.events.INoteEventListener;
 import com.ago.guitartrainer.events.NotePlayingEvent;
-import com.ago.guitartrainer.events.OnViewSelectionListener;
 import com.ago.guitartrainer.gridshapes.GridShape;
 import com.ago.guitartrainer.midi.FFTPitchDetectorListener;
 import com.ago.guitartrainer.midi.PitchDetectorPhase;
@@ -44,9 +44,12 @@ import com.ago.guitartrainer.notation.Position;
  * @author Andrej Golovko - jambit GmbH
  * 
  */
-public class FretView extends LinearLayout {
+public class FretView extends AInoutView<NotePlayingEvent> {
 
     private FretImageView fretImageView;
+
+    /** contains the name of the last note played */
+    private TextView tvNoteName;
 
     /** radio groupd for selection between two input modes: either manual or by playing guitar */
     private RadioGroup rgInputMode;
@@ -77,13 +80,15 @@ public class FretView extends LinearLayout {
      * */
     private Map<PitchDetectorPhase, ImageView> phase2Image = new HashMap<PitchDetectorPhase, ImageView>();
 
-    /**
-     * 
-     * The listeners which are notified when a note is selected. The note can be selected in two modes: either in manual
-     * (touch on screen) or in sound-sampling mode (playing on guitar).
-     * 
-     * */
-    private List<OnViewSelectionListener<NotePlayingEvent>> listeners = new ArrayList<OnViewSelectionListener<NotePlayingEvent>>();
+    // /**
+    // *
+    // * The listeners which are notified when a note is selected. The note can be selected in two modes: either in
+    // manual
+    // * (touch on screen) or in sound-sampling mode (playing on guitar).
+    // *
+    // * */
+    // private List<OnViewSelectionListener<NotePlayingEvent>> listeners = new
+    // ArrayList<OnViewSelectionListener<NotePlayingEvent>>();
 
     public FretView(Context context) {
         super(context);
@@ -113,6 +118,8 @@ public class FretView extends LinearLayout {
 
         rgInputMode = (RadioGroup) mainLayout.findViewById(R.id.rb_group_lessons);
 
+        tvNoteName = (TextView) mainLayout.findViewById(R.id.tv_note);
+
         /*
          * TODO: read here previous state from SharedPreferences, set button appropriately.
          * 
@@ -140,8 +147,8 @@ public class FretView extends LinearLayout {
 
     }
 
-    public void showOnFret(Position p) {
-        fretImageView.showOnFret(Color.BLACK, p);
+    public void show(Position p) {
+        fretImageView.show(Color.BLACK, p);
         fretImageView.invalidate();
     }
 
@@ -165,16 +172,16 @@ public class FretView extends LinearLayout {
         return !isSound;
     }
 
-    private void notifyListeners(NotePlayingEvent npe) {
-        for (OnViewSelectionListener<NotePlayingEvent> listener : listeners) {
-            listener.onViewElementSelected(npe);
-        }
-    }
+    // private void notifyListeners(NotePlayingEvent npe) {
+    // for (OnViewSelectionListener<NotePlayingEvent> listener : listeners) {
+    // listener.onViewElementSelected(npe);
+    // }
+    // }
 
-    // TODO: subject for interface/superclass
-    public void registerListener(OnViewSelectionListener<NotePlayingEvent> listener) {
-        listeners.add(listener);
-    }
+    // // TODO: subject for interface/superclass
+    // public void registerListener(OnViewSelectionListener<NotePlayingEvent> listener) {
+    // listeners.add(listener);
+    // }
 
     @Override
     public void setEnabled(boolean enabled) {
@@ -191,6 +198,11 @@ public class FretView extends LinearLayout {
 
         super.setEnabled(enabled);
 
+    }
+
+    public void show(GridShape gridShape) {
+        // TODO Auto-generated method stub
+        fretImageView.show(R.color.blue, gridShape);
     }
 
     /*
@@ -251,16 +263,36 @@ public class FretView extends LinearLayout {
     private class InnerNotesListener implements INoteEventListener {
 
         @Override
-        public void noteStateChanged(NotePlayingEvent e) {
+        public void noteStateChanged(final NotePlayingEvent e) {
             NoteStave noteStave = NoteStave.getInstance();
             List<Position> positions = noteStave.resolvePositions(e.note);
             fretImageView.clear();
-            fretImageView.showOnFret(Color.BLUE, positions);
-            fretImageView.draw();
+            show(Color.RED, positions);
+
+            if (e.position == null) {
+                e.possiblePositions = positions;
+            }
+
+            Activity ctx = (Activity) getContext();
+            ctx.runOnUiThread(new Runnable() {
+
+                @Override
+                public void run() {
+                    tvNoteName.setText(e.note.toString());
+                }
+            });
 
             notifyListeners(e);
         }
 
+    }
+
+    public void show(int color, List<Position> positions) {
+        for (Position position : positions) {
+            fretImageView.positionsAndColor.put(position, color);
+        }
+
+        fretImageView.draw();
     }
 
     /**
@@ -351,7 +383,22 @@ public class FretView extends LinearLayout {
          * 
          * Note that the 0-position of midlesOfFrest must be the middle of the 0-fret
          */
-        private int[] midlesOfFrets = new int[] { 38, 100, 200, 300, 400, 484, 573, 650, 743, 731, 804, 873, 942, 1012 };
+        // @formatter:off
+        private int[] midlesOfFrets = new int[] { 
+                38  /* 0 */, 
+                100, 
+                200, 
+                300, 
+                400, 
+                484 /* 5 */, 
+                573 /* 6 */, 
+                650 /* 7 */,
+                729 /* 8 */, 
+                800 /* 9 */, 
+                870 /* 10 */, 
+                942, 
+                1011 /* 12 */};
+        // @formatter:on
         private int[] midlesOfStrings = new int[] { 22, 42, 69, 96, 122, 149 };
 
         /** paint object used to draw on the canvas */
@@ -404,13 +451,13 @@ public class FretView extends LinearLayout {
 
             if (event.getAction() != MotionEvent.ACTION_UP)
                 return true;
-            
+
             /* ignore user touching the screen, if the input mode is sound-based */
-            if (!fretView.isManualInput()) 
+            if (!fretView.isManualInput())
                 return true;
 
             // TODO: also ignore event, if isEnabledInput==false
-            
+
             if (!fretView.isEnabled()) {
                 /*
                  * ignore all touch events, if the view is disabled. We assume the view is disabled exactly when the
@@ -433,9 +480,14 @@ public class FretView extends LinearLayout {
             int xClosest = indexOfClosest(x, midlesOfFrets);
             int yClosest = indexOfClosest(y, midlesOfStrings);
 
-            Position pos = new Position(yClosest + 1, xClosest);
+            int strClosest = yClosest + 1;
+            int fretClosest = xClosest;
+            Position pos = new Position(strClosest, fretClosest);
+
+            Log.d("GT-FretViewImage", "X:" + x + ", Y:" + y + "; str:" + strClosest + ", fret:" + fretClosest);
+
             clear();
-            showOnFret(Color.RED, pos);
+            show(Color.RED, pos);
             draw();
 
             Note note = NoteStave.getInstance().resolveNote(pos);
@@ -473,22 +525,16 @@ public class FretView extends LinearLayout {
             return indexOfClosest;
         }
 
-        protected void showOnFret(int color, GridShape... gridShape) {
+        protected void show(int color, GridShape... gridShape) {
             for (GridShape gs : gridShape) {
                 List<Position> strongs = gs.strongPositions();
                 for (Position position : strongs) {
-                    showOnFret(color, position);
+                    show(color, position);
                 }
             }
         }
 
-        protected void showOnFret(int color, List<Position> positions) {
-            for (Position position : positions) {
-                positionsAndColor.put(position, color);
-            }
-        }
-
-        protected void showOnFret(int color, Position... positions) {
+        protected void show(int color, Position... positions) {
             for (Position position : positions) {
                 positionsAndColor.put(position, color);
             }
@@ -516,7 +562,7 @@ public class FretView extends LinearLayout {
             super.setEnabled(enabled);
         }
 
-        public void clear() {
+        private void clear() {
             Activity ctx = (Activity) getContext();
             ctx.runOnUiThread(new Runnable() {
 
@@ -529,4 +575,5 @@ public class FretView extends LinearLayout {
 
         }
     }
+
 }

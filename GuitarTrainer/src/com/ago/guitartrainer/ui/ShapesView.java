@@ -10,13 +10,12 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.Button;
 import android.widget.GridLayout;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.ago.guitartrainer.R;
 import com.ago.guitartrainer.gridshapes.GridShape;
 
-public class ShapesView extends LinearLayout {
+public class ShapesView extends AInoutView<GridShape.Type> {
 
     private Map<Button, GridShape.Type> btn2Shape = new Hashtable<Button, GridShape.Type>();
 
@@ -73,23 +72,43 @@ public class ShapesView extends LinearLayout {
             button.setEnabled(enabled);
         }
 
-        gridForButtons.setEnabled(enabled);
+        // TODO: check compatibility problem. compiled fine once
+        // gridForButtons.setEnabled(enabled);
 
         super.setEnabled(enabled);
+    }
+
+    public void show(GridShape.Type gridShape) {
+        Set<Button> btns = btn2Shape.keySet();
+
+        Button selectedBtn = resolveDegree(btns, gridShape);
+
+        selectButton(btns, selectedBtn);
+
+    }
+
+    private Button resolveDegree(Set<Button> btns, GridShape.Type shape) {
+        Button selectedBtn = null;
+        for (Button button : btns) {
+            GridShape.Type d = btn2Shape.get(button);
+            if (shape == d) {
+                selectedBtn = button;
+                break;
+            }
+        }
+        return selectedBtn;
     }
 
     /*
      * **** INNER CLASSES
      */
-
     private class InnerOnClickListener implements OnClickListener {
-
-        GridShape.Type selected;
 
         @Override
         public void onClick(View v) {
-            selected = btn2Shape.get(v);
+            GridShape.Type selected = btn2Shape.get(v);
 
+            notifyListeners(selected);
         }
     }
 

@@ -1,92 +1,44 @@
 package com.ago.guitartrainer.lessons.custom;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import android.graphics.Color;
 import android.os.CountDownTimer;
 import android.util.Log;
+import android.widget.GridView;
 import android.widget.TextView;
 
 import com.ago.guitartrainer.R;
 import com.ago.guitartrainer.events.NotePlayingEvent;
 import com.ago.guitartrainer.events.OnViewSelectionListener;
-import com.ago.guitartrainer.lessons.ILesson;
-import com.ago.guitartrainer.notation.Key;
+import com.ago.guitartrainer.gridshapes.GridShape;
+import com.ago.guitartrainer.notation.Degree;
 import com.ago.guitartrainer.notation.Note;
 import com.ago.guitartrainer.notation.NoteStave;
 import com.ago.guitartrainer.notation.Position;
+import com.ago.guitartrainer.ui.DegreesView;
 import com.ago.guitartrainer.ui.FretView;
 import com.ago.guitartrainer.ui.MainFragment;
-import com.ago.guitartrainer.ui.NotesView;
+import com.ago.guitartrainer.ui.ShapesView;
 import com.ago.guitartrainer.utils.LessonsUtils;
 
-/**
- * The lesson implements the learning function:
- * 
- * <pre>
- *      function(position):note
- * </pre>
- * 
- * In other words, the random position is selected on the fret and demonstrated to the user. The user is suggested to
- * select the correct note on the {@link NotesView}.
- * 
- * @author Andrej Golovko - jambit GmbH
- * 
- */
-
-public class LessonNote2Position implements ILesson {
-
-    private String TAG = "GT-SimpleLesson";
+public class LessonShapeDegree2Position extends ALesson {
 
     private FretView fretView;
 
-    private NotesView notesView;
+    private ShapesView shapesView;
+
+    private DegreesView degreesView;
+
+    private List<Position> acceptedPositions;
 
     private TextView tvLessonStatus;
 
-    /** counts the lessons */
-    private int counter = 0;
-
-    /** the note for which the fret position must be found */
-    private Note questionedNote;
-
-    /**
-     * positions which are accepted as correct answer?
-     * 
-     * for simplicity, we currently allow several acceptable positions as input, because one note on guitar can usually
-     * be taken at several (maximally at three) positions.
-     * 
-     * */
-    private List<Position> acceptedPositions;
-
-    /**
-     * specify the keys, in which the notes proposed as questions must be.
-     * 
-     * The keys corresponds to the main degrees of the C-major scale: C, D, E etc. The main reason to exclude keys with
-     * sharps/flats: the appropriate images are not currently not available in the {@link NotesView}. But on the other
-     * side it could be enough just to no the position of the main keys.
-     * */
-    private List<Key> mainKeys = new ArrayList<Key>();
-    {
-        mainKeys.add(Key.C);
-        mainKeys.add(Key.D);
-        mainKeys.add(Key.E);
-        mainKeys.add(Key.F);
-        mainKeys.add(Key.G);
-        mainKeys.add(Key.A);
-        mainKeys.add(Key.B);
-    }
-
     @Override
     public String getTitle() {
-        return "Note 2 Position";
-    }
-
-    @Override
-    public long getDuration() {
-        // TODO Auto-generated method stub
-        return 123;
+        return "ShapeDegree2Position";
     }
 
     @Override
@@ -94,16 +46,24 @@ public class LessonNote2Position implements ILesson {
 
         // initialize views required for the current type of lesson
         MainFragment uiControls = MainFragment.getInstance();
+
         fretView = uiControls.getFretView();
-        notesView = uiControls.getNotesView();
-        tvLessonStatus = uiControls.getLessonStatusView();
-
         fretView.setEnabled(true);
-        notesView.setEnabled(true);
-        notesView.setEnabledInput(false);
+        fretView.setEnabledInput(true);
 
-        uiControls.getDegreesView().setEnabled(false);
-        uiControls.getShapestView().setEnabled(false);
+        uiControls.getNotesView().setEnabled(false);
+
+        shapesView = uiControls.getShapestView();
+        shapesView.setEnabled(true);
+        shapesView.setEnabledInput(false);
+
+        degreesView = uiControls.getDegreesView();
+        degreesView.setEnabled(true);
+        degreesView.setEnabledInput(false);
+
+        uiControls.getShapestView().setEnabled(true);
+
+        tvLessonStatus = uiControls.getLessonStatusView();
 
         OnViewSelectionListener<NotePlayingEvent> onSelectionListener = new InnerOnSelectionListener();
         fretView.registerListener(onSelectionListener);
@@ -124,7 +84,7 @@ public class LessonNote2Position implements ILesson {
     @Override
     public void next() {
 
-        counter++;
+        final int newCounter = increaseCounter();
 
         fretView.clearFret();
 
@@ -132,44 +92,65 @@ public class LessonNote2Position implements ILesson {
 
             @Override
             public void run() {
-                tvLessonStatus.setText(String.valueOf(counter));
+                tvLessonStatus.setText(String.valueOf(newCounter));
 
             }
         });
 
+        // random shape + position
+        GridShape gridShape = randomGridShape();
+
+        // random degree
+        Degree degree = randomDegree();
+
         /*
-         * in the Note2Position lesson the user is presented with the (random?) note, With the answer the user must find
-         * the note's position on the fret, by inputing it either manually or by playing guitar.
+         * TODO: if several positions returned, we must make difference between "higher" and "lower" position.
          * 
-         * The problem is, that the note may be played in different positions. But the user is expected a unique answer.
-         * A workaround is to restrict the area on the fret, from which the answer is expected. At least for the manual
-         * input it will be possible to decided, if the answer is as expected.
+         * I assume, not more than two positions can be returned.
          */
-
-        // select random note
-        Note[] notes = Note.values();
-
-        do {
-
-            /*
-             * TODO: for debug purposes
-             * 
-             * for debugging the notes from index range 21..32 are taken, these are notes also available on the
-             * electronic tuner.
-             * 
-             * For real life use: int index = LessonsUtils.random(0, notes.length - 1);
-             */
-            int index = LessonsUtils.random(21, 32);
-            questionedNote = notes[index];
-
-        } while (!mainKeys.contains(questionedNote.getKey()));
+        acceptedPositions = gridShape.degree2Positions(degree);
 
         // visualize it
-        notesView.showNote(questionedNote);
+        shapesView.show(gridShape.getType());
+        degreesView.show(degree);
+        fretView.show(gridShape);
 
-        acceptedPositions = NoteStave.getInstance().resolvePositions(questionedNote);
+        Log.d(getTag(), "Shape: " + gridShape + ", Degree: " + degree + ", Expect positions: " + acceptedPositions);
+    }
 
-        Log.d(TAG, "Note: " + questionedNote + ", Allowed positions: " + acceptedPositions);
+    private GridShape randomGridShape() {
+        int indexOfGridShape = LessonsUtils.random(0, GridShape.Type.values().length - 1);
+        GridShape.Type gridShapeType = GridShape.Type.values()[indexOfGridShape];
+
+        int posStart = LessonsUtils.random(0, GridShape.FRETS_ON_GUITAR);
+        int posEnd = posStart + gridShapeType.numOfFrets();
+        if (posEnd > GridShape.FRETS_ON_GUITAR) {
+            posStart = GridShape.FRETS_ON_GUITAR - (posEnd - posStart);
+        }
+
+        GridShape gridShape = GridShape.create(gridShapeType, posStart);
+
+        return gridShape;
+    }
+
+    /**
+     * Return a random {@link Degree} from those which are I, II...
+     * 
+     * @return degree of the scale grid
+     */
+    private Degree randomDegree() {
+        Degree[] mainDegrees = new Degree[] { Degree.ONE, Degree.TWO, Degree.THREE, Degree.FOUR, Degree.FIVE,
+                Degree.SIX, Degree.SEVEN };
+
+        boolean isMainDegree = false;
+        Degree degree;
+        do {
+            int indexOfDegree = LessonsUtils.random(0, Degree.values().length - 1);
+            degree = Degree.values()[indexOfDegree];
+            isMainDegree = Arrays.binarySearch(mainDegrees, degree) >= 0;
+        } while (!isMainDegree);
+
+        return degree;
     }
 
     /*
@@ -214,7 +195,7 @@ public class LessonNote2Position implements ILesson {
                     if (isAnswerAccepted) {
                         tvLessonStatus.setBackgroundColor(Color.GREEN);
                         fretView.show(R.color.blue, acceptedPositions);
-                        
+
                         CountDownTimer cdt = new CountDownTimer(5000, 1000) {
 
                             @Override
@@ -225,7 +206,7 @@ public class LessonNote2Position implements ILesson {
 
                             @Override
                             public void onFinish() {
-                                LessonNote2Position.this.next();
+                                LessonShapeDegree2Position.this.next();
 
                             }
                         };
@@ -236,7 +217,7 @@ public class LessonNote2Position implements ILesson {
                         tvLessonStatus.setBackgroundColor(Color.RED);
                     }
 
-                    tvLessonStatus.setText(String.valueOf(counter));
+                    tvLessonStatus.setText(String.valueOf(counter()));
 
                 }
             });

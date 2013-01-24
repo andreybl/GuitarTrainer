@@ -1,8 +1,6 @@
 package com.ago.guitartrainer.ui;
 
-import java.util.ArrayList;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -18,10 +16,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 
 import com.ago.guitartrainer.R;
-import com.ago.guitartrainer.events.OnViewSelectionListener;
 import com.ago.guitartrainer.notation.Key;
 import com.ago.guitartrainer.notation.Note;
 import com.ago.guitartrainer.notation.NoteStave;
@@ -46,7 +42,7 @@ import com.ago.guitartrainer.notation.Octave;
  * @author Andrej Golovko - jambit GmbH
  * 
  */
-public class NotesView extends LinearLayout {
+public class NotesView extends AInoutView<Note> {
 
     private static String TAG = "GT-NotesView";
 
@@ -66,27 +62,7 @@ public class NotesView extends LinearLayout {
     /** the note selected, must be in sync with {@link #selectedKey} and {@link #selectedOctave}. */
     private Note selectedNote = Note.E2;
 
-    /**
-     * Listeners for the selections in current view.
-     * 
-     * Only valid selections made by the user are fired. If the selection - here, a {@link Note} - was randomly set by
-     * the program, the event is not fired.
-     */
-    private List<OnViewSelectionListener> listeners = new ArrayList<OnViewSelectionListener>();
-
-    /**
-     * if true, the input to the view is allowed.
-     * 
-     * E.g. the user may press the buttons in the view, touch on associated image(-s) etc. Note, that the isEnabled and
-     * isEnabledInput relation can be expressed with boolean expression:
-     * 
-     * <pre>
-     *      isEnabled or (not isEnabled and not isEnabledInput)
-     * </pre>
-     * 
-     * For instance, if "not isEnabled" applies, must also apply the "not isEnabledInput".
-     * */
-    private boolean isEnabledInput = true;
+    private int lastSelectedNoteDrawable = -1;
 
     private static Map<Note, Integer> note2DrawableId = new Hashtable<Note, Integer>();
     {
@@ -227,7 +203,7 @@ public class NotesView extends LinearLayout {
         @Override
         public void onClick(View v) {
 
-            if (!isEnabledInput)
+            if (!isEnabledInput())
                 return;
 
             // make selected another button
@@ -248,16 +224,6 @@ public class NotesView extends LinearLayout {
             // notifyListeners(selectedNote);
         }
     }
-
-    private void notifyListeners(Note note) {
-        if (note != null) {
-            for (OnViewSelectionListener<Note> listener : listeners) {
-                listener.onViewElementSelected(note);
-            }
-        }
-    }
-
-    private int lastSelectedNoteDrawable = -1;
 
     /**
      * {@inheritDoc}
@@ -301,17 +267,6 @@ public class NotesView extends LinearLayout {
         super.setEnabled(enabled);
     }
 
-    public void setEnabledInput(boolean enabledInput) {
-        this.isEnabledInput = enabledInput;
-
-        if (enabledInput)
-            setEnabled(enabledInput);
-    }
-
-    public void registerElementSelectedListener(OnViewSelectionListener<Note> listener) {
-        listeners.add(listener);
-    }
-
     /*
      * **** INNER CLASSES
      */
@@ -320,16 +275,10 @@ public class NotesView extends LinearLayout {
         @Override
         public void onClick(View v) {
 
-            if (!isEnabledInput)
+            if (!isEnabledInput())
                 return;
 
-            // make selected another button
-            for (Button btn : btn2Octave.keySet()) {
-                btn.setTextColor(Color.WHITE);
-            }
-
-            Button b = (Button) v;
-            b.setTextColor(Color.GREEN);
+            selectButton(btn2Octave.keySet(), (Button) v);
 
             selectedOctave = btn2Octave.get(v);
 
@@ -376,7 +325,7 @@ public class NotesView extends LinearLayout {
              * 
              * In other words, the touch on the screen take no effect.
              **/
-            return isEnabledInput;
+            return isEnabledInput();
         }
 
         @Override
@@ -410,7 +359,7 @@ public class NotesView extends LinearLayout {
                 // TODO: update key/octave buttons here. or remove them
 
                 NotesView.this.showNote(selectedNote.getKey(), selectedNote.getOctave());
-                
+
             }
 
             return true;

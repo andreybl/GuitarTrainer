@@ -12,8 +12,7 @@ public enum Note {
     A2di(Octave.II, Key.Adi,  116.54), 
     B2(Octave.II, Key.B, 123.47),
 
-    
-    C3(Octave.III, Key.C, 130.81), 
+    C3(Octave.III, Key.C, 130.81),    // index [9] 
     C3di(Octave.III, Key.Cdi, 138.59), 
     D3(Octave.III, Key.D, 146.83), 
     D3di(Octave.III, Key.Ddi, 155.56), 
@@ -26,24 +25,24 @@ public enum Note {
     A3di(Octave.III, Key.Adi, 233.08), 
     B3(Octave.III, Key.B, 246.94),
     
-    C4(Octave.IV, Key.C, 261.63), 
+    C4(Octave.IV, Key.C, 261.63),   // index [21] 
     C4di(Octave.IV, Key.Cdi, 277.18), 
     D4(Octave.IV, Key.D, 293.67), 
     D4di(Octave.IV, Key.Ddi, 311.13), 
     E4(Octave.IV, Key.E, 329.63), 
-    F4(Octave.IV, Key.F, 349.23), 
+    F4(Octave.IV, Key.F, 349.23),   // index [26]
     F4di(Octave.IV, Key.Fdi, 369.99), 
     G4(Octave.IV, Key.G, 392d), 
     G4di(Octave.IV, Key.Gdi, 415.3), 
     A4(Octave.IV, Key.A, 440d), 
     A4di(Octave.IV, Key.Adi, 466.16), 
-    B4(Octave.IV, Key.B, 493.88), 
+    B4(Octave.IV, Key.B, 493.88),   // index [32]
     
-    C5(Octave.V, Key.C, 523.25), 
+    C5(Octave.V, Key.C, 523.25),    // index [33] 
     C5di(Octave.V, Key.Cdi, 554.37), 
     D5(Octave.V, Key.D, 587.33), 
     D5di(Octave.V, Key.Ddi, 622.25), 
-    E5(Octave.V, Key.E, 659.26),  
+    E5(Octave.V, Key.E, 659.26),    // index [37]  
     F5(Octave.V, Key.F, 698.46); // over the 12th fret
     // @formatter:on
 

@@ -102,7 +102,7 @@ public class LessonPosition2Note implements ILesson {
         uiControls.getShapestView().setEnabled(false);
 
         OnViewSelectionListener<Note> onSelectionListener = new InnerOnSelectionListener();
-        notesView.registerElementSelectedListener(onSelectionListener);
+        notesView.registerListener(onSelectionListener);
 
         next();
     }
@@ -138,7 +138,7 @@ public class LessonPosition2Note implements ILesson {
         int fret = LessonsUtils.random(0, 5);
 
         Position pos = new Position(str, fret);
-        fretView.showOnFret(pos);
+        fretView.show(pos);
 
         expectedNote = NoteStave.getInstance().resolveNote(pos);
 

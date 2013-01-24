@@ -17,8 +17,6 @@ import android.widget.TextView;
 
 import com.ago.guitartrainer.R;
 import com.ago.guitartrainer.lessons.ILesson;
-import com.ago.guitartrainer.lessons.custom.LessonNote2Position;
-import com.ago.guitartrainer.lessons.custom.LessonPosition2Note;
 
 public class MainFragment extends Fragment {
 
@@ -120,6 +118,7 @@ public class MainFragment extends Fragment {
         return fretView;
     }
 
+    // TODO: rename
     public ShapesView getShapestView() {
         return shapestView;
     }
