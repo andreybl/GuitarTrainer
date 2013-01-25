@@ -56,10 +56,10 @@ import com.ago.guitartrainer.notation.Position;
 public class FretView extends AInoutView<NotePlayingEvent> {
 
     /** z-index of the layer, which is used to draw user touches */
-    public final static int LAYER_Z_TOUCHES = 0;
+    public final static int LAYER_Z_TOUCHES = 3;
 
     /** z-index of the layer, which is used to draw notes detected with FFT */
-    public final static int LAYER_Z_FFT = 1;
+    public final static int LAYER_Z_FFT = 4;
 
     /** z-index of the layer, where the lesson can draw/visualize its questions */
     public final static int LAYER_Z_LESSON = 2;
@@ -213,7 +213,14 @@ public class FretView extends AInoutView<NotePlayingEvent> {
      */
 
     /**
-     * Layer to be drown in it.
+     * Layer which are used to draw {@link Position}.
+     * 
+     * The layer does not contains any {@link Position} itself but is associated with a set of them somewhere else. The
+     * concept of layer orchestrate the drawing on the same fret image by different drawing participants: user touching
+     * the screen, FFT detector, active lesson etc.
+     * 
+     * The drawing participant create own layer to draw in it and is responsible for cleaning it up as soon as the layer is
+     * not required any more.
      * 
      * @author Andrej Golovko - jambit GmbH
      * 

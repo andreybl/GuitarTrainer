@@ -106,9 +106,15 @@ public class ShapesView extends AInoutView<GridShape.Type> {
 
         @Override
         public void onClick(View v) {
-            GridShape.Type selected = btn2Shape.get(v);
+            GridShape.Type gridShape = btn2Shape.get(v);
 
-            notifyListeners(selected);
+            Set<Button> btns = btn2Shape.keySet();
+
+            Button selectedBtn = resolveDegree(btns, gridShape);
+
+            selectButton(btns, selectedBtn);
+
+            notifyListeners(gridShape);
         }
     }
 

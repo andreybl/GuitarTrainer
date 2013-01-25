@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import android.graphics.Color;
+import android.graphics.drawable.shapes.Shape;
 import android.os.CountDownTimer;
 import android.util.Log;
 import android.widget.TextView;
@@ -13,6 +14,7 @@ import com.ago.guitartrainer.R;
 import com.ago.guitartrainer.events.NotePlayingEvent;
 import com.ago.guitartrainer.events.OnViewSelectionListener;
 import com.ago.guitartrainer.gridshapes.GridShape;
+import com.ago.guitartrainer.gridshapes.GridShape.Type;
 import com.ago.guitartrainer.notation.Degree;
 import com.ago.guitartrainer.notation.Position;
 import com.ago.guitartrainer.ui.DegreesView;
@@ -34,7 +36,17 @@ public class LessonShapeDegree2Position extends ALesson {
 
     private TextView tvLessonStatus;
 
-    private Layer layerLesson = new Layer(FretView.LAYER_Z_LESSON, MainFragment.getInstance().getResources().getColor(R.color.blue));
+    private Layer layerLesson = new Layer(FretView.LAYER_Z_LESSON, MainFragment.getInstance().getResources()
+            .getColor(R.color.blue));
+
+    /**
+     * if true, the grid shape used as lesson parameter is allowed to be entered by the user. Otherwise, the parameter
+     * is selected randomly.
+     */
+    private boolean isShapeInputAllowed = true;
+
+    /** shape type, as selected by the user */
+    private GridShape.Type gridShapeType = Type.ALPHA;
 
     @Override
     public String getTitle() {
@@ -55,7 +67,12 @@ public class LessonShapeDegree2Position extends ALesson {
 
         shapesView = uiControls.getShapestView();
         shapesView.setEnabled(true);
-        shapesView.setEnabledInput(false);
+        shapesView.setEnabledInput(isShapeInputAllowed);
+
+        if (isShapeInputAllowed) {
+            InnerOnShapeSelectionListener onShapeSelection = new InnerOnShapeSelectionListener();
+            shapesView.registerListener(onShapeSelection);
+        }
 
         degreesView = uiControls.getDegreesView();
         degreesView.setEnabled(true);
@@ -98,7 +115,12 @@ public class LessonShapeDegree2Position extends ALesson {
         });
 
         // random shape + position
-        GridShape gridShape = randomGridShape();
+        GridShape gridShape;
+        if (isShapeInputAllowed) {
+            gridShape = GridShape.create(gridShapeType, 0);
+        } else {
+            gridShape = randomGridShape();
+        }
 
         // random degree
         Degree degree = randomDegree();
@@ -225,4 +247,22 @@ public class LessonShapeDegree2Position extends ALesson {
         }
     }
 
+    /**
+     * Listens on user selection of the shape.
+     * 
+     * This listener does not participate in evaluation of answer. It just configure one of the lesson parameters - the
+     * grid shape to use in questions.
+     * 
+     * @author Andrej Golovko - jambit GmbH
+     * 
+     */
+    private class InnerOnShapeSelectionListener implements OnViewSelectionListener<GridShape.Type> {
+
+        @Override
+        public void onViewElementSelected(GridShape.Type element) {
+            gridShapeType = element;
+
+        }
+
+    }
 }
