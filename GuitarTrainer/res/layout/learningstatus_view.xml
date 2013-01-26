@@ -2,11 +2,11 @@
 <GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    android:layout_gravity="fill"
+    android:background="@color/black"
     android:columnCount="4"
     android:padding="0dp"
-    android:layout_gravity="fill"
-    android:rowCount="2"
-    android:background="@color/black"
+    android:rowCount="3"
     android:useDefaultMargins="true" >
 
     <!--
@@ -94,6 +94,14 @@
     <TextView
         android:id="@+id/next_question_indicator"
         android:layout_gravity="fill"
+        android:text="@string/undefined" />
+
+    <!-- LAST ROW -->
+
+    <TextView
+        android:id="@+id/current_lesson_name"
+        android:layout_gravity="fill"
+        android:layout_columnSpan="4"
         android:text="@string/undefined" />
 
 </GridLayout>

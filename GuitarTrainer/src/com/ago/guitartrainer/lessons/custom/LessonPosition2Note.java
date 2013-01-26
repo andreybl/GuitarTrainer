@@ -100,6 +100,7 @@ public class LessonPosition2Note implements ILesson {
 
         fretView.setEnabled(true);
         notesView.setEnabled(true);
+        notesView.setEnabledInput(true);
 
         uiControls.getDegreesView().setEnabled(false);
         uiControls.getShapestView().setEnabled(false);
@@ -107,7 +108,7 @@ public class LessonPosition2Note implements ILesson {
         OnViewSelectionListener<Note> onSelectionListener = new InnerOnSelectionListener();
         notesView.registerListener(onSelectionListener);
 
-        next();
+//        next();
     }
 
     @Override

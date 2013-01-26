@@ -73,10 +73,25 @@ public class LessonShapeDegree2Position extends ALesson {
     /** degree, as selected by the user */
     private Degree degree;
 
+    /**
+     * Countdown during the question is asked.
+     * 
+     * Upon expire (finish() riched) the answer is considered to be "FAILED" and we skip to the next question.
+     * 
+     * */
     private CountDownTimer questionTimer;
 
     /**
-     * metrics for the lesson.
+     * 
+     * Countdown started after answer is "SUCCESS" before we go to the next question.
+     * 
+     * User is allowed to be prepared for the next question in such way.
+     * 
+     * */
+    private PauseTimer pauseTimer;
+
+    /**
+     * Metrics for the lesson.
      * 
      * Must be found from dB before the first question in lesson's loop starts. Must be updated and persisted before
      * goid next question.
@@ -156,6 +171,14 @@ public class LessonShapeDegree2Position extends ALesson {
     @Override
     public void next() {
 
+        /* start question countdown */
+        if (questionTimer != null)
+            questionTimer.cancel();
+
+        /* cancel if the user clicked the "Next" button */
+        if (pauseTimer != null)
+            pauseTimer.cancel();
+
         if (lessonMetrics == null) {
             /*
              * TODO: we must read the lesson metrics from db here.
@@ -229,10 +252,6 @@ public class LessonShapeDegree2Position extends ALesson {
         shapesView.show(gridShape.getType());
         degreesView.show(degree);
         fretView.show(layerLesson, gridShape);
-
-        /* start question countdown */
-        if (questionTimer != null)
-            questionTimer.cancel();
 
         questionTimer = new QuestionTimer(10000, 300);
         questionTimer.start();
@@ -332,7 +351,8 @@ public class LessonShapeDegree2Position extends ALesson {
 
                         learningStatusView.updateAnswerStatus(QuestionStatus.SUCCESS);
 
-                        PauseTimer pauseTimer = new PauseTimer(15000, 1000);
+                        questionTimer.cancel();
+                        pauseTimer = new PauseTimer(15000, 1000);
                         pauseTimer.start();
 
                     } else {

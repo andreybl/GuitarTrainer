@@ -80,7 +80,7 @@ public class MainFragment extends Fragment {
         btnStartLesson.setEnabled(false);
         btnNextLesson.setEnabled(false);
         btnStopLesson.setEnabled(false);
-        
+
         // Note: the assignment must be done before the ILesson is instantiated.
         instance = this;
 
@@ -103,7 +103,8 @@ public class MainFragment extends Fragment {
             if (currentLesson != null) {
                 currentLesson.prepareUi();
                 btnStartLesson.setEnabled(true);
-                btnSelectLessonDialog.setText(currentLesson.getTitle());
+                learningStatusView.updateLessonName(currentLesson.getTitle());
+                // btnSelectLessonDialog.setText(currentLesson.getTitle());
             }
         }
 
@@ -118,7 +119,6 @@ public class MainFragment extends Fragment {
         return fretView;
     }
 
-    
     // TODO: rename
     public ShapesView getShapestView() {
         return shapestView;
@@ -164,7 +164,8 @@ public class MainFragment extends Fragment {
                         editor.commit();
                         if (currentLesson != null) {
                             btnStartLesson.setEnabled(true);
-                            btnSelectLessonDialog.setText(currentLesson.getTitle());
+                            learningStatusView.updateLessonName(currentLesson.getTitle());
+                            // btnSelectLessonDialog.setText(currentLesson.getTitle());
                         }
                     }
                 });

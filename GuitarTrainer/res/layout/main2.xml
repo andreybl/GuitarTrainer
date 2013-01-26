@@ -28,6 +28,11 @@
             android:id="@+id/view_notesview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
+
+        <com.ago.guitartrainer.ui.LearningStatusView
+            android:id="@+id/learning_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
     </LinearLayout>
 
     <LinearLayout
@@ -58,13 +63,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Stop" />
-
-        <!-- text shows the current lesson count, the color shows the previous lesson status -->
-
-        <com.ago.guitartrainer.ui.LearningStatusView
-            android:id="@+id/learning_status"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
     </LinearLayout>
 
 </LinearLayout>

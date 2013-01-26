@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:padding="5dp"
     android:orientation="vertical" >
 
     <TextView
@@ -16,9 +17,8 @@
         android:id="@+id/grid_for_buttons"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@color/black"
-        android:columnCount="3"
-        android:rowCount="3" >
+        android:columnCount="2"
+        android:rowCount="4" >
 
         <Button
             android:id="@+id/degree_1"

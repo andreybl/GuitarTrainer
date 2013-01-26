@@ -33,6 +33,8 @@ public class LearningStatusView extends GridLayout {
     private TextView lastAnswerStatus;
 
     private TextView nextQuestionIndicator;
+    
+    private TextView lessonName;
 
     /**
      * Formatting used to represent the fields reflecting duration of any kind.
@@ -73,9 +75,21 @@ public class LearningStatusView extends GridLayout {
         lastSuccessAnswerTimestamp = (TextView) mainLayout.findViewById(R.id.last_qsuccess_timestamp);
         lastAnswerStatus = (TextView) mainLayout.findViewById(R.id.current_question_successfailure);
         nextQuestionIndicator = (TextView) mainLayout.findViewById(R.id.next_question_indicator);
+        
+        lessonName = (TextView) mainLayout.findViewById(R.id.current_lesson_name);
+        
 
     }
 
+    /**
+     * Update field, which shown name of the currently selected lesson. 
+     * 
+     * @param str name of the currently selected lesson
+     */
+    public void updateLessonName(String str) {
+        ctx.runOnUiThread(new TextViewRunnable(lessonName, str));
+    }
+    
     /**
      * Update field, informing about time elapsed since the last start of the running lesson.
      * 

@@ -2,8 +2,6 @@
 
     <style name="AppTheme" parent="android:Theme.Light" />
 
-    <dimen name="buttonHeight">30dp</dimen>
-    <dimen name="buttonWidth">30dp</dimen>
 
     <style name="Button_InViews">
         <item name="android:gravity">center</item>
@@ -12,6 +10,8 @@
         <item name="android:includeFontPadding">false</item>
         <item name="android:lineSpacingExtra">0dp</item>
         <item name="android:lineSpacingMultiplier">1</item>
+        <item name="android:layout_height">30dp</item>
+        <item name="android:layout_width">30dp</item>
     </style>
 
 </resources>

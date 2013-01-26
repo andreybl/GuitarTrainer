@@ -17,7 +17,6 @@ import java.util.List;
 
 import android.test.ActivityInstrumentationTestCase2;
 
-import com.ago.guitartrainer.GuitarTrainerActivity;
 import com.ago.guitartrainer.MasterActivity;
 import com.ago.guitartrainer.gridshapes.AlphaGridShape;
 import com.ago.guitartrainer.gridshapes.GridShape;

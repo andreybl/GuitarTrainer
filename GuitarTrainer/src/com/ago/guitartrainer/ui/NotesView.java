@@ -16,6 +16,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.ago.guitartrainer.R;
 import com.ago.guitartrainer.notation.Key;
@@ -44,7 +45,6 @@ import com.ago.guitartrainer.notation.Octave;
  */
 public class NotesView extends AInoutView<Note> {
 
-
     private Key selectedKey = Key.E;
 
     /** octave selected according to scientific pitch notation */
@@ -52,16 +52,14 @@ public class NotesView extends AInoutView<Note> {
 
     private ImageView imgNote;
 
-    private Map<Button, Key> btn2Key = new Hashtable<Button, Key>();
-
-    private Map<Button, Octave> btn2Octave = new Hashtable<Button, Octave>();
-
     private GestureDetector gestures;
 
     /** the note selected, must be in sync with {@link #selectedKey} and {@link #selectedOctave}. */
     private Note selectedNote = Note.E2;
 
     private int lastSelectedNoteDrawable = -1;
+
+    private TextView tvNoteText;
 
     private static Map<Note, Integer> note2DrawableId = new Hashtable<Note, Integer>();
     {
@@ -114,33 +112,7 @@ public class NotesView extends AInoutView<Note> {
 
         imgNote = (ImageView) mainLayout.findViewById(R.id.note_image);
 
-        btn2Key.put((Button) mainLayout.findViewById(R.id.key_c), Key.C);
-        btn2Key.put((Button) mainLayout.findViewById(R.id.key_d), Key.D);
-        btn2Key.put((Button) mainLayout.findViewById(R.id.key_e), Key.E);
-        btn2Key.put((Button) mainLayout.findViewById(R.id.key_f), Key.F);
-        btn2Key.put((Button) mainLayout.findViewById(R.id.key_g), Key.G);
-        btn2Key.put((Button) mainLayout.findViewById(R.id.key_a), Key.A);
-        btn2Key.put((Button) mainLayout.findViewById(R.id.key_b), Key.B);
-
-        btn2Octave.put((Button) mainLayout.findViewById(R.id.octave_2), Octave.II);
-        btn2Octave.put((Button) mainLayout.findViewById(R.id.octave_3), Octave.III);
-        btn2Octave.put((Button) mainLayout.findViewById(R.id.octave_4), Octave.IV);
-        btn2Octave.put((Button) mainLayout.findViewById(R.id.octave_5), Octave.V);
-
-        OnClickListener onClickListener1 = new KeyOnClickListener();
-        for (Button btn : btn2Key.keySet()) {
-            btn.setOnClickListener(onClickListener1);
-
-            if (btn2Key.get(btn) == selectedKey)
-                btn.setTextColor(Color.GREEN);
-        }
-
-        OnClickListener onClickListener2 = new OctaveOnClickListener();
-        for (Button btn : btn2Octave.keySet()) {
-            btn.setOnClickListener(onClickListener2);
-            if (btn2Octave.get(btn) == selectedOctave)
-                btn.setTextColor(Color.GREEN);
-        }
+        tvNoteText = (TextView) mainLayout.findViewById(R.id.note_text);
 
         gestures = new GestureDetector(getContext(), new GestureListener());
 
@@ -187,6 +159,10 @@ public class NotesView extends AInoutView<Note> {
                     if (note2DrawableId.containsKey(selectedNote)) {
                         int idOfNoteDrawable = note2DrawableId.get(selectedNote);
                         imgNote.setImageResource(idOfNoteDrawable);
+                        // String txtNote = selectedNote.toString() + " (Key: " + selectedNote.getKey() + "; Octave: "
+                        // + selectedNote.getOctave() + "; Pitch=" + selectedNote.getPitch() + ")";
+                        String txtNote = selectedNote.toString() + " (" + selectedNote.getPitch() + " Hz)";
+                        tvNoteText.setText(txtNote);
                     }
                 } else {
                     Log.w(getTagLogging(), "Failed to resolve image for: " + key + "/" + octave);
@@ -195,33 +171,6 @@ public class NotesView extends AInoutView<Note> {
             }
         });
 
-    }
-
-    private class KeyOnClickListener implements OnClickListener {
-
-        @Override
-        public void onClick(View v) {
-
-            if (!isEnabledInput())
-                return;
-
-            // make selected another button
-            for (Button btn : btn2Key.keySet()) {
-                btn.setTextColor(Color.WHITE);
-            }
-
-            Button b = (Button) v;
-            b.setTextColor(Color.GREEN);
-
-            selectedKey = btn2Key.get(v);
-
-            showNote(selectedKey, selectedOctave);
-
-            // TODO: maybe disable Octave buttons, which are not possible with selected Key
-
-            // Note selectedNote = NoteStave.getInstance().resolveNote(selectedKey, selectedOctave);
-            // notifyListeners(selectedNote);
-        }
     }
 
     /**
@@ -233,15 +182,6 @@ public class NotesView extends AInoutView<Note> {
      */
     @Override
     public void setEnabled(boolean enabled) {
-        Set<Button> keyButtons = btn2Key.keySet();
-        for (Button button : keyButtons) {
-            button.setEnabled(enabled);
-        }
-
-        Set<Button> octaveButtons = btn2Octave.keySet();
-        for (Button button : octaveButtons) {
-            button.setEnabled(enabled);
-        }
 
         if (!enabled) {
             /*
@@ -264,30 +204,6 @@ public class NotesView extends AInoutView<Note> {
             setEnabledInput(enabled);
 
         super.setEnabled(enabled);
-    }
-
-    /*
-     * **** INNER CLASSES
-     */
-    private class OctaveOnClickListener implements OnClickListener {
-
-        @Override
-        public void onClick(View v) {
-
-            if (!isEnabledInput())
-                return;
-
-            selectButton(btn2Octave.keySet(), (Button) v);
-
-            selectedOctave = btn2Octave.get(v);
-
-            showNote(selectedKey, selectedOctave);
-
-            // TODO: maybe disable Key buttons, which are not possible with selected Octave
-
-            // Note selectedNote = NoteStave.getInstance().resolveNote(selectedKey, selectedOctave);
-            // notifyListeners(selectedNote);
-        }
     }
 
     private class GestureListener implements OnGestureListener, OnDoubleTapListener {
@@ -320,7 +236,7 @@ public class NotesView extends AInoutView<Note> {
         @Override
         public boolean onDown(MotionEvent e) {
             /**
-             * the false from the isEnabled() results in no touch event is processed by the current GestureLiseter.
+             * the false from the isEnabledInput() results in no touch event is processed by the current GestureLiseter.
              * 
              * In other words, the touch on the screen take no effect.
              **/
@@ -355,8 +271,6 @@ public class NotesView extends AInoutView<Note> {
                     selectedNote = NoteStave.getInstance().previousHasNoSharpsFlats(selectedNote);
                 }
 
-                // TODO: update key/octave buttons here. or remove them
-
                 NotesView.this.showNote(selectedNote.getKey(), selectedNote.getOctave());
 
             }
@@ -366,7 +280,7 @@ public class NotesView extends AInoutView<Note> {
 
         @Override
         public void onShowPress(MotionEvent e) {
-            // TODO Auto-generated method stub
+            // DO NOTHING
 
         }
 
