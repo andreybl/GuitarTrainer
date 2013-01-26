@@ -12,12 +12,14 @@ import com.ago.guitartrainer.R;
 import com.ago.guitartrainer.events.NotePlayingEvent;
 import com.ago.guitartrainer.events.OnViewSelectionListener;
 import com.ago.guitartrainer.lessons.ILesson;
+import com.ago.guitartrainer.lessons.LessonMetrics;
 import com.ago.guitartrainer.notation.Key;
 import com.ago.guitartrainer.notation.Note;
 import com.ago.guitartrainer.notation.NoteStave;
 import com.ago.guitartrainer.notation.Position;
 import com.ago.guitartrainer.ui.FretView;
 import com.ago.guitartrainer.ui.FretView.Layer;
+import com.ago.guitartrainer.ui.LearningStatusView;
 import com.ago.guitartrainer.ui.MainFragment;
 import com.ago.guitartrainer.ui.NotesView;
 import com.ago.guitartrainer.utils.LessonsUtils;
@@ -44,7 +46,7 @@ public class LessonNote2Position implements ILesson {
 
     private NotesView notesView;
 
-    private TextView tvLessonStatus;
+    private LearningStatusView learningStatusView;
 
     /** counts the lessons */
     private int counter = 0;
@@ -52,7 +54,8 @@ public class LessonNote2Position implements ILesson {
     /** the note for which the fret position must be found */
     private Note questionedNote;
 
-    private Layer layerLesson = new Layer(FretView.LAYER_Z_LESSON, MainFragment.getInstance().getResources().getColor(R.color.blue));
+    private Layer layerLesson = new Layer(FretView.LAYER_Z_LESSON, MainFragment.getInstance().getResources()
+            .getColor(R.color.blue));
 
     /**
      * positions which are accepted as correct answer?
@@ -81,6 +84,8 @@ public class LessonNote2Position implements ILesson {
         mainKeys.add(Key.B);
     }
 
+    private LessonMetrics lessonMetrics = new LessonMetrics();
+
     @Override
     public String getTitle() {
         return "Note 2 Position";
@@ -99,7 +104,7 @@ public class LessonNote2Position implements ILesson {
         MainFragment uiControls = MainFragment.getInstance();
         fretView = uiControls.getFretView();
         notesView = uiControls.getNotesView();
-        tvLessonStatus = uiControls.getLessonStatusView();
+        learningStatusView = uiControls.getLearningStatusView();
 
         fretView.setEnabled(true);
         notesView.setEnabled(true);
@@ -135,7 +140,8 @@ public class LessonNote2Position implements ILesson {
 
             @Override
             public void run() {
-                tvLessonStatus.setText(String.valueOf(counter));
+                // TODO: learning status
+                // learningStatusView.setText(String.valueOf(counter));
 
             }
         });
@@ -215,7 +221,8 @@ public class LessonNote2Position implements ILesson {
                     }
 
                     if (isAnswerAccepted) {
-                        tvLessonStatus.setBackgroundColor(Color.GREEN);
+                        // TODO: learning status
+                        // tvLessonStatus.setBackgroundColor(Color.GREEN);
 
                         fretView.show(layerLesson, acceptedPositions);
 
@@ -237,10 +244,12 @@ public class LessonNote2Position implements ILesson {
 
                         // fretView.clearFret();
                     } else {
-                        tvLessonStatus.setBackgroundColor(Color.RED);
+                        // TODO: learning status
+//                        tvLessonStatus.setBackgroundColor(Color.RED);
                     }
 
-                    tvLessonStatus.setText(String.valueOf(counter));
+                    // TODO: learning status
+//                    tvLessonStatus.setText(String.valueOf(counter));
 
                 }
             });

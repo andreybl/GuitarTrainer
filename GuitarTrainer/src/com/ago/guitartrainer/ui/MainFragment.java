@@ -42,7 +42,7 @@ public class MainFragment extends Fragment {
 
     private NotesView notesView;
 
-    private TextView tvLessonStatus;
+    private LearningStatusView learningStatusView;
 
     /*
      * TODO: rework the concept. The fragment - and basically its views - are required in lessons. But getting the
@@ -59,7 +59,7 @@ public class MainFragment extends Fragment {
         shapestView = (ShapesView) mainLayout.findViewById(R.id.view_shapesview);
         degreesView = (DegreesView) mainLayout.findViewById(R.id.view_degreesview);
         notesView = (NotesView) mainLayout.findViewById(R.id.view_notesview);
-        tvLessonStatus = (TextView) mainLayout.findViewById(R.id.tv_lesson_status);
+        learningStatusView = (LearningStatusView) mainLayout.findViewById(R.id.learning_status);
         /* End: custom views: fret/shape/notes etc. */
 
         // btnSideOutMenu = (Button) mainLayout.findViewById(R.id.btn_sideout_menu);
@@ -118,6 +118,7 @@ public class MainFragment extends Fragment {
         return fretView;
     }
 
+    
     // TODO: rename
     public ShapesView getShapestView() {
         return shapestView;
@@ -131,8 +132,8 @@ public class MainFragment extends Fragment {
         return notesView;
     }
 
-    public TextView getLessonStatusView() {
-        return tvLessonStatus;
+    public LearningStatusView getLearningStatusView() {
+        return learningStatusView;
     }
 
     /*

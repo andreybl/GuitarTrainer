@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:columnCount="4"
+    android:padding="0dp"
+    android:layout_gravity="fill"
+    android:rowCount="2"
+    android:background="@color/black"
+    android:useDefaultMargins="true" >
+
+    <!--
+    Duration of the current lesson, which 
+	is updated each time we go to the next question
+    -->
+
+    <TextView
+        android:id="@+id/current_lesson_duration"
+        android:layout_gravity="fill"
+        android:text="@string/undefined" />
+
+    <!--
+    Counter for the current lesson, which reflects how many questions
+    were already showed to the user
+    -->
+
+    <TextView
+        android:id="@+id/current_questions_counter"
+        android:layout_gravity="fill"
+        android:text="@string/undefined" />
+
+    <!--
+    Represent how long the question is being shown,
+    updated dynamicall as far as the question runs 
+    -->
+
+    <TextView
+        android:id="@+id/current_question_duration"
+        android:layout_gravity="fill"
+        android:text="@string/undefined" />
+
+    <!--
+    	Number of times the user tried to answer the question.
+    	Usually, it counts the failures to answer the question.  
+    -->
+
+    <TextView
+        android:id="@+id/current_question_trials"
+        android:layout_gravity="fill"
+        android:text="@string/undefined" />
+
+    <!--
+    	Represents the average time required for the user 
+    	to successfully answer the question. Failures and skips of 
+    	the question are not taken into account.
+    	
+    	The time for successfull answer in current lesson is not 
+    	taken into account.
+    -->
+
+    <TextView
+        android:id="@+id/total_qsuccess_duration"
+        android:layout_gravity="fill"
+        android:text="@string/undefined" />
+
+    <!--
+    	The date/time when the question was last answered 
+    	successfully before the current lesson loop. 
+    -->
+
+    <TextView
+        android:id="@+id/last_qsuccess_timestamp"
+        android:layout_gravity="fill"
+        android:text="@string/undefined" />
+
+    <!--
+    	status of the current lesson, whether the currently submited 
+    	answer is success or failure.
+    	
+    	After the successful answer we pause a little bit before going 
+    	to the next question. 
+    -->
+
+    <TextView
+        android:id="@+id/current_question_successfailure"
+        android:layout_gravity="fill"
+        android:text="@string/undefined" />
+
+    <!--
+    field is blinking during pause, which occures before the next 
+    question, but after the current question was answered with success
+    -->
+
+    <TextView
+        android:id="@+id/next_question_indicator"
+        android:layout_gravity="fill"
+        android:text="@string/undefined" />
+
+</GridLayout>

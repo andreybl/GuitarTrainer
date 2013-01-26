@@ -1,24 +1,12 @@
 package com.ago.guitartrainer.lessons;
 
-import java.util.Date;
-
-import com.j256.ormlite.field.DatabaseField;
-
 /**
- * Metrics associated with the question, or speaking more precisely: with QuestionParams.
+ * Metrics associated with specific IQuestion instance.
  * 
- * The metrics reflect _all_ answers of the user associated with the current QuestionParams. Nevertheless some metrics
- * from the last user answer could be collected here as well, like:
- * 
+ * We make difference between:
  * <ul>
- * <li>last correct response timestamp
- * <li>last loop, in which the question was considered
- * </ul>
- * 
- * We can also save:
- * <ul>
- * <li>total number of answers
- * <li>total number of correct answers
+ * <li>metrics for answering the question in the current loop
+ * <li>total metrics of answering the question
  * </ul>
  * 
  * @author Andrej Golovko - jambit GmbH
@@ -26,26 +14,148 @@ import com.j256.ormlite.field.DatabaseField;
  */
 public class QuestionMetrics {
 
-    @DatabaseField(generatedId = true)
-    int id;
+    // TODO use later for persistance, @DatabaseField(generatedId = true)
+    // private int id;
 
-    /** id of the question, to which the metrics belongs */
-    /*-
-     * Note: it would be possible to code the question here, like:
-     *          B:3:II:recognizedegree
-     * which could mean: shape B, projection from position 3, degree II. The "recognizedegree" define 
-     * the logic used to evaluate answer for correctness. For instance, it make difference whether the 
-     * user must touch the screen to locate the degree, or play it on the fret.
-     * But it would prevent us from searching over questions itself. 
+    private AQuestion question;
+
+    /** timestamp when the question was started */
+    private long startedAt = 0;
+
+    /** duration of the current question, eg. how much it took to answer the question successfully, in ms */
+    private long duration = 0;
+
+    /** avg time required by the user to successfully answer the question */
+    private long avgSuccessfulAnswerTime;
+
+    /**
+     * counter for successful answers.
+     * 
+     * Note that the difference (askedCounter-numOfSuccessfulAnswers) informs about number of times when the question
+     * was skipped (e.g. user failed to answer the question).
+     * */
+    private int numOfSuccessfulAnswers;
+
+    private int numOfFailedAnswers;
+
+    /**
+     * the timestamp of the latest successful answer to the question
+     * */
+    private long tstOfLatestSuccessfulAnswer;
+
+    /**
+     * counter for successful answers in last loop
+     * 
+     * Note: the field is not persisted
      */
-    int questionId;
+    private int numOfSuccessfulAnswersLastLoop = 0;
 
-    /** how often the question was asked */
-    int askedCounter;
+    /**
+     * counter for failed answers in last loop
+     * 
+     * Note: the field is not persisted
+     * */
+    private int numOfFailedAnswersLastLoop = 0;
 
-    /** how long did it take in average to answer to the question _correctly_ */
-    long avgAnswerTime;
+    /** avg time of successful answers in the last loop */
+    private long avgSuccessfulAnswerTimeLastLoop;
 
-    /** the time when the question was asked */
-    Date lastQuestioned;
+    /**
+     * Submit the time required by the user to answer the question.
+     * 
+     * Not only correct, but also incorrect answers are accounted. We also account for incorrect answer, when the user
+     * skips the question without trying to answer it, like it is the case when clicking on the "Next" button.
+     * 
+     * The avg answer time for the question is calculated accumulatively with formula:
+     * <p>
+     * <img src="doc-files/accumulated-avg.png"/>
+     * 
+     * @param duration
+     *            of the answer as took for the user, in ms
+     * @param isSuccess
+     *            indicates whether the answer was successful
+     */
+    public void submitAnswer(boolean isSuccess) {
+
+        if (isClosed())
+            return;
+
+        if (isSuccess) {
+            /*
+             * the question is done, we update metrics for it and prohibit any submission to the question
+             */
+
+            long currentTime = System.currentTimeMillis();
+
+            duration = currentTime - startedAt;
+
+            avgSuccessfulAnswerTimeLastLoop = (avgSuccessfulAnswerTimeLastLoop * numOfSuccessfulAnswersLastLoop + duration)
+                    / (numOfSuccessfulAnswersLastLoop + 1);
+            numOfSuccessfulAnswersLastLoop += 1;
+
+            tstOfLatestSuccessfulAnswer = currentTime;
+
+            // TODO: calc the avg value for total
+        } else {
+
+            numOfFailedAnswersLastLoop += 1;
+        }
+
+    }
+
+    /**
+     * How often the question was already asked in the current round of asking the question.
+     * 
+     * Count both failed and successful answers. The number of successful answers is accounted at most once in the
+     * returned value.
+     * 
+     * @return number of times the question was asked
+     */
+    public int numOfTrials() {
+        return numOfSuccessfulAnswers + numOfFailedAnswers;
+    }
+
+    public int numOfTrialsLastLoop() {
+        return numOfSuccessfulAnswersLastLoop + numOfFailedAnswersLastLoop;
+    }
+
+    /**
+     * Is called to indicate that the question is started.
+     * 
+     * In other words, after the call to start() the user is shown the question and is expected to provide answer.
+     */
+    public void start() {
+
+        if (startedAt != 0)
+            throw new RuntimeException("The question was already strted, the " + getClass().getName()
+                    + "#startedAt != 0");
+
+        startedAt = System.currentTimeMillis();
+    }
+
+    /**
+     * Returns the duration of the question.
+     * 
+     * @return duration of question, in ms
+     */
+    public long duration() {
+        if (duration != 0)
+            return duration; // the question was accomplished already
+        else if (startedAt == 0)
+            return 0; // the question was not started yet
+        else
+            return System.currentTimeMillis() - startedAt; // the question is running
+    }
+
+    /*
+     * TODO: tst is good, but must be from last loop
+     */
+    public long lastSuccessfulAnswer() {
+        return tstOfLatestSuccessfulAnswer;
+    }
+
+    public boolean isClosed() {
+        boolean isClosed = startedAt != 0 && duration != 0;
+        return isClosed;
+    }
 }

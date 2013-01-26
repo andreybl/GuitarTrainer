@@ -12,8 +12,8 @@
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <GridLayout
-        android:id="@+id/grid_for_buttons"
         xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/grid_for_buttons"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@color/black"
@@ -22,30 +22,37 @@
 
         <Button
             android:id="@+id/degree_1"
+            style="@style/Button_InViews"
             android:text="I" />
 
         <Button
             android:id="@+id/degree_2"
+            style="@style/Button_InViews"
             android:text="II" />
 
         <Button
             android:id="@+id/degree_3"
+            style="@style/Button_InViews"
             android:text="III" />
 
         <Button
             android:id="@+id/degree_4"
+            style="@style/Button_InViews"
             android:text="IV" />
 
         <Button
             android:id="@+id/degree_5"
+            style="@style/Button_InViews"
             android:text="V" />
 
         <Button
             android:id="@+id/degree_6"
+            style="@style/Button_InViews"
             android:text="VI" />
 
         <Button
             android:id="@+id/degree_7"
+            style="@style/Button_InViews"
             android:text="VII" />
     </GridLayout>
 

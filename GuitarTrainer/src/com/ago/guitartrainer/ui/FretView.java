@@ -219,8 +219,8 @@ public class FretView extends AInoutView<NotePlayingEvent> {
      * concept of layer orchestrate the drawing on the same fret image by different drawing participants: user touching
      * the screen, FFT detector, active lesson etc.
      * 
-     * The drawing participant create own layer to draw in it and is responsible for cleaning it up as soon as the layer is
-     * not required any more.
+     * The drawing participant create own layer to draw in it and is responsible for cleaning it up as soon as the layer
+     * is not required any more.
      * 
      * @author Andrej Golovko - jambit GmbH
      * 
@@ -498,30 +498,18 @@ public class FretView extends AInoutView<NotePlayingEvent> {
                 existingPositions.add(p);
             }
 
-            // TODO: works?
             postInvalidate();
-
-            // Activity ctx = (Activity) getContext();
-            // ctx.runOnUiThread(new Runnable() {
-            //
-            // @Override
-            // public void run() {
-            // invalidate();
-            // // fretImageView.invalidate();
-            // }
-            // });
         }
 
         private void clearLayer(Layer layer) {
             mapLayer2Positions.remove(layer);
+            postInvalidate();
 
         }
 
         private void clearAllLayers() {
             mapLayer2Positions.clear();
-
-            // TODO: works?
-            // postInvalidate();
+            postInvalidate();
         }
 
         public void registerFretView(FretView fv) {

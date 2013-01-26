@@ -61,12 +61,10 @@
 
         <!-- text shows the current lesson count, the color shows the previous lesson status -->
 
-        <TextView
-            android:id="@+id/tv_lesson_status"
+        <com.ago.guitartrainer.ui.LearningStatusView
+            android:id="@+id/learning_status"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="--"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
+            android:layout_height="wrap_content" />
     </LinearLayout>
 
 </LinearLayout>

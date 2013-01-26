@@ -12,6 +12,7 @@ import com.ago.guitartrainer.notation.NoteStave;
 import com.ago.guitartrainer.notation.Position;
 import com.ago.guitartrainer.ui.FretView;
 import com.ago.guitartrainer.ui.FretView.Layer;
+import com.ago.guitartrainer.ui.LearningStatusView;
 import com.ago.guitartrainer.ui.MainFragment;
 import com.ago.guitartrainer.ui.NotesView;
 import com.ago.guitartrainer.utils.LessonsUtils;
@@ -40,7 +41,7 @@ public class LessonPosition2Note implements ILesson {
 
     private Note expectedNote;
 
-    private TextView tvLessonStatus;
+    private LearningStatusView learningStatusView;
 
     /** counts the lessons */
     private int counter = 0;
@@ -95,7 +96,7 @@ public class LessonPosition2Note implements ILesson {
         MainFragment uiControls = MainFragment.getInstance();
         fretView = uiControls.getFretView();
         notesView = uiControls.getNotesView();
-        tvLessonStatus = uiControls.getLessonStatusView();
+        learningStatusView = uiControls.getLearningStatusView();
 
         fretView.setEnabled(true);
         notesView.setEnabled(true);
@@ -131,7 +132,8 @@ public class LessonPosition2Note implements ILesson {
 
             @Override
             public void run() {
-                tvLessonStatus.setText(String.valueOf(counter));
+                // TODO: learning status
+//                learningStatusView.setText(String.valueOf(counter));
 
             }
         });
@@ -169,12 +171,13 @@ public class LessonPosition2Note implements ILesson {
                     Log.d(TAG, "Notes soll/ist: " + expectedNote + "/" + note);
                     if (note.equals(expectedNote)) {
                         LessonPosition2Note.this.next();
-                        tvLessonStatus.setBackgroundColor(Color.GREEN);
+                        learningStatusView.setBackgroundColor(Color.GREEN);
                     } else {
-                        tvLessonStatus.setBackgroundColor(Color.RED);
+                        learningStatusView.setBackgroundColor(Color.RED);
                     }
 
-                    tvLessonStatus.setText(String.valueOf(counter));
+                    // TODO: learning status
+//                    learningStatusView.setText(String.valueOf(counter));
 
                 }
             });

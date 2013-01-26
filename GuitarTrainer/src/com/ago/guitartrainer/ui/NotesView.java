@@ -44,7 +44,6 @@ import com.ago.guitartrainer.notation.Octave;
  */
 public class NotesView extends AInoutView<Note> {
 
-    private static String TAG = "GT-NotesView";
 
     private Key selectedKey = Key.E;
 
@@ -190,7 +189,7 @@ public class NotesView extends AInoutView<Note> {
                         imgNote.setImageResource(idOfNoteDrawable);
                     }
                 } else {
-                    Log.w(TAG, "Failed to resolve image for: " + key + "/" + octave);
+                    Log.w(getTagLogging(), "Failed to resolve image for: " + key + "/" + octave);
                 }
 
             }

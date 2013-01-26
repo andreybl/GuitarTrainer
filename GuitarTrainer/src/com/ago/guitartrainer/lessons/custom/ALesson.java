@@ -4,8 +4,6 @@ import com.ago.guitartrainer.lessons.ILesson;
 
 public abstract class ALesson implements ILesson {
 
-    /** counts the lessons */
-    private int counter = 0;
     
     public String getTag() {
         return "GT-" + getClass().getSimpleName();
@@ -17,12 +15,5 @@ public abstract class ALesson implements ILesson {
         return 123;
     }
     
-    public int increaseCounter() {
-        counter++;
-        return counter;
-    }
-    
-    public int counter(){
-        return counter;
-    }
+
 }
