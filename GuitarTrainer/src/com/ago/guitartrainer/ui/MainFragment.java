@@ -31,6 +31,8 @@ public class MainFragment extends Fragment {
     private Button btnNextLesson;
 
     private Button btnStopLesson;
+    
+    private Button btnMetricsLesson;
 
     private ILesson currentLesson;
 
@@ -71,15 +73,18 @@ public class MainFragment extends Fragment {
         btnStartLesson = (Button) mainLayout.findViewById(R.id.btn_lesson_start);
         btnNextLesson = (Button) mainLayout.findViewById(R.id.btn_lesson_next);
         btnStopLesson = (Button) mainLayout.findViewById(R.id.btn_lesson_stop);
+        btnMetricsLesson = (Button) mainLayout.findViewById(R.id.btn_lesson_metrics);
 
         btnSelectLessonDialog.setOnClickListener(innerOnClickListener);
         btnStartLesson.setOnClickListener(innerOnClickListener);
         btnNextLesson.setOnClickListener(innerOnClickListener);
         btnStopLesson.setOnClickListener(innerOnClickListener);
+        btnMetricsLesson.setOnClickListener(innerOnClickListener);
 
         btnStartLesson.setEnabled(false);
         btnNextLesson.setEnabled(false);
         btnStopLesson.setEnabled(false);
+        btnMetricsLesson.setEnabled(false);
 
         // Note: the assignment must be done before the ILesson is instantiated.
         instance = this;
@@ -103,6 +108,7 @@ public class MainFragment extends Fragment {
             if (currentLesson != null) {
                 currentLesson.prepareUi();
                 btnStartLesson.setEnabled(true);
+                btnMetricsLesson.setEnabled(true);
                 learningStatusView.updateLessonName(currentLesson.getTitle());
                 // btnSelectLessonDialog.setText(currentLesson.getTitle());
             }
@@ -159,11 +165,14 @@ public class MainFragment extends Fragment {
                     @Override
                     public void onDismiss(DialogInterface dialog) {
                         currentLesson = lessonDialog.currentLesson();
-                        Editor editor = PreferenceManager.getDefaultSharedPreferences(getActivity()).edit();
-                        editor.putString(IPrefKeys.KEY_LESSON_CLAZZ, currentLesson.getClass().getName());
-                        editor.commit();
                         if (currentLesson != null) {
+
+                            Editor editor = PreferenceManager.getDefaultSharedPreferences(getActivity()).edit();
+                            editor.putString(IPrefKeys.KEY_LESSON_CLAZZ, currentLesson.getClass().getName());
+                            editor.commit();
+
                             btnStartLesson.setEnabled(true);
+                            btnMetricsLesson.setEnabled(true);
                             learningStatusView.updateLessonName(currentLesson.getTitle());
                             // btnSelectLessonDialog.setText(currentLesson.getTitle());
                         }
@@ -179,7 +188,8 @@ public class MainFragment extends Fragment {
                 btnSelectLessonDialog.setEnabled(false);
                 btnStopLesson.setEnabled(true);
                 btnNextLesson.setEnabled(true);
-
+                btnMetricsLesson.setEnabled(false);
+                
                 if (currentLesson != null)
                     currentLesson.next();
                 break;
@@ -197,8 +207,15 @@ public class MainFragment extends Fragment {
                 btnStartLesson.setEnabled(true);
                 btnStopLesson.setEnabled(false);
                 btnNextLesson.setEnabled(false);
+                btnMetricsLesson.setEnabled(true);
+                
                 if (currentLesson != null)
                     currentLesson.stop();
+                break;
+            }
+            case R.id.btn_lesson_metrics: {
+                if (currentLesson != null)
+                    currentLesson.showMetrics();
                 break;
             }
             default:

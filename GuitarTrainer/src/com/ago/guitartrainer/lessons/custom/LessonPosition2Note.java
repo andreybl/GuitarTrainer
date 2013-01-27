@@ -46,7 +46,8 @@ public class LessonPosition2Note implements ILesson {
     /** counts the lessons */
     private int counter = 0;
 
-    private Layer layerLesson = new Layer(FretView.LAYER_Z_LESSON, MainFragment.getInstance().getResources().getColor(R.color.blue));
+    private Layer layerLesson = new Layer(FretView.LAYER_Z_LESSON, MainFragment.getInstance().getResources()
+            .getColor(R.color.blue));
 
     @Override
     public String getTitle() {
@@ -108,12 +109,17 @@ public class LessonPosition2Note implements ILesson {
         OnViewSelectionListener<Note> onSelectionListener = new InnerOnSelectionListener();
         notesView.registerListener(onSelectionListener);
 
-//        next();
     }
 
     @Override
     public void stop() {
         fretView.clearLayer(layerLesson);
+    }
+
+    @Override
+    public void showMetrics() {
+        // TODO Auto-generated method stub
+
     }
 
     /**
@@ -134,7 +140,7 @@ public class LessonPosition2Note implements ILesson {
             @Override
             public void run() {
                 // TODO: learning status
-//                learningStatusView.setText(String.valueOf(counter));
+                // learningStatusView.setText(String.valueOf(counter));
 
             }
         });
@@ -178,7 +184,7 @@ public class LessonPosition2Note implements ILesson {
                     }
 
                     // TODO: learning status
-//                    learningStatusView.setText(String.valueOf(counter));
+                    // learningStatusView.setText(String.valueOf(counter));
 
                 }
             });

@@ -123,6 +123,12 @@ public class LessonNote2Position implements ILesson {
         fretView.clearLayer(layerLesson);
     }
 
+    @Override
+    public void showMetrics() {
+        // TODO Auto-generated method stub
+
+    }
+
     /**
      * Skip to the next lesson.
      * 
@@ -245,11 +251,11 @@ public class LessonNote2Position implements ILesson {
                         // fretView.clearFret();
                     } else {
                         // TODO: learning status
-//                        tvLessonStatus.setBackgroundColor(Color.RED);
+                        // tvLessonStatus.setBackgroundColor(Color.RED);
                     }
 
                     // TODO: learning status
-//                    tvLessonStatus.setText(String.valueOf(counter));
+                    // tvLessonStatus.setText(String.valueOf(counter));
 
                 }
             });

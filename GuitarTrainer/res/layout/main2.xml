@@ -63,6 +63,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Stop" />
+
+        <Button
+            android:id="@+id/btn_lesson_metrics"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Metrics" />
     </LinearLayout>
 
 </LinearLayout>

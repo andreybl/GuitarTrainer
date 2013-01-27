@@ -1,5 +1,6 @@
 package com.ago.guitartrainer.lessons.custom;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -8,16 +9,15 @@ import android.os.CountDownTimer;
 import android.util.Log;
 
 import com.ago.guitartrainer.R;
+import com.ago.guitartrainer.db.DatabaseHelper;
 import com.ago.guitartrainer.events.NotePlayingEvent;
 import com.ago.guitartrainer.events.OnViewSelectionListener;
-import com.ago.guitartrainer.lessons.AQuestion;
 import com.ago.guitartrainer.lessons.AQuestion.QuestionStatus;
 import com.ago.guitartrainer.lessons.LessonMetrics;
 import com.ago.guitartrainer.lessons.QuestionMetrics;
 import com.ago.guitartrainer.notation.Degree;
 import com.ago.guitartrainer.notation.Position;
 import com.ago.guitartrainer.scalegrids.ScaleGrid;
-import com.ago.guitartrainer.scalegrids.ScaleGrid.Type;
 import com.ago.guitartrainer.ui.DegreesView;
 import com.ago.guitartrainer.ui.FretView;
 import com.ago.guitartrainer.ui.FretView.Layer;
@@ -25,6 +25,7 @@ import com.ago.guitartrainer.ui.LearningStatusView;
 import com.ago.guitartrainer.ui.MainFragment;
 import com.ago.guitartrainer.ui.ScalegridsView;
 import com.ago.guitartrainer.utils.LessonsUtils;
+import com.j256.ormlite.dao.Dao;
 
 public class LessonScalegridDegree2Position extends ALesson {
 
@@ -64,14 +65,14 @@ public class LessonScalegridDegree2Position extends ALesson {
      */
     private boolean isAreaStartInputAllowed = true;
 
-    /** shape type, as selected by the user */
-    private ScaleGrid.Type gridShapeType = Type.ALPHA;
-
-    /** start area for the scale grid, as selected by the user */
-    private int areaStart = 0;
-
-    /** degree, as selected by the user */
-    private Degree degree;
+    /*-
+     * TODO:
+     * 
+     * * introduce AQuestion<T>, where T would be the QuestionScalegridDegree2Position here
+     * * implement getQuestion():QuestionScalegridDegree2Position and use it in this subclass
+     * * all save/restor can be done in AQuestion with such design (?) 
+     */
+    private QuestionScalegridDegree2Position currentQuestion;
 
     /**
      * Countdown during the question is asked.
@@ -106,14 +107,6 @@ public class LessonScalegridDegree2Position extends ALesson {
      * 
      * */
     private QuestionMetrics currentQuestionMetrics;
-
-    private class QuestionShapeDegree2Position extends AQuestion {
-        private ScaleGrid.Type gridShapeType = Type.ALPHA;
-
-        private int position = 0;
-
-        private Degree degree = Degree.ONE;
-    }
 
     @Override
     public String getTitle() {
@@ -179,6 +172,9 @@ public class LessonScalegridDegree2Position extends ALesson {
         if (pauseTimer != null)
             pauseTimer.cancel();
 
+        // TODO: restore the question from the database
+        currentQuestion = new QuestionScalegridDegree2Position();
+
         if (lessonMetrics == null) {
             /*
              * TODO: we must read the lesson metrics from db here.
@@ -208,33 +204,20 @@ public class LessonScalegridDegree2Position extends ALesson {
         /* 1. decide on the parameters for the learning function */
         if (!isShapeInputAllowed) {
             // param1: grid shape type must be random
-            gridShapeType = randomGridShapeType();
+            currentQuestion.scaleGridType = randomGridShapeType();
         }
 
         if (!isAreaStartInputAllowed) {
-            areaStart = randomAreaPositionForGridShapeType(gridShapeType);
+            currentQuestion.fretPosition = randomFretPositionForGridShapeType(currentQuestion.scaleGridType);
         }
 
-        Degree degree = Degree.ONE;
         if (!isDegreeInputAllowed) {
-            degree = randomDegree();
+            currentQuestion.degree = randomDegree();
         }
 
         /* 2. try to resolve the Question with the given params from dB. Or create a new one */
         {
-            /*
-             * TODO: the question must be taken from dB
-             * 
-             * actually, we require the metrics here. But question can be used to resolve the metrics.
-             * 
-             * The QuestionShapeDegree2Position instance is actually not required for presenting the question to the
-             * user.
-             */
-            // QuestionShapeDegree2Position currentQuestion = DataFacade.findQuestionByParams(
-            // QuestionShapeDegree2Position.class, gridShapeType, areaStart, degree);
-            //
-            // // TODO: the questionMetrics must be created, if null
-            // currentQuestionMetrics = DataFacade.findMetricsByQuestion(currentQuestion);
+            // TODO: resolve already existing metrics from dB
 
             currentQuestionMetrics = new QuestionMetrics();
 
@@ -244,19 +227,49 @@ public class LessonScalegridDegree2Position extends ALesson {
 
         /* 3. visualize the question to the user */
 
-        ScaleGrid gridShape = ScaleGrid.create(gridShapeType, areaStart);
+        ScaleGrid gridShape = ScaleGrid.create(currentQuestion.scaleGridType, currentQuestion.fretPosition);
 
         /* both positions must be played for the answer to be accepted */
-        acceptedPositions = gridShape.degree2Positions(degree);
+        acceptedPositions = gridShape.degree2Positions(currentQuestion.degree);
+
+        tmpTestPersistance(currentQuestion);
 
         shapesView.show(gridShape.getType());
-        degreesView.show(degree);
+        degreesView.show(currentQuestion.degree);
         fretView.show(layerLesson, gridShape);
 
         questionTimer = new QuestionTimer(10000, 300);
         questionTimer.start();
 
-        Log.d(getTag(), "Shape: " + gridShape + ", Degree: " + degree + ", Expect positions: " + acceptedPositions);
+        Log.d(getTag(), currentQuestion.toString());
+    }
+
+    DatabaseHelper dbHelper = new DatabaseHelper(MainFragment.getInstance().getActivity());
+
+    private void tmpTestPersistance(QuestionScalegridDegree2Position question) {
+        try {
+            Dao<QuestionScalegridDegree2Position, ?> dao = dbHelper.getDao(QuestionScalegridDegree2Position.class);
+
+            dao.create(question);
+            
+            Log.d(getTag(), "Inserted: "+question);
+        } catch (SQLException e) {
+            Log.e(getTag(), e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void showMetrics() {
+        try {
+            Dao<QuestionScalegridDegree2Position, ?> dao = dbHelper.getDao(QuestionScalegridDegree2Position.class);
+
+            for (QuestionScalegridDegree2Position q : dao) {
+                Log.d(getTag(), q.toString());
+            }
+        } catch (SQLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
     private ScaleGrid.Type randomGridShapeType() {
@@ -276,13 +289,13 @@ public class LessonScalegridDegree2Position extends ALesson {
      *            type of the scale grid
      * @return valid start of the area
      */
-    private int randomAreaPositionForGridShapeType(ScaleGrid.Type gst) {
-        int posStart = LessonsUtils.random(0, ScaleGrid.FRETS_ON_GUITAR);
-        int posEnd = posStart + gst.numOfFrets();
-        if (posEnd > ScaleGrid.FRETS_ON_GUITAR) {
-            posStart = ScaleGrid.FRETS_ON_GUITAR - (posEnd - posStart);
+    private int randomFretPositionForGridShapeType(ScaleGrid.Type gst) {
+        int fretPosition = LessonsUtils.random(0, ScaleGrid.FRETS_ON_GUITAR);
+        int fretPositionEnd = fretPosition + gst.numOfFrets();
+        if (fretPositionEnd > ScaleGrid.FRETS_ON_GUITAR) {
+            fretPosition = ScaleGrid.FRETS_ON_GUITAR - (fretPositionEnd - fretPosition);
         }
-        return posStart;
+        return fretPosition;
     }
 
     /**
@@ -303,6 +316,40 @@ public class LessonScalegridDegree2Position extends ALesson {
         } while (!isMainDegree);
 
         return degree;
+    }
+
+    /**
+     * Calculates whether the answer provided by the user - reflected with <code>exactPosition</code> and
+     * <code>possiblePositions</code> - can be considered as a successful answer.
+     * 
+     * @param acceptedPositions
+     *            positions on fret, which are expected by the question
+     * @param exactPosition
+     *            which was pressed on fret, if unambiguous detection was possible
+     * @param possiblePositions
+     *            which could have been pressed, usually due to note detection with help of sound
+     * @return
+     */
+    private boolean isAnswerAccepted(List<Position> acceptedPositions, Position exactPosition,
+            List<Position> possiblePositions) {
+        // TODO: the npe.position is not set, when detected with FFT. It is not possible to
+        // resolve unique position.
+
+        List<Position> possibleAcceptedInterception = new ArrayList<Position>();
+
+        if (possiblePositions != null)
+            possibleAcceptedInterception.addAll(possiblePositions);
+
+        possibleAcceptedInterception.retainAll(acceptedPositions);
+
+        boolean isAnswerAccepted = false;
+        if (exactPosition != null && acceptedPositions.contains(exactPosition)) {
+            isAnswerAccepted = true;
+        } else if (possibleAcceptedInterception.size() > 0) {
+            isAnswerAccepted = true;
+        }
+
+        return isAnswerAccepted;
     }
 
     /*
@@ -366,39 +413,6 @@ public class LessonScalegridDegree2Position extends ALesson {
 
                 }
 
-                /**
-                 * Calculates whether the answer provided by the user - reflected with <code>exactPosition</code> and
-                 * <code>possiblePositions</code> - can be considered as a successful answer.
-                 * 
-                 * @param acceptedPositions
-                 *            positions on fret, which are expected by the question
-                 * @param exactPosition
-                 *            which was pressed on fret, if unambiguous detection was possible
-                 * @param possiblePositions
-                 *            which could have been pressed, usually due to note detection with help of sound
-                 * @return
-                 */
-                private boolean isAnswerAccepted(List<Position> acceptedPositions, Position exactPosition,
-                        List<Position> possiblePositions) {
-                    // TODO: the npe.position is not set, when detected with FFT. It is not possible to
-                    // resolve unique position.
-
-                    List<Position> possibleAcceptedInterception = new ArrayList<Position>();
-
-                    if (possiblePositions != null)
-                        possibleAcceptedInterception.addAll(npEvent.possiblePositions);
-
-                    possibleAcceptedInterception.retainAll(acceptedPositions);
-
-                    boolean isAnswerAccepted = false;
-                    if (exactPosition != null && acceptedPositions.contains(exactPosition)) {
-                        isAnswerAccepted = true;
-                    } else if (possibleAcceptedInterception.size() > 0) {
-                        isAnswerAccepted = true;
-                    }
-
-                    return isAnswerAccepted;
-                }
             });
 
         }
@@ -417,7 +431,9 @@ public class LessonScalegridDegree2Position extends ALesson {
 
         @Override
         public void onViewElementSelected(ScaleGrid.Type element) {
-            gridShapeType = element;
+
+            if (currentQuestion != null)
+                currentQuestion.scaleGridType = element;
 
         }
 
