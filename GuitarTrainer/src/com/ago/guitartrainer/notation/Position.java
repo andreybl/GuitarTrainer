@@ -1,6 +1,6 @@
 package com.ago.guitartrainer.notation;
 
-import com.ago.guitartrainer.gridshapes.GridShape;
+import com.ago.guitartrainer.scalegrids.ScaleGrid;
 
 /**
  * Represents a single note position on the fretboard.
@@ -34,7 +34,7 @@ public class Position {
             throw new IndexOutOfBoundsException("The \"string\" parameter of Position is wrong [min/max/current]: 1/6/"
                     + string);
         }
-        if (fret < 0 || fret > GridShape.FRETS_ON_GUITAR) {
+        if (fret < 0 || fret > ScaleGrid.FRETS_ON_GUITAR) {
             throw new IndexOutOfBoundsException("The \"fret\" parameter of Position is wrong [min/max/current]: 0/12/"
                     + fret);
         }

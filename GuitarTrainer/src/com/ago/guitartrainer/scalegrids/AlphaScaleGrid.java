@@ -1,29 +1,30 @@
-package com.ago.guitartrainer.gridshapes;
+package com.ago.guitartrainer.scalegrids;
 
 import com.ago.guitartrainer.notation.Degree;
 import com.ago.guitartrainer.notation.Note;
 
-public class DeltaGridShape extends GridShape {
+public class AlphaScaleGrid extends ScaleGrid {
 
     //@formatter:off
     private static Degree[] zeroFretDegrees = new Degree[] { 
-        Degree.SEVEN, 
-        Degree.FOUR_HALF, 
-        Degree.TWO, 
-        Degree.SIX,
         Degree.THREE, 
-        Degree.SEVEN };
+        Degree.SEVEN, 
+        Degree.FIVE, 
+        Degree.TWO,
+        Degree.SIX, 
+        Degree.THREE };
     //@formatter:on
 
     private static int frets = 4;
 
-    private static int[] rootStrings = new int[] { 0, 3 };
+    private static int[] rootStrings = new int[] { 1, 4 };
 
-    DeltaGridShape(Note key) {
+    AlphaScaleGrid(Note key) {
         super(zeroFretDegrees, frets, rootStrings, key);
     }
 
-    DeltaGridShape(int suggestedFret) {
+    AlphaScaleGrid(int suggestedFret) {
         super(zeroFretDegrees, frets, rootStrings, suggestedFret);
     }
+
 }

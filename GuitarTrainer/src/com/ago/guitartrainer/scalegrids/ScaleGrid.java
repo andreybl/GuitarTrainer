@@ -1,4 +1,4 @@
-package com.ago.guitartrainer.gridshapes;
+package com.ago.guitartrainer.scalegrids;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -22,7 +22,7 @@ import com.ago.guitartrainer.utils.ArrayUtils;
  * @author Andrej Golovko - jambit GmbH
  * 
  */
-public abstract class GridShape {
+public abstract class ScaleGrid {
 
     public enum Type {
         ALPHA(4),
@@ -83,13 +83,13 @@ public abstract class GridShape {
      * @param rootStrings
      *            strings on which the root of the shape is located
      */
-    protected GridShape(Degree[] zeroFretDegrees, int numOfFrets, int[] rootStrings, int suggestedStartingFret) {
+    protected ScaleGrid(Degree[] zeroFretDegrees, int numOfFrets, int[] rootStrings, int suggestedStartingFret) {
         this.numOfFrets = numOfFrets;
         initByStartingFret(zeroFretDegrees, suggestedStartingFret);
 
     }
 
-    protected GridShape(Degree[] zeroFretDegrees, int numOfFrets, int[] rootStrings, Note note) {
+    protected ScaleGrid(Degree[] zeroFretDegrees, int numOfFrets, int[] rootStrings, Note note) {
         this.numOfFrets = numOfFrets;
         int fretOfRoot = calculateFretForNote(note, rootStrings);
         // initByRootFret(zeroFretDegrees, fretOfRoot);
@@ -101,15 +101,15 @@ public abstract class GridShape {
     // }
 
     public Type getType() {
-        if (this instanceof AlphaGridShape) {
+        if (this instanceof AlphaScaleGrid) {
             return Type.ALPHA;
-        } else if (this instanceof BetaGridShape) {
+        } else if (this instanceof BetaScaleGrid) {
             return Type.BETA;
-        } else if (this instanceof GammaGridShape) {
+        } else if (this instanceof GammaScaleGrid) {
             return Type.GAMMA;
-        } else if (this instanceof DeltaGridShape) {
+        } else if (this instanceof DeltaScaleGrid) {
             return Type.DELTA;
-        } else if (this instanceof EpsilonGridShape) {
+        } else if (this instanceof EpsilonScaleGrid) {
             return Type.EPSILON;
         } else {
             // TODO: actually, not possible. I must throw exception here.
@@ -179,7 +179,7 @@ public abstract class GridShape {
     private int calculateFretForNote(Note key, int[] rootStrings) {
         NoteStave notes = NoteStave.getInstance();
         int noteFret = 0;
-        outerloop: for (int i = 0; i <= GridShape.FRETS_ON_GUITAR; i++) {
+        outerloop: for (int i = 0; i <= ScaleGrid.FRETS_ON_GUITAR; i++) {
             for (int j = 0; j < rootStrings.length; j++) {
                 Note n = notes.resolveNote(new Position(rootStrings[j] + 1, i));
                 if (n == key) {
@@ -304,46 +304,46 @@ public abstract class GridShape {
      * 
      * @Deprecated use {@link #create(Type, int)} instead
      */
-    public static GridShape create(Class<? extends GridShape> clazz, int progress) {
-        GridShape gs = null;
+    public static ScaleGrid create(Class<? extends ScaleGrid> clazz, int progress) {
+        ScaleGrid gs = null;
 
-        if (clazz.equals(AlphaGridShape.class)) {
-            gs = new AlphaGridShape(progress);
-        } else if (clazz.equals(BetaGridShape.class)) {
-            gs = new BetaGridShape(progress);
-        } else if (clazz.equals(GammaGridShape.class)) {
-            gs = new GammaGridShape(progress);
-        } else if (clazz.equals(DeltaGridShape.class)) {
-            gs = new DeltaGridShape(progress);
-        } else if (clazz.equals(EpsilonGridShape.class)) {
-            gs = new EpsilonGridShape(progress);
+        if (clazz.equals(AlphaScaleGrid.class)) {
+            gs = new AlphaScaleGrid(progress);
+        } else if (clazz.equals(BetaScaleGrid.class)) {
+            gs = new BetaScaleGrid(progress);
+        } else if (clazz.equals(GammaScaleGrid.class)) {
+            gs = new GammaScaleGrid(progress);
+        } else if (clazz.equals(DeltaScaleGrid.class)) {
+            gs = new DeltaScaleGrid(progress);
+        } else if (clazz.equals(EpsilonScaleGrid.class)) {
+            gs = new EpsilonScaleGrid(progress);
         }
 
         return gs;
     }
 
-    public static GridShape create(GridShape.Type gridShapeType, int progress) {
-        GridShape gs = null;
+    public static ScaleGrid create(ScaleGrid.Type gridShapeType, int progress) {
+        ScaleGrid gs = null;
 
         switch (gridShapeType) {
         case ALPHA: {
-            gs = new AlphaGridShape(progress);
+            gs = new AlphaScaleGrid(progress);
             break;
         }
         case BETA: {
-            gs = new BetaGridShape(progress);
+            gs = new BetaScaleGrid(progress);
             break;
         }
         case GAMMA: {
-            gs = new GammaGridShape(progress);
+            gs = new GammaScaleGrid(progress);
             break;
         }
         case DELTA: {
-            gs = new DeltaGridShape(progress);
+            gs = new DeltaScaleGrid(progress);
             break;
         }
         case EPSILON: {
-            gs = new EpsilonGridShape(progress);
+            gs = new EpsilonScaleGrid(progress);
             break;
         }
         default:
@@ -353,23 +353,23 @@ public abstract class GridShape {
         return gs;
     }
 
-    public static GridShape create(int checkboxResourceId, int progress) {
-        GridShape gs = null;
+    public static ScaleGrid create(int checkboxResourceId, int progress) {
+        ScaleGrid gs = null;
         switch (checkboxResourceId) {
         case R.id.gridshape_alpha:
-            gs = new AlphaGridShape(progress);
+            gs = new AlphaScaleGrid(progress);
             break;
         case R.id.gridshape_beta:
-            gs = new BetaGridShape(progress);
+            gs = new BetaScaleGrid(progress);
             break;
         case R.id.gridshape_gamma:
-            gs = new GammaGridShape(progress);
+            gs = new GammaScaleGrid(progress);
             break;
         case R.id.gridshape_delta:
-            gs = new DeltaGridShape(progress);
+            gs = new DeltaScaleGrid(progress);
             break;
         case R.id.gridshape_epsilon:
-            gs = new EpsilonGridShape(progress);
+            gs = new EpsilonScaleGrid(progress);
             break;
 
         default:
@@ -379,19 +379,19 @@ public abstract class GridShape {
         return gs;
     }
 
-    private static GridShape create(Class clazz, Note note) {
-        GridShape gs = null;
+    private static ScaleGrid create(Class clazz, Note note) {
+        ScaleGrid gs = null;
 
-        if (clazz.equals(AlphaGridShape.class)) {
-            gs = new AlphaGridShape(note);
-        } else if (clazz.equals(BetaGridShape.class)) {
-            gs = new BetaGridShape(note);
-        } else if (clazz.equals(GammaGridShape.class)) {
-            gs = new GammaGridShape(note);
-        } else if (clazz.equals(DeltaGridShape.class)) {
-            gs = new DeltaGridShape(note);
-        } else if (clazz.equals(EpsilonGridShape.class)) {
-            gs = new EpsilonGridShape(note);
+        if (clazz.equals(AlphaScaleGrid.class)) {
+            gs = new AlphaScaleGrid(note);
+        } else if (clazz.equals(BetaScaleGrid.class)) {
+            gs = new BetaScaleGrid(note);
+        } else if (clazz.equals(GammaScaleGrid.class)) {
+            gs = new GammaScaleGrid(note);
+        } else if (clazz.equals(DeltaScaleGrid.class)) {
+            gs = new DeltaScaleGrid(note);
+        } else if (clazz.equals(EpsilonScaleGrid.class)) {
+            gs = new EpsilonScaleGrid(note);
         }
 
         return gs;

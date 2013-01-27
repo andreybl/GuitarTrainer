@@ -18,12 +18,12 @@ import java.util.List;
 import android.test.ActivityInstrumentationTestCase2;
 
 import com.ago.guitartrainer.MasterActivity;
-import com.ago.guitartrainer.gridshapes.AlphaGridShape;
-import com.ago.guitartrainer.gridshapes.GridShape;
 import com.ago.guitartrainer.notation.Degree;
 import com.ago.guitartrainer.notation.Note;
 import com.ago.guitartrainer.notation.NoteStave;
 import com.ago.guitartrainer.notation.Position;
+import com.ago.guitartrainer.scalegrids.AlphaScaleGrid;
+import com.ago.guitartrainer.scalegrids.ScaleGrid;
 import com.jayway.android.robotium.solo.Solo;
 
 public class GuitarTrainerTest extends ActivityInstrumentationTestCase2<MasterActivity> {
@@ -56,7 +56,7 @@ public class GuitarTrainerTest extends ActivityInstrumentationTestCase2<MasterAc
     
     public void test_GridShape_byFret() {
 //        GridShape gs = GridShape.create(AlphaGridShape.class, Note.D4);
-        GridShape gs = GridShape.create(AlphaGridShape.class, 2);
+        ScaleGrid gs = ScaleGrid.create(AlphaScaleGrid.class, 2);
 
         List<Note> notes = gs.degree2Notes(Degree.SEVEN);
         assertEquals(2, notes.size());

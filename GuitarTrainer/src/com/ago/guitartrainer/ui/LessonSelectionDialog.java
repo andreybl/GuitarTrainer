@@ -16,7 +16,7 @@ import com.ago.guitartrainer.R;
 import com.ago.guitartrainer.lessons.ILesson;
 import com.ago.guitartrainer.lessons.custom.LessonNote2Position;
 import com.ago.guitartrainer.lessons.custom.LessonPosition2Note;
-import com.ago.guitartrainer.lessons.custom.LessonShapeDegree2Position;
+import com.ago.guitartrainer.lessons.custom.LessonScalegridDegree2Position;
 
 /**
  * Dialog for selecting one of the predefine lessons.
@@ -67,7 +67,7 @@ public class LessonSelectionDialog extends Dialog {
 
         ILesson lesson1 = new LessonPosition2Note();
         ILesson lesson2 = new LessonNote2Position();
-        ILesson lesson3 = new LessonShapeDegree2Position();
+        ILesson lesson3 = new LessonScalegridDegree2Position();
 
         lessons.add(lesson1);
         lessons.add(lesson2);

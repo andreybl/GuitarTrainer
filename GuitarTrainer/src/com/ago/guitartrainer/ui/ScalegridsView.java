@@ -13,11 +13,11 @@ import android.widget.GridLayout;
 import android.widget.TextView;
 
 import com.ago.guitartrainer.R;
-import com.ago.guitartrainer.gridshapes.GridShape;
+import com.ago.guitartrainer.scalegrids.ScaleGrid;
 
-public class ShapesView extends AInoutView<GridShape.Type> {
+public class ScalegridsView extends AInoutView<ScaleGrid.Type> {
 
-    private Map<Button, GridShape.Type> btn2Shape = new Hashtable<Button, GridShape.Type>();
+    private Map<Button, ScaleGrid.Type> btn2Shape = new Hashtable<Button, ScaleGrid.Type>();
 
     /** title of the view */
     private TextView tvViewTitle;
@@ -27,35 +27,35 @@ public class ShapesView extends AInoutView<GridShape.Type> {
 
     private View mainLayout;
 
-    public ShapesView(Context context) {
+    public ScalegridsView(Context context) {
         super(context);
 
         init();
     }
 
-    public ShapesView(Context context, AttributeSet attrs) {
+    public ScalegridsView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
         init();
     }
 
-    public ShapesView(Context context, AttributeSet attrs, int defStyle) {
+    public ScalegridsView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
 
         init();
     }
 
     private void init() {
-        mainLayout = ((Activity) getContext()).getLayoutInflater().inflate(R.layout.shapes_view, this, true);
+        mainLayout = ((Activity) getContext()).getLayoutInflater().inflate(R.layout.scalegrids_view, this, true);
 
         tvViewTitle = (TextView) mainLayout.findViewById(R.id.txt_view_title);
         gridForButtons = (GridLayout) mainLayout.findViewById(R.id.grid_for_buttons);
 
-        btn2Shape.put((Button) mainLayout.findViewById(R.id.gridshape_alpha), GridShape.Type.ALPHA);
-        btn2Shape.put((Button) mainLayout.findViewById(R.id.gridshape_beta), GridShape.Type.BETA);
-        btn2Shape.put((Button) mainLayout.findViewById(R.id.gridshape_gamma), GridShape.Type.GAMMA);
-        btn2Shape.put((Button) mainLayout.findViewById(R.id.gridshape_delta), GridShape.Type.DELTA);
-        btn2Shape.put((Button) mainLayout.findViewById(R.id.gridshape_epsilon), GridShape.Type.EPSILON);
+        btn2Shape.put((Button) mainLayout.findViewById(R.id.gridshape_alpha), ScaleGrid.Type.ALPHA);
+        btn2Shape.put((Button) mainLayout.findViewById(R.id.gridshape_beta), ScaleGrid.Type.BETA);
+        btn2Shape.put((Button) mainLayout.findViewById(R.id.gridshape_gamma), ScaleGrid.Type.GAMMA);
+        btn2Shape.put((Button) mainLayout.findViewById(R.id.gridshape_delta), ScaleGrid.Type.DELTA);
+        btn2Shape.put((Button) mainLayout.findViewById(R.id.gridshape_epsilon), ScaleGrid.Type.EPSILON);
 
         InnerOnClickListener onClickListener = new InnerOnClickListener();
         for (Button btnGrid : btn2Shape.keySet()) {
@@ -78,7 +78,7 @@ public class ShapesView extends AInoutView<GridShape.Type> {
         super.setEnabled(enabled);
     }
 
-    public void show(GridShape.Type gridShape) {
+    public void show(ScaleGrid.Type gridShape) {
         Set<Button> btns = btn2Shape.keySet();
 
         Button selectedBtn = resolveDegree(btns, gridShape);
@@ -87,10 +87,10 @@ public class ShapesView extends AInoutView<GridShape.Type> {
 
     }
 
-    private Button resolveDegree(Set<Button> btns, GridShape.Type shape) {
+    private Button resolveDegree(Set<Button> btns, ScaleGrid.Type shape) {
         Button selectedBtn = null;
         for (Button button : btns) {
-            GridShape.Type d = btn2Shape.get(button);
+            ScaleGrid.Type d = btn2Shape.get(button);
             if (shape == d) {
                 selectedBtn = button;
                 break;
@@ -106,7 +106,7 @@ public class ShapesView extends AInoutView<GridShape.Type> {
 
         @Override
         public void onClick(View v) {
-            GridShape.Type gridShape = btn2Shape.get(v);
+            ScaleGrid.Type gridShape = btn2Shape.get(v);
 
             Set<Button> btns = btn2Shape.keySet();
 

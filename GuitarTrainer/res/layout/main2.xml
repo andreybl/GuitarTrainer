@@ -14,8 +14,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
 
-        <com.ago.guitartrainer.ui.ShapesView
-            android:id="@+id/view_shapesview"
+        <com.ago.guitartrainer.ui.ScalegridsView
+            android:id="@+id/view_scalegridview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 

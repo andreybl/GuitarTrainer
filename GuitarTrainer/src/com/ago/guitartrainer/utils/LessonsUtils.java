@@ -3,16 +3,16 @@ package com.ago.guitartrainer.utils;
 import java.util.List;
 import java.util.Random;
 
-import com.ago.guitartrainer.gridshapes.GridShape;
 import com.ago.guitartrainer.notation.Note;
 import com.ago.guitartrainer.notation.NoteStave;
 import com.ago.guitartrainer.notation.Position;
+import com.ago.guitartrainer.scalegrids.ScaleGrid;
 
 public class LessonsUtils {
 
     private static Random random = new Random();
     
-    public static Position pickPosition(GridShape gridShape) {
+    public static Position pickPosition(ScaleGrid gridShape) {
         List<Position> strongPositions = gridShape.strongPositions();
 
         int randomMin = 0;

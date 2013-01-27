@@ -36,7 +36,7 @@ public class MainFragment extends Fragment {
 
     private FretView fretView;
 
-    private ShapesView shapestView;
+    private ScalegridsView shapestView;
 
     private DegreesView degreesView;
 
@@ -56,7 +56,7 @@ public class MainFragment extends Fragment {
         LinearLayout mainLayout = (LinearLayout) inflater.inflate(R.layout.main2, container, false);
         /* Start: custom views: fret/shape/notes etc. */
         fretView = (FretView) mainLayout.findViewById(R.id.view_fretview);
-        shapestView = (ShapesView) mainLayout.findViewById(R.id.view_shapesview);
+        shapestView = (ScalegridsView) mainLayout.findViewById(R.id.view_scalegridview);
         degreesView = (DegreesView) mainLayout.findViewById(R.id.view_degreesview);
         notesView = (NotesView) mainLayout.findViewById(R.id.view_notesview);
         learningStatusView = (LearningStatusView) mainLayout.findViewById(R.id.learning_status);
@@ -120,7 +120,7 @@ public class MainFragment extends Fragment {
     }
 
     // TODO: rename
-    public ShapesView getShapestView() {
+    public ScalegridsView getShapestView() {
         return shapestView;
     }
 

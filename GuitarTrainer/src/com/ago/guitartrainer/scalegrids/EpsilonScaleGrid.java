@@ -1,29 +1,30 @@
-package com.ago.guitartrainer.gridshapes;
+package com.ago.guitartrainer.scalegrids;
 
 import com.ago.guitartrainer.notation.Degree;
 import com.ago.guitartrainer.notation.Note;
 
-public class BetaGridShape extends GridShape {
+public class EpsilonScaleGrid extends ScaleGrid {
 
     //@formatter:off
     private static Degree[] zeroFretDegrees = new Degree[] { 
-        Degree.FOUR_HALF, 
         Degree.ONE_HALF, 
-        Degree.SIX, 
-        Degree.THREE,
-        Degree.SEVEN, 
-        Degree.FOUR_HALF };
+        Degree.FIVE_HALF, 
+        Degree.THREE, 
+        Degree.SEVEN,
+        Degree.FOUR_HALF, 
+        Degree.ONE_HALF };
     //@formatter:on
 
     private static int frets = 5;
 
-    private static int[] rootStrings = new int[] { 2, 4 };
+    private static int[] rootStrings = new int[] { 1, 3 };
 
-    BetaGridShape(Note key) {
+    EpsilonScaleGrid(Note key) {
         super(zeroFretDegrees, frets, rootStrings, key);
     }
-
-    BetaGridShape(int suggestedFret) {
+    
+    EpsilonScaleGrid(int suggestedFret) {
         super(zeroFretDegrees, frets, rootStrings, suggestedFret);
     }
+
 }

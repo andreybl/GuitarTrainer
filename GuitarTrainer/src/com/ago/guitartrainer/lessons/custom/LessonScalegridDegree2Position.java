@@ -10,28 +10,28 @@ import android.util.Log;
 import com.ago.guitartrainer.R;
 import com.ago.guitartrainer.events.NotePlayingEvent;
 import com.ago.guitartrainer.events.OnViewSelectionListener;
-import com.ago.guitartrainer.gridshapes.GridShape;
-import com.ago.guitartrainer.gridshapes.GridShape.Type;
 import com.ago.guitartrainer.lessons.AQuestion;
 import com.ago.guitartrainer.lessons.AQuestion.QuestionStatus;
 import com.ago.guitartrainer.lessons.LessonMetrics;
 import com.ago.guitartrainer.lessons.QuestionMetrics;
 import com.ago.guitartrainer.notation.Degree;
 import com.ago.guitartrainer.notation.Position;
+import com.ago.guitartrainer.scalegrids.ScaleGrid;
+import com.ago.guitartrainer.scalegrids.ScaleGrid.Type;
 import com.ago.guitartrainer.ui.DegreesView;
 import com.ago.guitartrainer.ui.FretView;
 import com.ago.guitartrainer.ui.FretView.Layer;
 import com.ago.guitartrainer.ui.LearningStatusView;
 import com.ago.guitartrainer.ui.MainFragment;
-import com.ago.guitartrainer.ui.ShapesView;
+import com.ago.guitartrainer.ui.ScalegridsView;
 import com.ago.guitartrainer.utils.LessonsUtils;
 
-public class LessonShapeDegree2Position extends ALesson {
+public class LessonScalegridDegree2Position extends ALesson {
 
     /* START: views to visualize questions */
     private FretView fretView;
 
-    private ShapesView shapesView;
+    private ScalegridsView shapesView;
 
     private DegreesView degreesView;
 
@@ -65,7 +65,7 @@ public class LessonShapeDegree2Position extends ALesson {
     private boolean isAreaStartInputAllowed = true;
 
     /** shape type, as selected by the user */
-    private GridShape.Type gridShapeType = Type.ALPHA;
+    private ScaleGrid.Type gridShapeType = Type.ALPHA;
 
     /** start area for the scale grid, as selected by the user */
     private int areaStart = 0;
@@ -108,7 +108,7 @@ public class LessonShapeDegree2Position extends ALesson {
     private QuestionMetrics currentQuestionMetrics;
 
     private class QuestionShapeDegree2Position extends AQuestion {
-        private GridShape.Type gridShapeType = Type.ALPHA;
+        private ScaleGrid.Type gridShapeType = Type.ALPHA;
 
         private int position = 0;
 
@@ -117,7 +117,7 @@ public class LessonShapeDegree2Position extends ALesson {
 
     @Override
     public String getTitle() {
-        return "ShapeDegree2Position";
+        return "ScalegridDegree2Position";
     }
 
     @Override
@@ -244,7 +244,7 @@ public class LessonShapeDegree2Position extends ALesson {
 
         /* 3. visualize the question to the user */
 
-        GridShape gridShape = GridShape.create(gridShapeType, areaStart);
+        ScaleGrid gridShape = ScaleGrid.create(gridShapeType, areaStart);
 
         /* both positions must be played for the answer to be accepted */
         acceptedPositions = gridShape.degree2Positions(degree);
@@ -259,9 +259,9 @@ public class LessonShapeDegree2Position extends ALesson {
         Log.d(getTag(), "Shape: " + gridShape + ", Degree: " + degree + ", Expect positions: " + acceptedPositions);
     }
 
-    private GridShape.Type randomGridShapeType() {
-        int indexOfGridShape = LessonsUtils.random(0, GridShape.Type.values().length - 1);
-        GridShape.Type gridShapeType = GridShape.Type.values()[indexOfGridShape];
+    private ScaleGrid.Type randomGridShapeType() {
+        int indexOfGridShape = LessonsUtils.random(0, ScaleGrid.Type.values().length - 1);
+        ScaleGrid.Type gridShapeType = ScaleGrid.Type.values()[indexOfGridShape];
 
         return gridShapeType;
     }
@@ -270,17 +270,17 @@ public class LessonShapeDegree2Position extends ALesson {
      * Calculates a random but still valid start of the area in which the scale grid of a given type may reside.
      * 
      * The start area is considered to be valid, if it lays somewhere inside of the 0..
-     * {@value GridShape#FRETS_ON_GUITAR} frets of the guitar.
+     * {@value ScaleGrid#FRETS_ON_GUITAR} frets of the guitar.
      * 
      * @param gst
      *            type of the scale grid
      * @return valid start of the area
      */
-    private int randomAreaPositionForGridShapeType(GridShape.Type gst) {
-        int posStart = LessonsUtils.random(0, GridShape.FRETS_ON_GUITAR);
+    private int randomAreaPositionForGridShapeType(ScaleGrid.Type gst) {
+        int posStart = LessonsUtils.random(0, ScaleGrid.FRETS_ON_GUITAR);
         int posEnd = posStart + gst.numOfFrets();
-        if (posEnd > GridShape.FRETS_ON_GUITAR) {
-            posStart = GridShape.FRETS_ON_GUITAR - (posEnd - posStart);
+        if (posEnd > ScaleGrid.FRETS_ON_GUITAR) {
+            posStart = ScaleGrid.FRETS_ON_GUITAR - (posEnd - posStart);
         }
         return posStart;
     }
@@ -413,10 +413,10 @@ public class LessonShapeDegree2Position extends ALesson {
      * @author Andrej Golovko - jambit GmbH
      * 
      */
-    private class InnerOnShapeSelectionListener implements OnViewSelectionListener<GridShape.Type> {
+    private class InnerOnShapeSelectionListener implements OnViewSelectionListener<ScaleGrid.Type> {
 
         @Override
-        public void onViewElementSelected(GridShape.Type element) {
+        public void onViewElementSelected(ScaleGrid.Type element) {
             gridShapeType = element;
 
         }

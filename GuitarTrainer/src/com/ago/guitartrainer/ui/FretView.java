@@ -30,12 +30,12 @@ import com.ago.guitartrainer.PitchDetector;
 import com.ago.guitartrainer.R;
 import com.ago.guitartrainer.events.INoteEventListener;
 import com.ago.guitartrainer.events.NotePlayingEvent;
-import com.ago.guitartrainer.gridshapes.GridShape;
 import com.ago.guitartrainer.midi.FFTPitchDetectorListener;
 import com.ago.guitartrainer.midi.PitchDetectorPhase;
 import com.ago.guitartrainer.notation.Note;
 import com.ago.guitartrainer.notation.NoteStave;
 import com.ago.guitartrainer.notation.Position;
+import com.ago.guitartrainer.scalegrids.ScaleGrid;
 
 /**
  * The view with a fret of a guitar. Consists of the fret image and some control widgets arround it.
@@ -195,7 +195,7 @@ public class FretView extends AInoutView<NotePlayingEvent> {
 
     }
 
-    public void show(Layer layer, GridShape gridShape) {
+    public void show(Layer layer, ScaleGrid gridShape) {
         fretImageView.show(layer, gridShape);
     }
 
@@ -477,7 +477,7 @@ public class FretView extends AInoutView<NotePlayingEvent> {
             super(context);
         }
 
-        private void show(Layer layer, GridShape gridShape) {
+        private void show(Layer layer, ScaleGrid gridShape) {
             List<Position> list = gridShape.strongPositions();
             Position[] positions = list.toArray(new Position[list.size()]);
             show(layer, positions);
