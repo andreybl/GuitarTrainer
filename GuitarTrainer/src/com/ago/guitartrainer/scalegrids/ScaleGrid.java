@@ -299,51 +299,51 @@ public abstract class ScaleGrid {
     /**
      * 
      * @param clazz
-     * @param progress
+     * @param position
      * @return
      * 
      * @Deprecated use {@link #create(Type, int)} instead
      */
-    public static ScaleGrid create(Class<? extends ScaleGrid> clazz, int progress) {
+    public static ScaleGrid create(Class<? extends ScaleGrid> clazz, int position) {
         ScaleGrid gs = null;
 
         if (clazz.equals(AlphaScaleGrid.class)) {
-            gs = new AlphaScaleGrid(progress);
+            gs = new AlphaScaleGrid(position);
         } else if (clazz.equals(BetaScaleGrid.class)) {
-            gs = new BetaScaleGrid(progress);
+            gs = new BetaScaleGrid(position);
         } else if (clazz.equals(GammaScaleGrid.class)) {
-            gs = new GammaScaleGrid(progress);
+            gs = new GammaScaleGrid(position);
         } else if (clazz.equals(DeltaScaleGrid.class)) {
-            gs = new DeltaScaleGrid(progress);
+            gs = new DeltaScaleGrid(position);
         } else if (clazz.equals(EpsilonScaleGrid.class)) {
-            gs = new EpsilonScaleGrid(progress);
+            gs = new EpsilonScaleGrid(position);
         }
 
         return gs;
     }
 
-    public static ScaleGrid create(ScaleGrid.Type gridShapeType, int progress) {
+    public static ScaleGrid create(ScaleGrid.Type gridShapeType, int fretPosition) {
         ScaleGrid gs = null;
 
         switch (gridShapeType) {
         case ALPHA: {
-            gs = new AlphaScaleGrid(progress);
+            gs = new AlphaScaleGrid(fretPosition);
             break;
         }
         case BETA: {
-            gs = new BetaScaleGrid(progress);
+            gs = new BetaScaleGrid(fretPosition);
             break;
         }
         case GAMMA: {
-            gs = new GammaScaleGrid(progress);
+            gs = new GammaScaleGrid(fretPosition);
             break;
         }
         case DELTA: {
-            gs = new DeltaScaleGrid(progress);
+            gs = new DeltaScaleGrid(fretPosition);
             break;
         }
         case EPSILON: {
-            gs = new EpsilonScaleGrid(progress);
+            gs = new EpsilonScaleGrid(fretPosition);
             break;
         }
         default:

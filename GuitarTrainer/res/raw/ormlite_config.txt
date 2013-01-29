@@ -1,5 +1,5 @@
 #
-# generated on 2013/01/27 05:45:03
+# generated on 2013/01/29 01:09:00
 #
 # --table-start--
 dataClass=com.ago.guitartrainer.lessons.custom.QuestionScalegridDegree2Position
@@ -13,10 +13,38 @@ generatedId=true
 fieldName=scaleGridType
 # --field-end--
 # --field-start--
+fieldName=qMetric
+canBeNull=false
+foreign=true
+# --field-end--
+# --field-start--
 fieldName=fretPosition
 # --field-end--
 # --field-start--
 fieldName=degree
+# --field-end--
+# --table-fields-end--
+# --table-end--
+#################################
+# --table-start--
+dataClass=com.ago.guitartrainer.lessons.QuestionMetrics
+tableName=questionmetrics
+# --table-fields-start--
+# --field-start--
+fieldName=id
+generatedId=true
+# --field-end--
+# --field-start--
+fieldName=avgSuccessfulAnswerTime
+# --field-end--
+# --field-start--
+fieldName=numOfSuccessfulAnswers
+# --field-end--
+# --field-start--
+fieldName=numOfFailedAnswers
+# --field-end--
+# --field-start--
+fieldName=tstOfLatestSuccessfulAnswer
 # --field-end--
 # --table-fields-end--
 # --table-end--

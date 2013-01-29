@@ -3,7 +3,9 @@ package com.ago.guitartrainer.lessons.custom;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import android.os.CountDownTimer;
 import android.util.Log;
@@ -18,6 +20,7 @@ import com.ago.guitartrainer.lessons.QuestionMetrics;
 import com.ago.guitartrainer.notation.Degree;
 import com.ago.guitartrainer.notation.Position;
 import com.ago.guitartrainer.scalegrids.ScaleGrid;
+import com.ago.guitartrainer.scalegrids.ScaleGrid.Type;
 import com.ago.guitartrainer.ui.DegreesView;
 import com.ago.guitartrainer.ui.FretView;
 import com.ago.guitartrainer.ui.FretView.Layer;
@@ -26,8 +29,12 @@ import com.ago.guitartrainer.ui.MainFragment;
 import com.ago.guitartrainer.ui.ScalegridsView;
 import com.ago.guitartrainer.utils.LessonsUtils;
 import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.dao.RuntimeExceptionDao;
+import com.j256.ormlite.support.DatabaseConnection;
 
 public class LessonScalegridDegree2Position extends ALesson {
+
+    private static final int UNDEFINED = 0;
 
     /* START: views to visualize questions */
     private FretView fretView;
@@ -108,6 +115,12 @@ public class LessonScalegridDegree2Position extends ALesson {
      * */
     private QuestionMetrics currentQuestionMetrics;
 
+    private DatabaseHelper dbHelper = new DatabaseHelper(MainFragment.getInstance().getActivity());
+
+    private RuntimeExceptionDao<QuestionScalegridDegree2Position, Integer> qDao;
+
+    private RuntimeExceptionDao<QuestionMetrics, Integer> qmDao;
+
     @Override
     public String getTitle() {
         return "ScalegridDegree2Position";
@@ -145,6 +158,16 @@ public class LessonScalegridDegree2Position extends ALesson {
         OnViewSelectionListener<NotePlayingEvent> onSelectionListener = new InnerOnSelectionListener();
         fretView.registerListener(onSelectionListener);
 
+        // and also prepare the dB
+        qDao = dbHelper.getRuntimeExceptionDao(QuestionScalegridDegree2Position.class);
+        qmDao = dbHelper.getRuntimeExceptionDao(QuestionMetrics.class);
+
+        // try {
+        // DatabaseConnection rwCon = qmDao.getConnectionSource().getReadWriteConnection();
+        // qmDao.setAutoCommit(rwCon, true);
+        // } catch (SQLException e) {
+        // e.printStackTrace();
+        // }
     }
 
     @Override
@@ -153,16 +176,30 @@ public class LessonScalegridDegree2Position extends ALesson {
         fretView.clearLayer(layerLesson);
         questionTimer.cancel();
         currentQuestionMetrics.submitAnswer(false);
+
+        qmDao.update(currentQuestionMetrics);
+
     }
 
     /**
-     * Skip to the next lesson.
+     * Skip to the next lesson. Or start the first question in the lesson loop.
      * 
      * The answer results are not important.
      * 
      **/
     @Override
     public void next() {
+        /*-
+         *  
+         * During starting new or skipping to new question inside of 
+         * the current lesson loop we must either create or pick from dB:
+         *   - LessonMetrics, this is done once in the loop
+         *   - Question (appropriate for this lesson type) 
+         *   - QuestionMetrics for the question
+         *  
+         *  
+         * 
+         **/
 
         /* start question countdown */
         if (questionTimer != null)
@@ -173,7 +210,7 @@ public class LessonScalegridDegree2Position extends ALesson {
             pauseTimer.cancel();
 
         // TODO: restore the question from the database
-        currentQuestion = new QuestionScalegridDegree2Position();
+        // currentQuestion = new QuestionScalegridDegree2Position();
 
         if (lessonMetrics == null) {
             /*
@@ -194,45 +231,102 @@ public class LessonScalegridDegree2Position extends ALesson {
         learningStatusView.updateCurrentLessonDuration(lessonMetrics.currentDuration());
         learningStatusView.updateAnswerStatus(QuestionStatus.UNDEFINED);
 
-        learningStatusView.updateNextQuestionIndication(0);
+        learningStatusView.updateNextQuestionIndication(UNDEFINED);
 
         fretView.clearLayer(layerLesson);
 
         int qCounter = lessonMetrics.increaseQuestionsCounter();
         learningStatusView.updateQuestionsCounter(qCounter);
 
-        /* 1. decide on the parameters for the learning function */
-        if (!isShapeInputAllowed) {
-            // param1: grid shape type must be random
-            currentQuestion.scaleGridType = randomGridShapeType();
-        }
+        /*
+         * the original idea was to keep the question params completely in an appropriate AQuestion subclass. But the
+         * problems is, that we must decided on the params before we can pick the question from the dB. And the
+         * AQuestion instance is required to get appropriate QuestionMetrics object.
+         * 
+         * So we use temporal vars, which type actually corresponds to the AQuestion vars types.
+         */
+        Type scaleGridType = Type.ALPHA;
+        int fretPosition = 0;
+        Degree degree = Degree.ONE;
 
-        if (!isAreaStartInputAllowed) {
-            currentQuestion.fretPosition = randomFretPositionForGridShapeType(currentQuestion.scaleGridType);
-        }
-
-        if (!isDegreeInputAllowed) {
-            currentQuestion.degree = randomDegree();
-        }
-
-        /* 2. try to resolve the Question with the given params from dB. Or create a new one */
         {
-            // TODO: resolve already existing metrics from dB
+            /*
+             * 1.
+             * 
+             * In this block we decide on the parameters of the learning function. There are three params here, and each
+             * of them can be either user selected or randomly picked.
+             */
+            if (!isShapeInputAllowed) {
+                // param1: grid shape type must be random
+                scaleGridType = randomGridShapeType();
+            }
 
-            currentQuestionMetrics = new QuestionMetrics();
+            if (!isAreaStartInputAllowed) {
+                fretPosition = randomFretPositionForGridShapeType(currentQuestion.scaleGridType);
+            }
 
-            currentQuestionMetrics.start();
-
+            if (!isDegreeInputAllowed) {
+                degree = randomDegree();
+            }
         }
+
+        {
+            /*
+             * 2.
+             * 
+             * now we ready either to pick AQuestion from dB, or create a new one. And also the same for related
+             * QuestionMetrics.
+             */
+            try {
+                // resolve question
+                List<QuestionScalegridDegree2Position> quests = qDao.queryBuilder().where()
+                        .eq("scaleGridType", scaleGridType).and().eq("fretPosition", fretPosition).and()
+                        .eq("degree", degree).query();
+                if (quests.size() == 0) {
+                    currentQuestion = new QuestionScalegridDegree2Position();
+                    currentQuestion.scaleGridType = scaleGridType;
+                    currentQuestion.fretPosition = fretPosition;
+                    currentQuestion.degree = degree;
+                    // in the next step the metrics object will be added
+
+                } else if (quests.size() == 1) {
+                    currentQuestion = quests.get(0);
+                } else {
+                    throw new RuntimeException("The question object is not unique.");
+                }
+
+                // resolve metrics for the question
+                List<QuestionMetrics> qMetrics = qmDao.queryBuilder().where().idEq(currentQuestion.getId()).query();
+                if (qMetrics.size() == 0) {
+                    currentQuestionMetrics = new QuestionMetrics();
+                } else if (qMetrics.size() == 1) {
+                    currentQuestionMetrics = qMetrics.get(0);
+                } else {
+                    throw new RuntimeException("The question metrics object is not unique.");
+                }
+
+                // save both object to dB, if did not exist before
+                if (currentQuestionMetrics.getId() == 0) {
+                    qmDao.create(currentQuestionMetrics);
+                }
+                if (currentQuestion.getId() == 0) {
+                    currentQuestion.setMetrics(currentQuestionMetrics);
+                    qDao.create(currentQuestion);
+
+                }
+            } catch (SQLException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+
+        currentQuestionMetrics.start();
 
         /* 3. visualize the question to the user */
-
         ScaleGrid gridShape = ScaleGrid.create(currentQuestion.scaleGridType, currentQuestion.fretPosition);
 
         /* both positions must be played for the answer to be accepted */
         acceptedPositions = gridShape.degree2Positions(currentQuestion.degree);
-
-        tmpTestPersistance(currentQuestion);
 
         shapesView.show(gridShape.getType());
         degreesView.show(currentQuestion.degree);
@@ -244,31 +338,104 @@ public class LessonScalegridDegree2Position extends ALesson {
         Log.d(getTag(), currentQuestion.toString());
     }
 
-    DatabaseHelper dbHelper = new DatabaseHelper(MainFragment.getInstance().getActivity());
-
-    private void tmpTestPersistance(QuestionScalegridDegree2Position question) {
-        try {
-            Dao<QuestionScalegridDegree2Position, ?> dao = dbHelper.getDao(QuestionScalegridDegree2Position.class);
-
-            dao.create(question);
-            
-            Log.d(getTag(), "Inserted: "+question);
-        } catch (SQLException e) {
-            Log.e(getTag(), e.getMessage(), e);
-        }
-    }
-
     @Override
     public void showMetrics() {
-        try {
-            Dao<QuestionScalegridDegree2Position, ?> dao = dbHelper.getDao(QuestionScalegridDegree2Position.class);
+        /*
+         * TODO:
+         * 
+         * the current implementation of the metrics is for demo purposes only. For instance, it is just easier for me
+         * to reuse existing views - FretView - as to write a separate one.
+         */
 
-            for (QuestionScalegridDegree2Position q : dao) {
-                Log.d(getTag(), q.toString());
+        /*-
+         * With the visualization used here we project all scale grids of specific type onto the single scale grid
+         * located at position 0. For example, the degree II of Alpha scale grid will contain the metrics for all
+         * degree-II positions which are on the fret.
+         * 
+         * Basically, the algo is as following
+         *  - find questions and metrics for specific scale grid type
+         *  - create Map<Degree, Double> position-agnostic map from Degree to avg response time
+         *  - use this map to create another Map<Position, Integer> map, which contains the positions 
+         *    of specific scale grid starting from fretPosition=0. (the Integer specifies the color)
+         */
+        try {
+            fretView.clearLayer(layerLesson);
+
+            ScaleGrid.Type scaleGridType = ScaleGrid.Type.ALPHA;
+            /*
+             * TODO: implementation is sub-optimal. The query could actually be done with single left-join query. But
+             * currently, I donn't know how to do it with ORMLite
+             */
+            List<QuestionScalegridDegree2Position> quests = qDao.queryBuilder().where()
+                    .eq("scaleGridType", scaleGridType).query();
+
+            /* collection metrics about degrees */
+            Map<Degree, Double> mapDegree2Avg = new HashMap<Degree, Double>();
+            Map<Degree, Integer> mapDegree2Counter = new HashMap<Degree, Integer>(); // helper map, to calculate the
+                                                                                     // average
+            for (QuestionScalegridDegree2Position quest : quests) {
+                if (quest.getMetrics() != null) {
+                    Integer qmId = quest.getMetrics().getId();
+                    List<QuestionMetrics> results = qmDao.queryBuilder().where().idEq(qmId).query();
+                    QuestionMetrics qm = results.get(0);
+
+                    if (!mapDegree2Avg.containsKey(quest.degree)) {
+                        mapDegree2Avg.put(quest.degree, 0d);
+                        mapDegree2Counter.put(quest.degree, 0);
+                    }
+
+                    int nMinus1 = mapDegree2Counter.get(quest.degree);
+                    int n = nMinus1 + 1;
+                    mapDegree2Counter.put(quest.degree, n);
+
+                    double oldVal = mapDegree2Avg.get(quest.degree);
+                    double newVal = (nMinus1 * oldVal + (double) qm.avgSuccessfulAnswerTime) / n;
+                    mapDegree2Avg.put(quest.degree, newVal);
+                }
             }
+
+            /* Preparing the position to color map, Map<Position, Integer> */
+            ScaleGrid scaleGrid = ScaleGrid.create(ScaleGrid.Type.ALPHA, 0);
+            Map<Position, Integer> mapPosition2Color = new HashMap<Position, Integer>();
+
+            for (Degree degree : Degree.STRONG_DEGREES) {
+                /*
+                 * TODO: problem: positions with the same degree will always have the same color.
+                 * 
+                 * To differentiate the both positions with the same degree we need to be more precise in question
+                 * itself: like, use "Higher" or "Lower" keywords when asking the user to identify position in scale
+                 * grid.
+                 */
+                List<Position> positions = scaleGrid.degree2Positions(degree);
+
+                for (Position position : positions) {
+                    int color = R.color.black;
+
+                    if (!mapDegree2Avg.containsKey(degree)) {
+                        mapPosition2Color.put(position, color);
+                        continue;
+                    }
+
+                    Double avg = mapDegree2Avg.get(degree);
+
+                    if (avg > 10000) {
+                        color = R.color.red;
+                    } else if (avg > 5000) {
+                        color = R.color.orange;
+                    } else if (avg > 0) {
+                        color = R.color.green;
+                    } else {
+                        color = R.color.gray;
+                    }
+                    mapPosition2Color.put(position, color);
+                }
+            }
+
+            // visualize
+            fretView.show(layerLesson, mapPosition2Color);
+
         } catch (SQLException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            Log.d(getTag(), e.getMessage(), e);
         }
     }
 
@@ -408,6 +575,8 @@ public class LessonScalegridDegree2Position extends ALesson {
                         learningStatusView.updateAnswerStatus(QuestionStatus.FAILURE);
 
                     }
+
+                    qmDao.update(currentQuestionMetrics);
 
                     learningStatusView.updateCurrentQuestionTrials(currentQuestionMetrics.numOfTrialsLastLoop());
 

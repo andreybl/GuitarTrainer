@@ -6,7 +6,10 @@
  * <li> the classes like "Account" (from example) are simple POJOs 
  * <li> each class like "Account" requires a DAO class like "Dao<Account, String>", which is used to create, update, 
  *      find etc. the "Account" 
- * <li> the DAO can be received from DaoManager.createDao(.., Account.class) call  
+ * <li> the DAO can be received from DaoManager.createDao(.., Account.class) call
+ * <li> register new class type in {@link com.ago.guitartrainer.db.DatabaseConfigUtil}
+ * <li> increase DATABASE_VERSION and run the {@link com.ago.guitartrainer.db.DatabaseConfigUtil} each time the entity objects are modified
+ * <li> add new line to onCreate() and onUpdate() methods of {@link com.ago.guitartrainer.db.DatabaseConfigUtil}
  * </ul>
  * 
  * 

@@ -1,5 +1,7 @@
 package com.ago.guitartrainer.lessons;
 
+import com.j256.ormlite.field.DatabaseField;
+
 /**
  * Metrics associated with specific IQuestion instance.
  * 
@@ -14,10 +16,8 @@ package com.ago.guitartrainer.lessons;
  */
 public class QuestionMetrics {
 
-    // TODO use later for persistance, @DatabaseField(generatedId = true)
-    // private int id;
-
-    private AQuestion question;
+    @DatabaseField(generatedId = true)
+    private int id;
 
     /** timestamp when the question was started */
     private long startedAt = 0;
@@ -25,8 +25,9 @@ public class QuestionMetrics {
     /** duration of the current question, eg. how much it took to answer the question successfully, in ms */
     private long duration = 0;
 
-    /** avg time required by the user to successfully answer the question */
-    private long avgSuccessfulAnswerTime;
+    /** avg time required by the user to successfully answer the question, in ms */
+    @DatabaseField
+    public long avgSuccessfulAnswerTime;
 
     /**
      * counter for successful answers.
@@ -34,13 +35,16 @@ public class QuestionMetrics {
      * Note that the difference (askedCounter-numOfSuccessfulAnswers) informs about number of times when the question
      * was skipped (e.g. user failed to answer the question).
      * */
+    @DatabaseField
     private int numOfSuccessfulAnswers;
 
+    @DatabaseField
     private int numOfFailedAnswers;
 
     /**
      * the timestamp of the latest successful answer to the question
      * */
+    @DatabaseField
     private long tstOfLatestSuccessfulAnswer;
 
     /**
@@ -50,6 +54,7 @@ public class QuestionMetrics {
      */
     private int numOfSuccessfulAnswersLastLoop = 0;
 
+    
     /**
      * counter for failed answers in last loop
      * 
@@ -60,6 +65,10 @@ public class QuestionMetrics {
     /** avg time of successful answers in the last loop */
     private long avgSuccessfulAnswerTimeLastLoop;
 
+    public int getId(){
+        return id;
+    }
+    
     /**
      * Submit the time required by the user to answer the question.
      * 
@@ -91,14 +100,20 @@ public class QuestionMetrics {
 
             avgSuccessfulAnswerTimeLastLoop = (avgSuccessfulAnswerTimeLastLoop * numOfSuccessfulAnswersLastLoop + duration)
                     / (numOfSuccessfulAnswersLastLoop + 1);
-            numOfSuccessfulAnswersLastLoop += 1;
+            
+            numOfSuccessfulAnswersLastLoop++;
+            numOfSuccessfulAnswers++;
 
             tstOfLatestSuccessfulAnswer = currentTime;
 
+            // TODO: do something with loop and non-loop metrics
+            avgSuccessfulAnswerTime = avgSuccessfulAnswerTimeLastLoop;
+            
             // TODO: calc the avg value for total
         } else {
 
-            numOfFailedAnswersLastLoop += 1;
+            numOfFailedAnswersLastLoop++;
+            numOfFailedAnswers++;
         }
 
     }

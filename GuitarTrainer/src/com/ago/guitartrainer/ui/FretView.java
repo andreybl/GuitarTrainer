@@ -208,6 +208,16 @@ public class FretView extends AInoutView<NotePlayingEvent> {
         fretImageView.show(layer, arrPositions);
     }
 
+    public void show(Layer layer, Map<Position, Integer> map) {
+        List<Position> coloredPositions = new ArrayList<Position>();
+        for (Position position : map.keySet()) {
+            int colorResourceId = map.get(position);
+            Position coloredPosition = new PositionColored(position, colorResourceId);
+            coloredPositions.add(coloredPosition);
+        }
+        show(layer, coloredPositions);
+    }
+
     /*
      * **** INNER CLASSES
      */
@@ -477,6 +487,14 @@ public class FretView extends AInoutView<NotePlayingEvent> {
             super(context);
         }
 
+        public FretImageView(Context context, AttributeSet attrs) {
+            super(context, attrs);
+        }
+
+        public FretImageView(Context context, AttributeSet attrs, int defStyle) {
+            super(context, attrs, defStyle);
+        }
+
         private void show(Layer layer, ScaleGrid gridShape) {
             List<Position> list = gridShape.strongPositions();
             Position[] positions = list.toArray(new Position[list.size()]);
@@ -484,9 +502,10 @@ public class FretView extends AInoutView<NotePlayingEvent> {
         }
 
         private void show(Layer layer, Position... newPositions) {
-            // TODO: call in fretImageView?
 
+            /* Position's which already exist in the layer */
             Set<Position> existingPositions;
+
             if (mapLayer2Positions.containsKey(layer)) {
                 existingPositions = mapLayer2Positions.get(layer);
             } else {
@@ -516,14 +535,6 @@ public class FretView extends AInoutView<NotePlayingEvent> {
             this.fretView = fv;
         }
 
-        public FretImageView(Context context, AttributeSet attrs) {
-            super(context, attrs);
-        }
-
-        public FretImageView(Context context, AttributeSet attrs, int defStyle) {
-            super(context, attrs, defStyle);
-        }
-
         @Override
         protected void onDraw(Canvas canvas) {
             super.onDraw(canvas);
@@ -545,7 +556,19 @@ public class FretView extends AInoutView<NotePlayingEvent> {
                     int pxFret = midlesOfFrets[position.getFret()];
                     int pxStr = midlesOfStrings[position.getStringIndex()];
 
-                    paint.setColor(layer.colorId);
+                    /*
+                     * support for the differently colored positions.
+                     * 
+                     * if the position is not PositionColored and does not have own color - use color of the layer to
+                     * paint it.
+                     */
+                    if (position instanceof PositionColored) {
+                        PositionColored colored = (PositionColored) position;
+                        int colorId = getResources().getColor(colored.colorResourceId);
+                        paint.setColor(colorId);
+                    } else {
+                        paint.setColor(layer.colorId);
+                    }
 
                     canvas.drawCircle(pxFret, pxStr, 10, paint);
                 }
@@ -642,4 +665,19 @@ public class FretView extends AInoutView<NotePlayingEvent> {
 
     }
 
+    private class PositionColored extends Position {
+
+        /**
+         * color of the position.
+         * 
+         * The call like getResources().getColor(colorResourceId) is required for this color to take effect.
+         * 
+         */
+        private int colorResourceId;
+
+        public PositionColored(Position position, int colorResourceId) {
+            super(position.getStringIndex() + 1, position.getFret());
+            this.colorResourceId = colorResourceId;
+        }
+    }
 }

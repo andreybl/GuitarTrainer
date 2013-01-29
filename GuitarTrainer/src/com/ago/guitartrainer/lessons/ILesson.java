@@ -28,10 +28,11 @@ public interface ILesson {
     public long getDuration();
 
     /**
-     * Initializes UI elements, which are required by the lesson.
+     * Initializes UI elements, which are required by the lesson. Prepare DAO objects to access dB.
      * 
      * There different kinds of widgets required for the lesson. But at least widgets for presenting the question on one
      * side and the widgets for inputing the answers by the user on the other side are the must.
+     * 
      */
     public void prepareUi();
 

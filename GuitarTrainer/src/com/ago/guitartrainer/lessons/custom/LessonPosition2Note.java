@@ -43,9 +43,6 @@ public class LessonPosition2Note implements ILesson {
 
     private LearningStatusView learningStatusView;
 
-    /** counts the lessons */
-    private int counter = 0;
-
     private Layer layerLesson = new Layer(FretView.LAYER_Z_LESSON, MainFragment.getInstance().getResources()
             .getColor(R.color.blue));
 
@@ -130,8 +127,6 @@ public class LessonPosition2Note implements ILesson {
      **/
     @Override
     public void next() {
-
-        counter++;
 
         fretView.clearLayer(layerLesson);
 
