@@ -2,6 +2,7 @@ package com.ago.guitartrainer.ui;
 
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnDismissListener;
+import android.content.Intent;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -13,9 +14,12 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
+import com.ago.guitartrainer.MasterActivity;
 import com.ago.guitartrainer.R;
+import com.ago.guitartrainer.SettingsActivity;
+import com.ago.guitartrainer.SettingsFragment;
+import com.ago.guitartrainer.TestV4Fragment;
 import com.ago.guitartrainer.lessons.ILesson;
 
 public class MainFragment extends Fragment {
@@ -31,8 +35,10 @@ public class MainFragment extends Fragment {
     private Button btnNextLesson;
 
     private Button btnStopLesson;
-    
+
     private Button btnMetricsLesson;
+
+    private Button btnSettings;
 
     private ILesson currentLesson;
 
@@ -74,17 +80,20 @@ public class MainFragment extends Fragment {
         btnNextLesson = (Button) mainLayout.findViewById(R.id.btn_lesson_next);
         btnStopLesson = (Button) mainLayout.findViewById(R.id.btn_lesson_stop);
         btnMetricsLesson = (Button) mainLayout.findViewById(R.id.btn_lesson_metrics);
+        btnSettings = (Button) mainLayout.findViewById(R.id.btn_settings);
 
         btnSelectLessonDialog.setOnClickListener(innerOnClickListener);
         btnStartLesson.setOnClickListener(innerOnClickListener);
         btnNextLesson.setOnClickListener(innerOnClickListener);
         btnStopLesson.setOnClickListener(innerOnClickListener);
         btnMetricsLesson.setOnClickListener(innerOnClickListener);
+        btnSettings.setOnClickListener(innerOnClickListener);
 
         btnStartLesson.setEnabled(false);
         btnNextLesson.setEnabled(false);
         btnStopLesson.setEnabled(false);
         btnMetricsLesson.setEnabled(false);
+        btnSettings.setEnabled(true);
 
         // Note: the assignment must be done before the ILesson is instantiated.
         instance = this;
@@ -189,7 +198,7 @@ public class MainFragment extends Fragment {
                 btnStopLesson.setEnabled(true);
                 btnNextLesson.setEnabled(true);
                 btnMetricsLesson.setEnabled(false);
-                
+
                 if (currentLesson != null)
                     currentLesson.next();
                 break;
@@ -208,9 +217,14 @@ public class MainFragment extends Fragment {
                 btnStopLesson.setEnabled(false);
                 btnNextLesson.setEnabled(false);
                 btnMetricsLesson.setEnabled(true);
-                
+
                 if (currentLesson != null)
                     currentLesson.stop();
+                break;
+            }
+            case R.id.btn_settings: {
+                Intent intent = new Intent(getActivity(), SettingsActivity.class); 
+                 startActivity(intent);
                 break;
             }
             case R.id.btn_lesson_metrics: {

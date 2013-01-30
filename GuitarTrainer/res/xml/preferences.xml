@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+<!--     <EditTextPreference -->
+<!--         android:key="username" -->
+<!--         android:summary="Please provide your username" -->
+<!--         android:title="Your Name" > -->
+<!--     </EditTextPreference> -->
+
+<!--     <CheckBoxPreference -->
+<!--         android:defaultValue="true" -->
+<!--         android:key="pref_sync" -->
+<!--         android:summary="abc" -->
+<!--         android:title="xyz" /> -->
+
+    <com.ago.guitartrainer.prefs.IntListPreference
+        android:entries="@array/seconds_titles"
+        android:entryValues="@array/seconds_values"
+        android:key="question_duration_max"
+        android:summary="Duration of a question, in sec"
+        android:title="Question Duration" />
+    
+    <com.ago.guitartrainer.prefs.IntListPreference
+        android:entries="@array/seconds_titles"
+        android:entryValues="@array/seconds_values"
+        android:key="post_question_pause_duration"
+        android:summary="The pause duration after succeessful answer"
+        android:title="Post-Question Duration" />
+
+    <!-- <com.ago.guitartrainer.prefs.SpinnerPreference -->
+    <!-- android:key="question_duration_max" -->
+    <!-- android:summary="Duration of a question, in sec" -->
+    <!-- android:title="Question Duration" > -->
+    <!-- </com.ago.guitartrainer.prefs.SpinnerPreference> -->
+
+</PreferenceScreen>

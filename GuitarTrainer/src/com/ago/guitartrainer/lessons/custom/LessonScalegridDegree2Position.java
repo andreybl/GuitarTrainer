@@ -3,14 +3,19 @@ package com.ago.guitartrainer.lessons.custom;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import android.content.SharedPreferences;
 import android.os.CountDownTimer;
+import android.preference.PreferenceManager;
+import android.text.format.Time;
 import android.util.Log;
 
 import com.ago.guitartrainer.R;
+import com.ago.guitartrainer.SettingsActivity;
 import com.ago.guitartrainer.db.DatabaseHelper;
 import com.ago.guitartrainer.events.NotePlayingEvent;
 import com.ago.guitartrainer.events.OnViewSelectionListener;
@@ -28,9 +33,7 @@ import com.ago.guitartrainer.ui.LearningStatusView;
 import com.ago.guitartrainer.ui.MainFragment;
 import com.ago.guitartrainer.ui.ScalegridsView;
 import com.ago.guitartrainer.utils.LessonsUtils;
-import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.RuntimeExceptionDao;
-import com.j256.ormlite.support.DatabaseConnection;
 
 public class LessonScalegridDegree2Position extends ALesson {
 
@@ -174,7 +177,10 @@ public class LessonScalegridDegree2Position extends ALesson {
     public void stop() {
         lessonMetrics.stopTime();
         fretView.clearLayer(layerLesson);
+
+        pauseTimer.cancel();
         questionTimer.cancel();
+
         currentQuestionMetrics.submitAnswer(false);
 
         qmDao.update(currentQuestionMetrics);
@@ -332,7 +338,12 @@ public class LessonScalegridDegree2Position extends ALesson {
         degreesView.show(currentQuestion.degree);
         fretView.show(layerLesson, gridShape);
 
-        questionTimer = new QuestionTimer(10000, 300);
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(MainFragment.getInstance()
+                .getActivity());
+        int questionMaxDurationSec = sharedPref.getInt(SettingsActivity.KEY_QUESTION_DURATION_MAX, 10);
+
+        questionTimer = new QuestionTimer(questionMaxDurationSec * 1000, 300);
+
         questionTimer.start();
 
         Log.d(getTag(), currentQuestion.toString());
@@ -566,8 +577,14 @@ public class LessonScalegridDegree2Position extends ALesson {
                         learningStatusView.updateAnswerStatus(QuestionStatus.SUCCESS);
 
                         questionTimer.cancel();
-                        pauseTimer = new PauseTimer(15000, 1000);
-                        pauseTimer.start();
+
+                        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(MainFragment
+                                .getInstance().getActivity());
+                        int pauseDuration = sharedPref.getInt(SettingsActivity.KEY_POST_QUESTION_PAUSE_DURATION, 5);
+                        if (pauseDuration > 0) {
+                            pauseTimer = new PauseTimer(pauseDuration * 1000, 1000);
+                            pauseTimer.start();
+                        }
 
                     } else {
                         currentQuestionMetrics.submitAnswer(false);
