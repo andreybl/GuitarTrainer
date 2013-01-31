@@ -42,5 +42,7 @@ public abstract class AQuestion {
     
     // TODO use later for persistance, @DatabaseField(generatedId = true)
     // private int id;
+    
+    public abstract int getId();
 
 }
