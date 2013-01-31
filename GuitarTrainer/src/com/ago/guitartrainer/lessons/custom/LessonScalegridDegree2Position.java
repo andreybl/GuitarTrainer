@@ -591,6 +591,8 @@ public class LessonScalegridDegree2Position extends ALesson {
                         if (pauseDuration > 0) {
                             pauseTimer = new PauseTimer(pauseDuration * 1000, 1000);
                             pauseTimer.start();
+                        } else {
+                            next();
                         }
 
                     } else {

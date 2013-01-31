@@ -1,4 +1,4 @@
-package com.ago.guitartrainer.ui;
+package com.ago.guitartrainer.ui.dialogs;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +17,7 @@ import com.ago.guitartrainer.lessons.ILesson;
 import com.ago.guitartrainer.lessons.custom.LessonNote2Position;
 import com.ago.guitartrainer.lessons.custom.LessonPosition2Note;
 import com.ago.guitartrainer.lessons.custom.LessonScalegridDegree2Position;
+import com.ago.guitartrainer.ui.LessonsArrayAdapter;
 
 /**
  * Dialog for selecting one of the predefine lessons.

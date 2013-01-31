@@ -15,17 +15,20 @@
     <!-- android:title="xyz" /> -->
 
     <com.ago.guitartrainer.prefs.IntListPreference
+        android:defaultValue="30"
         android:entries="@array/seconds_titles"
         android:entryValues="@array/seconds_values"
         android:key="question_duration_max"
         android:summary="Duration of a question, in sec"
         android:title="Question Duration" />
+    
     <com.ago.guitartrainer.prefs.IntListPreference
         android:entries="@array/seconds_titles"
+        android:defaultValue="2"
         android:entryValues="@array/seconds_values"
         android:key="post_question_pause_duration"
         android:summary="The pause duration after succeessful answer"
-        android:title="Post-Question Duration" />
+        android:title="Post-Question Pause" />
 
     <!--
     Usage example: if the "700ms" is selected, than all 
@@ -33,6 +36,7 @@
     -->
     <com.ago.guitartrainer.prefs.IntListPreference
         android:entries="@array/milliseconds_titles"
+        android:defaultValue="2000"
         android:entryValues="@array/milliseconds_values"
         android:key="question_shortest_reaction_time"
         android:summary="Shortest reaction time possible when answering the questions"

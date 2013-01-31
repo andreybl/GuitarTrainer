@@ -21,6 +21,7 @@ import com.ago.guitartrainer.SettingsActivity;
 import com.ago.guitartrainer.SettingsFragment;
 import com.ago.guitartrainer.TestV4Fragment;
 import com.ago.guitartrainer.lessons.ILesson;
+import com.ago.guitartrainer.ui.dialogs.LessonSelectionDialog;
 
 public class MainFragment extends Fragment {
 
@@ -178,7 +179,6 @@ public class MainFragment extends Fragment {
                             btnStartLesson.setEnabled(true);
                             btnMetricsLesson.setEnabled(true);
                             learningStatusView.updateLessonName(currentLesson.getTitle());
-                            // btnSelectLessonDialog.setText(currentLesson.getTitle());
                         }
                     }
                 });

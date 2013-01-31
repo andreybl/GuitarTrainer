@@ -10,6 +10,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import com.ago.guitartrainer.ui.MainFragment;
+import com.ago.guitartrainer.ui.dialogs.AboutDialog;
 
 public class MasterActivity extends FragmentActivity {
 

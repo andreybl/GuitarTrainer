@@ -1,9 +1,14 @@
-package com.ago.guitartrainer;
+package com.ago.guitartrainer.ui.dialogs;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+
+import com.ago.guitartrainer.R;
+import com.ago.guitartrainer.R.id;
+import com.ago.guitartrainer.R.layout;
+import com.ago.guitartrainer.R.raw;
 
 import android.app.Dialog;
 import android.content.Context;
