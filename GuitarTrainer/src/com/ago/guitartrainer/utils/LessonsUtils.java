@@ -116,4 +116,13 @@ public class LessonsUtils {
 
         return note;
     }
+
+    public static Position randomPosition() {
+        boolean isDebugMode = GuitarTrainerApplication.getPrefs().getBoolean(SettingsActivity.KEY_DEBUG_MODE, true);
+        int str = LessonsUtils.random(1, 6);
+        int fret = LessonsUtils.random(0, (isDebugMode) ? 5 : ScaleGrid.FRETS_ON_GUITAR);
+
+        Position pos = new Position(str, fret);
+        return pos;
+    }
 }

@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import android.graphics.Color;
 import android.util.Log;
 
 import com.ago.guitartrainer.GuitarTrainerApplication;
@@ -14,7 +13,6 @@ import com.ago.guitartrainer.R;
 import com.ago.guitartrainer.SettingsActivity;
 import com.ago.guitartrainer.db.DatabaseHelper;
 import com.ago.guitartrainer.events.OnViewSelectionListener;
-import com.ago.guitartrainer.lessons.AQuestion;
 import com.ago.guitartrainer.lessons.QuestionMetrics;
 import com.ago.guitartrainer.notation.Note;
 import com.ago.guitartrainer.notation.NoteStave;
@@ -22,7 +20,6 @@ import com.ago.guitartrainer.notation.Position;
 import com.ago.guitartrainer.scalegrids.ScaleGrid;
 import com.ago.guitartrainer.ui.FretView;
 import com.ago.guitartrainer.ui.FretView.Layer;
-import com.ago.guitartrainer.ui.LearningStatusView;
 import com.ago.guitartrainer.ui.MainFragment;
 import com.ago.guitartrainer.ui.NotesView;
 import com.ago.guitartrainer.utils.LessonsUtils;
@@ -49,8 +46,6 @@ public class LessonPosition2Note extends ALesson {
     private NotesView notesView;
 
     private Note expectedNote;
-
-    private QuestionPosition2Note currentQuestion;
 
     private Layer layerLesson = new Layer(FretView.LAYER_Z_LESSON, MainFragment.getInstance().getResources()
             .getColor(R.color.blue));
@@ -176,18 +171,15 @@ public class LessonPosition2Note extends ALesson {
 
         fretView.clearLayer(layerLesson);
 
-        boolean isDebugMode = GuitarTrainerApplication.getPrefs().getBoolean(SettingsActivity.KEY_DEBUG_MODE, true);
-        int str = LessonsUtils.random(1, 6);
-        int fret = LessonsUtils.random(0, (isDebugMode) ? 5 : ScaleGrid.FRETS_ON_GUITAR);
-
-        Position pos = new Position(str, fret);
+        Position pos = LessonsUtils.randomPosition();
+        
         fretView.show(layerLesson, pos);
 
         RuntimeExceptionDao<QuestionPosition2Note, Integer> qDao = DatabaseHelper.getInstance().getRuntimeExceptionDao(
                 QuestionPosition2Note.class);
-        currentQuestion = resolveOrCreateQuestion(pos);
-        QuestionMetrics qm = resolveOrCreateQuestionMetrics(currentQuestion.getId());
-        registerQuestion(qDao, currentQuestion, qm);
+        QuestionPosition2Note quest = resolveOrCreateQuestion(pos);
+        QuestionMetrics qm = resolveOrCreateQuestionMetrics(quest.getId());
+        registerQuestion(qDao, quest, qm);
 
         expectedNote = NoteStave.getInstance().resolveNote(pos);
 

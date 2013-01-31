@@ -67,15 +67,6 @@ public class LessonScalegridDegree2Position extends ALesson {
      */
     private boolean isAreaStartInputAllowed = true;
 
-    /*-
-     * TODO:
-     * 
-     * * introduce AQuestion<T>, where T would be the QuestionScalegridDegree2Position here
-     * * implement getQuestion():QuestionScalegridDegree2Position and use it in this subclass
-     * * all save/restor can be done in AQuestion with such design (?) 
-     */
-    private QuestionScalegridDegree2Position currentQuestion;
-
     // TODO: remove from class var? it is cached in DatabaseHelper anyway
     private RuntimeExceptionDao<QuestionScalegridDegree2Position, Integer> qDao;
 
@@ -164,7 +155,7 @@ public class LessonScalegridDegree2Position extends ALesson {
         }
 
         if (!isAreaStartInputAllowed) {
-            fretPosition = LessonsUtils.randomFretPositionForGridShapeType(currentQuestion.scaleGridType);
+            fretPosition = LessonsUtils.randomFretPositionForGridShapeType(userScalegridType);
         }
 
         if (!isDegreeInputAllowed) {
@@ -177,18 +168,18 @@ public class LessonScalegridDegree2Position extends ALesson {
          * now we ready either to pick AQuestion from dB, or create a new one. And also the same for related
          * QuestionMetrics.
          */
-        currentQuestion = resolveOrCreateQuestion(userScalegridType, fretPosition, degree);
-        QuestionMetrics qm = resolveOrCreateQuestionMetrics(currentQuestion.getId());
-        registerQuestion(qDao, currentQuestion, qm);
+        QuestionScalegridDegree2Position quest = resolveOrCreateQuestion(userScalegridType, fretPosition, degree);
+        QuestionMetrics qm = resolveOrCreateQuestionMetrics(quest.getId());
+        registerQuestion(qDao, quest, qm);
 
         /* 3. visualize the question to the user */
-        ScaleGrid gridShape = ScaleGrid.create(currentQuestion.scaleGridType, currentQuestion.fretPosition);
+        ScaleGrid gridShape = ScaleGrid.create(quest.scaleGridType, quest.fretPosition);
 
         /* both positions must be played for the answer to be accepted */
-        acceptedPositions = gridShape.degree2Positions(currentQuestion.degree);
+        acceptedPositions = gridShape.degree2Positions(quest.degree);
 
         shapesView.show(gridShape.getType());
-        degreesView.show(currentQuestion.degree);
+        degreesView.show(quest.degree);
         fretView.show(layerLesson, gridShape);
 
     }
@@ -226,11 +217,6 @@ public class LessonScalegridDegree2Position extends ALesson {
         }
 
         return question;
-    }
-
-    @Override
-    protected AQuestion getCurrentQuestion() {
-        return currentQuestion;
     }
 
     @Override

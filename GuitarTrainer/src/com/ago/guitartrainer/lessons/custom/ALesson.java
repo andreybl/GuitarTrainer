@@ -191,7 +191,7 @@ public abstract class ALesson implements ILesson {
     public void stop() {
 
         lessonMetrics.stopTime();
-
+        
         if (pauseTimer != null)
             pauseTimer.cancel();
 
@@ -234,7 +234,7 @@ public abstract class ALesson implements ILesson {
     }
 
     protected boolean isLessonRunning() {
-        boolean isRunning = !currentQuestionMetrics.isClosed();
+        boolean isRunning = !lessonMetrics.isFinished();
 
         return isRunning;
     }
