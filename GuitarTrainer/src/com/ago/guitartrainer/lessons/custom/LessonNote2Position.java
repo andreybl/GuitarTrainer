@@ -1,29 +1,27 @@
 package com.ago.guitartrainer.lessons.custom;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.graphics.Color;
-import android.os.CountDownTimer;
 import android.util.Log;
-import android.widget.TextView;
+import android.widget.Toast;
 
 import com.ago.guitartrainer.R;
+import com.ago.guitartrainer.db.DatabaseHelper;
 import com.ago.guitartrainer.events.NotePlayingEvent;
 import com.ago.guitartrainer.events.OnViewSelectionListener;
 import com.ago.guitartrainer.lessons.AQuestion;
-import com.ago.guitartrainer.lessons.ILesson;
-import com.ago.guitartrainer.lessons.LessonMetrics;
-import com.ago.guitartrainer.notation.Key;
+import com.ago.guitartrainer.lessons.QuestionMetrics;
 import com.ago.guitartrainer.notation.Note;
 import com.ago.guitartrainer.notation.NoteStave;
 import com.ago.guitartrainer.notation.Position;
 import com.ago.guitartrainer.ui.FretView;
 import com.ago.guitartrainer.ui.FretView.Layer;
-import com.ago.guitartrainer.ui.LearningStatusView;
 import com.ago.guitartrainer.ui.MainFragment;
 import com.ago.guitartrainer.ui.NotesView;
 import com.ago.guitartrainer.utils.LessonsUtils;
+import com.j256.ormlite.dao.RuntimeExceptionDao;
 
 /**
  * The lesson implements the learning function:
@@ -45,7 +43,6 @@ public class LessonNote2Position extends ALesson {
 
     private NotesView notesView;
 
-
     /** the note for which the fret position must be found */
     private Note questionedNote;
 
@@ -60,7 +57,6 @@ public class LessonNote2Position extends ALesson {
      * 
      * */
     private List<Position> acceptedPositions;
-
 
     @Override
     public String getTitle() {
@@ -101,8 +97,7 @@ public class LessonNote2Position extends ALesson {
 
     @Override
     public void showMetrics() {
-        // TODO Auto-generated method stub
-
+        Toast.makeText(MainFragment.getInstance().getActivity(), "No showMetrics() implemented", 2000).show(); 
     }
 
     /**
@@ -116,16 +111,6 @@ public class LessonNote2Position extends ALesson {
 
         fretView.clearLayer(layerLesson);
 
-        MainFragment.getInstance().getActivity().runOnUiThread(new Runnable() {
-
-            @Override
-            public void run() {
-                // TODO: learning status
-                // learningStatusView.setText(String.valueOf(counter));
-
-            }
-        });
-
         /*
          * in the Note2Position lesson the user is presented with the (random?) note, With the answer the user must find
          * the note's position on the fret, by inputing it either manually or by playing guitar.
@@ -136,7 +121,13 @@ public class LessonNote2Position extends ALesson {
          */
 
         questionedNote = LessonsUtils.randomNote();
-        
+
+        RuntimeExceptionDao<QuestionNote2Position, Integer> qDao = DatabaseHelper.getInstance().getRuntimeExceptionDao(
+                QuestionNote2Position.class);
+        QuestionNote2Position currentQuestion = resolveOrCreateQuestion(qDao, questionedNote);
+        QuestionMetrics qm = resolveOrCreateQuestionMetrics(currentQuestion.getId());
+        registerQuestion(qDao, currentQuestion, qm);
+
         // visualize it
         notesView.showNote(questionedNote);
 
@@ -145,11 +136,29 @@ public class LessonNote2Position extends ALesson {
         Log.d(getTag(), "Note: " + questionedNote + ", Allowed positions: " + acceptedPositions);
     }
 
-    @Override
-    protected AQuestion getCurrentQuestion() {
-     
-        return null;
+    private QuestionNote2Position resolveOrCreateQuestion(RuntimeExceptionDao<QuestionNote2Position, Integer> qDao,
+            Note note) {
+        QuestionNote2Position question = null;
+        try {
+            // resolve question
+            List<QuestionNote2Position> quests = qDao.queryBuilder().where().eq("note", note).query();
+            if (quests.size() == 0) {
+                question = new QuestionNote2Position();
+                question.note = note;
+            } else if (quests.size() == 1) {
+                question = quests.get(0);
+            } else {
+                throw new RuntimeException("The question object is not unique.");
+            }
+
+        } catch (SQLException e) {
+            Log.e(getTag(), e.getMessage(), e);
+        }
+
+        return question;
     }
+
+
     /*
      * *** INNER CLASSES
      */
@@ -168,61 +177,33 @@ public class LessonNote2Position extends ALesson {
             /* the lesson has not started. So we ignore all events. */
             if (acceptedPositions == null)
                 return;
+            
+            if (!isLessonRunning())
+                return;
 
-            MainFragment.getInstance().getActivity().runOnUiThread(new Runnable() {
+            // TODO: the npe.position is not set, when detected with FFT. It is not possible to
+            // resolve unique position.
 
-                @Override
-                public void run() {
+            List<Position> possibleAcceptedInterception = new ArrayList<Position>();
+            if (npe.possiblePositions != null)
+                possibleAcceptedInterception.addAll(npe.possiblePositions);
+            possibleAcceptedInterception.retainAll(acceptedPositions);
 
-                    // TODO: the npe.position is not set, when detected with FFT. It is not possible to
-                    // resolve unique position.
+            boolean isAnswerAccepted = false;
+            if (npe.position != null && acceptedPositions.contains(npe.position)) {
+                isAnswerAccepted = true;
+            } else if (possibleAcceptedInterception.size() > 0) {
+                isAnswerAccepted = true;
+            }
 
-                    List<Position> possibleAcceptedInterception = new ArrayList<Position>();
-                    if (npe.possiblePositions != null)
-                        possibleAcceptedInterception.addAll(npe.possiblePositions);
-                    possibleAcceptedInterception.retainAll(acceptedPositions);
+            if (isAnswerAccepted) {
 
-                    boolean isAnswerAccepted = false;
-                    if (npe.position != null && acceptedPositions.contains(npe.position)) {
-                        isAnswerAccepted = true;
-                    } else if (possibleAcceptedInterception.size() > 0) {
-                        isAnswerAccepted = true;
-                    }
-
-                    if (isAnswerAccepted) {
-                        // TODO: learning status
-                        // tvLessonStatus.setBackgroundColor(Color.GREEN);
-
-                        fretView.show(layerLesson, acceptedPositions);
-
-                        CountDownTimer cdt = new CountDownTimer(5000, 1000) {
-
-                            @Override
-                            public void onTick(long millisUntilFinished) {
-                                // DO NOTHING
-
-                            }
-
-                            @Override
-                            public void onFinish() {
-                                LessonNote2Position.this.next();
-
-                            }
-                        };
-                        cdt.start();
-
-                        // fretView.clearFret();
-                    } else {
-                        // TODO: learning status
-                        // tvLessonStatus.setBackgroundColor(Color.RED);
-                    }
-
-                    // TODO: learning status
-                    // tvLessonStatus.setText(String.valueOf(counter));
-
-                }
-            });
-
+                onSuccess();
+                fretView.clearLayer(layerLesson);
+                fretView.show(layerLesson, acceptedPositions);
+            } else {
+                onFailure();
+            }
         }
     }
 

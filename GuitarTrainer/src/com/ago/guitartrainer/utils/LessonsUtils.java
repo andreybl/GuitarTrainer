@@ -1,12 +1,8 @@
 package com.ago.guitartrainer.utils;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
-
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 
 import com.ago.guitartrainer.GuitarTrainerApplication;
 import com.ago.guitartrainer.SettingsActivity;
@@ -16,30 +12,11 @@ import com.ago.guitartrainer.notation.Note;
 import com.ago.guitartrainer.notation.NoteStave;
 import com.ago.guitartrainer.notation.Position;
 import com.ago.guitartrainer.scalegrids.ScaleGrid;
-import com.ago.guitartrainer.ui.MainFragment;
 import com.ago.guitartrainer.ui.NotesView;
 
 public class LessonsUtils {
 
     private static Random random = new Random();
-
-    /**
-     * specify the keys, in which the notes proposed as questions must be.
-     * 
-     * The keys corresponds to the main degrees of the C-major scale: C, D, E etc. The main reason to exclude keys with
-     * sharps/flats: the appropriate images are not currently not available in the {@link NotesView}. But on the other
-     * side it could be enough just to no the position of the main keys.
-     * */
-    private static List<Key> mainKeys = new ArrayList<Key>();
-    {
-        mainKeys.add(Key.C);
-        mainKeys.add(Key.D);
-        mainKeys.add(Key.E);
-        mainKeys.add(Key.F);
-        mainKeys.add(Key.G);
-        mainKeys.add(Key.A);
-        mainKeys.add(Key.B);
-    }
 
     public static Position pickPosition(ScaleGrid gridShape) {
         List<Position> strongPositions = gridShape.strongPositions();
@@ -113,17 +90,29 @@ public class LessonsUtils {
         return gridShapeType;
     }
 
+    /**
+     * Return random note in one of the main keys {C, D, ..}.
+     * 
+     * @return
+     */
     public static Note randomNote() {
-        // select random note
+        /**
+         * The keys corresponds to the main degrees of the C-major scale: C, D, E etc. The main reason to exclude keys
+         * with sharps/flats: the appropriate images are not currently not available in the {@link NotesView}. But on
+         * the other side it could be enough just to no the position of the main keys.
+         * */
+        Key[] mainKeys = new Key[] { Key.C, Key.D, Key.E, Key.F, Key.G, Key.A, Key.B };
+
         Note note = null;
+        boolean isMainKey = false;
+        boolean isDebugMode = GuitarTrainerApplication.getPrefs().getBoolean(SettingsActivity.KEY_DEBUG_MODE, true);
         do {
-
-            boolean isDebugMode = GuitarTrainerApplication.getPrefs().getBoolean(SettingsActivity.KEY_DEBUG_MODE, true);
-
+            /* we use indexes of notes 21..32, because they correspond to note playable by electro-tuner which I have */
             int index = (isDebugMode) ? LessonsUtils.random(21, 32) : LessonsUtils.random(0, Note.values().length - 1);
             note = Note.values()[index];
-
-        } while (!mainKeys.contains(note.getKey()));
+            isMainKey = Arrays.binarySearch(mainKeys, note.getKey()) >= 0;
+            
+        } while (!isMainKey);
 
         return note;
     }

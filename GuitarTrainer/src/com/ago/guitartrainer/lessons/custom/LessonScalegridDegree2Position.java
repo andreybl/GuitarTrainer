@@ -178,14 +178,8 @@ public class LessonScalegridDegree2Position extends ALesson {
          * QuestionMetrics.
          */
         currentQuestion = resolveOrCreateQuestion(userScalegridType, fretPosition, degree);
-        QuestionMetrics qm = resolveOrCreateQuestionMetrics(currentQuestion);
-        if (qm.getId() == 0) {
-            qmDao.create(qm);
-        }
-        if (currentQuestion.getId() == 0) {
-            currentQuestion.setMetrics(qm);
-            qDao.create(currentQuestion);
-        }
+        QuestionMetrics qm = resolveOrCreateQuestionMetrics(currentQuestion.getId());
+        registerQuestion(qDao, currentQuestion, qm);
 
         /* 3. visualize the question to the user */
         ScaleGrid gridShape = ScaleGrid.create(currentQuestion.scaleGridType, currentQuestion.fretPosition);

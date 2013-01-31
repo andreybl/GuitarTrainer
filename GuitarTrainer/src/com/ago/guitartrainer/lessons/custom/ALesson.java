@@ -38,6 +38,14 @@ public abstract class ALesson implements ILesson {
     private CountDownTimer questionTimer;
 
     /**
+     * Current question, which is present to the user.
+     * 
+     * To have the question be available here, the subclass must register it with
+     * {@link #registerQuestion(RuntimeExceptionDao, AQuestion, QuestionMetrics)} call.
+     * */
+    private AQuestion currentQuestion;
+
+    /**
      * 
      * Countdown started after answer is "SUCCESS" before we go to the next question.
      * 
@@ -126,7 +134,7 @@ public abstract class ALesson implements ILesson {
          * the question was asked
          */
         AQuestion currentQuestion = getCurrentQuestion();
-        currentQuestionMetrics = resolveOrCreateQuestionMetrics(currentQuestion);
+        currentQuestionMetrics = resolveOrCreateQuestionMetrics(currentQuestion.getId());
         currentQuestionMetrics.start();
 
         /* 6. start the question timer */
@@ -144,11 +152,11 @@ public abstract class ALesson implements ILesson {
      * @param question
      * @return
      */
-    protected QuestionMetrics resolveOrCreateQuestionMetrics(AQuestion question) {
+    protected QuestionMetrics resolveOrCreateQuestionMetrics(int questionId) {
         QuestionMetrics qm = null;
         try {
             // resolve metrics for the question
-            List<QuestionMetrics> qMetrics = qmDao.queryBuilder().where().idEq(question.getId()).query();
+            List<QuestionMetrics> qMetrics = qmDao.queryBuilder().where().idEq(questionId).query();
             if (qMetrics.size() == 0) {
                 qm = new QuestionMetrics();
             } else if (qMetrics.size() == 1) {
@@ -162,6 +170,19 @@ public abstract class ALesson implements ILesson {
         }
 
         return qm;
+    }
+
+    protected void registerQuestion(RuntimeExceptionDao qDao, AQuestion currentQuestion, QuestionMetrics qm) {
+        if (qm.getId() == 0) {
+            qmDao.create(qm);
+        }
+        if (currentQuestion.getId() == 0) {
+            currentQuestion.setMetrics(qm);
+            qDao.create(currentQuestion);
+        }
+
+        this.currentQuestion = currentQuestion;
+
     }
 
     public abstract void doNext();
@@ -232,7 +253,10 @@ public abstract class ALesson implements ILesson {
 
     public abstract void doStop();
 
-    protected abstract AQuestion getCurrentQuestion();
+    protected AQuestion getCurrentQuestion() {
+
+        return this.currentQuestion;
+    }
 
     @Override
     public LessonMetrics getLessonMetrics() {

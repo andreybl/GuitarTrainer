@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import com.ago.guitartrainer.ui.NotesView;
 import com.ago.guitartrainer.utils.MultiMap;
 
 /**
@@ -325,7 +326,7 @@ public class NoteStave {
         boolean finishSearch = false;
         do {
             result = next(result);
-            finishSearch = Arrays.binarySearch(mainDegrees, result.getKey()) >= 0 || result==noteHighest;
+            finishSearch = Arrays.binarySearch(mainDegrees, result.getKey()) >= 0 || result == noteHighest;
         } while (!finishSearch);
 
         return result;

@@ -186,14 +186,8 @@ public class LessonPosition2Note extends ALesson {
         RuntimeExceptionDao<QuestionPosition2Note, Integer> qDao = DatabaseHelper.getInstance().getRuntimeExceptionDao(
                 QuestionPosition2Note.class);
         currentQuestion = resolveOrCreateQuestion(pos);
-        QuestionMetrics qm = resolveOrCreateQuestionMetrics(currentQuestion);
-        if (qm.getId() == 0) {
-            qmDao.create(qm);
-        }
-        if (currentQuestion.getId() == 0) {
-            currentQuestion.setMetrics(qm);
-            qDao.create(currentQuestion);
-        }
+        QuestionMetrics qm = resolveOrCreateQuestionMetrics(currentQuestion.getId());
+        registerQuestion(qDao, currentQuestion, qm);
 
         expectedNote = NoteStave.getInstance().resolveNote(pos);
 
@@ -227,11 +221,6 @@ public class LessonPosition2Note extends ALesson {
         return question;
     }
 
-    @Override
-    protected AQuestion getCurrentQuestion() {
-        return currentQuestion;
-    }
-
     /*
      * *** INNER CLASSES
      */
@@ -245,6 +234,10 @@ public class LessonPosition2Note extends ALesson {
 
         @Override
         public void onViewElementSelected(final Note note) {
+            
+            if (!isLessonRunning())
+                return;
+            
             Log.d(getTag(), "Notes soll/ist: " + expectedNote + "/" + note);
             if (note.equals(expectedNote)) {
                 onSuccess();
