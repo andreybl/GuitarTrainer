@@ -44,5 +44,9 @@ public abstract class AQuestion {
     // private int id;
     
     public abstract int getId();
+    
+    public abstract QuestionMetrics getMetrics();
+    
+    public abstract void setMetrics(QuestionMetrics metrics);
 
 }

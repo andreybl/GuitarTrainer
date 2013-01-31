@@ -3,11 +3,10 @@ package com.ago.guitartrainer.lessons.custom;
 import java.sql.SQLException;
 import java.util.List;
 
-import android.content.SharedPreferences;
 import android.os.CountDownTimer;
-import android.preference.PreferenceManager;
 import android.util.Log;
 
+import com.ago.guitartrainer.GuitarTrainerApplication;
 import com.ago.guitartrainer.SettingsActivity;
 import com.ago.guitartrainer.db.DatabaseHelper;
 import com.ago.guitartrainer.lessons.AQuestion;
@@ -83,12 +82,6 @@ public abstract class ALesson implements ILesson {
         return "GT-" + getClass().getSimpleName();
     }
 
-    @Override
-    public long getDuration() {
-        // TODO Auto-generated method stub
-        return 123;
-    }
-
     public void next() {
 
         /*-
@@ -137,9 +130,8 @@ public abstract class ALesson implements ILesson {
         currentQuestionMetrics.start();
 
         /* 6. start the question timer */
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(MainFragment.getInstance()
-                .getActivity());
-        int questionMaxDurationSec = sharedPref.getInt(SettingsActivity.KEY_QUESTION_DURATION_MAX, 10);
+        int questionMaxDurationSec = GuitarTrainerApplication.getPrefs().getInt(
+                SettingsActivity.KEY_QUESTION_DURATION_MAX, 10);
         questionTimer = new QuestionTimer(this, learningStatusView, questionMaxDurationSec * 1000, 300);
         questionTimer.start();
 
@@ -209,9 +201,8 @@ public abstract class ALesson implements ILesson {
         learningStatusView.updateAnswerStatus(QuestionStatus.SUCCESS);
         learningStatusView.updateCurrentQuestionTrials(currentQuestionMetrics.numOfTrialsLastLoop());
 
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(MainFragment.getInstance()
-                .getActivity());
-        int pauseDuration = sharedPref.getInt(SettingsActivity.KEY_POST_QUESTION_PAUSE_DURATION, 5);
+        int pauseDuration = GuitarTrainerApplication.getPrefs().getInt(
+                SettingsActivity.KEY_POST_QUESTION_PAUSE_DURATION, 5);
         if (pauseDuration > 0) {
             pauseTimer = new PauseTimer(this, learningStatusView, pauseDuration * 1000, 1000);
             pauseTimer.start();

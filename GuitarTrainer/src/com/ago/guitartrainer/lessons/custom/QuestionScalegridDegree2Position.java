@@ -26,6 +26,7 @@ public class QuestionScalegridDegree2Position extends AQuestion {
     @DatabaseField
     public Degree degree = Degree.ONE;
 
+    @Override
     public QuestionMetrics getMetrics(){
         return qMetric;
     }

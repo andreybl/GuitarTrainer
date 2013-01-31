@@ -73,6 +73,16 @@ public class Position {
         return this.string - 1;
     }
 
+    /**
+     * Returns the guitar string.
+     * 
+     * @return string index in range 1..6
+     * */
+    public int getString() {
+        return this.string;
+    }
+
+    
     public int getFret() {
         return fret;
     }

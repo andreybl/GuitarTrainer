@@ -10,6 +10,7 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import com.ago.guitartrainer.GuitarTrainerApplication;
 import com.ago.guitartrainer.R;
 import com.ago.guitartrainer.SettingsActivity;
 import com.ago.guitartrainer.db.DatabaseHelper;
@@ -241,9 +242,8 @@ public class LessonScalegridDegree2Position extends ALesson {
     @Override
     public void showMetrics() {
 
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(MainFragment.getInstance()
-                .getActivity());
-        int shortestReactionTimeMs = sharedPref.getInt(SettingsActivity.KEY_QUESTION_SHORTEST_REACTION_TIME, 1000);
+        int shortestReactionTimeMs = GuitarTrainerApplication.getPrefs().getInt(
+                SettingsActivity.KEY_QUESTION_SHORTEST_REACTION_TIME, 1000);
 
         /*
          * TODO:
@@ -417,7 +417,6 @@ public class LessonScalegridDegree2Position extends ALesson {
 
                         onFailure();
                     }
-
                 }
 
             });

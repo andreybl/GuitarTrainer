@@ -30,13 +30,6 @@ public interface ILesson {
     public String getDescription();
 
     /**
-     * Returns total duration of the lesson as accumulated through all loops of the lesson.
-     * 
-     * @return
-     */
-    public long getDuration();
-
-    /**
      * Initializes UI elements, which are required by the lesson. Prepare DAO objects to access dB.
      * 
      * There different kinds of widgets required for the lesson. But at least widgets for presenting the question on one

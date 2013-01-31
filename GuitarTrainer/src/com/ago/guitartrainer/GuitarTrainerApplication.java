@@ -1,11 +1,15 @@
 package com.ago.guitartrainer;
 
 import android.app.Application;
-import android.util.DisplayMetrics;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 
 import com.ago.guitartrainer.db.DatabaseHelper;
 
 public class GuitarTrainerApplication extends Application {
+
+    private static Context currentContex;
 
     /**
      * Maximum allowed difference between the ppi value returned by the Android device and the Density-DPI value
@@ -13,12 +17,23 @@ public class GuitarTrainerApplication extends Application {
      * calculate the border size. This value (and the test it is used in) had to be introduced bacause some Android
      * devices return the wrong ppi value.
      */
-    private static final float MAX_PPI_DENSITYDPI_DIFFERENCE = 40.0f;
+//    private static final float MAX_PPI_DENSITYDPI_DIFFERENCE = 40.0f;
 
     @Override
     public void onCreate() {
         super.onCreate();
 
+        currentContex = getApplicationContext();
+
         DatabaseHelper.initDatabaseHelperInstance(getApplicationContext());
     }
+
+    public static SharedPreferences getPrefs() {
+        if (currentContex == null)
+            throw new RuntimeException("The GuitarTrainerApplication#currentContex is uninitialized, which is strange.");
+
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(currentContex);
+        return sharedPref;
+    }
+
 }

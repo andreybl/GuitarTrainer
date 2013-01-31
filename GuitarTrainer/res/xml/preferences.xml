@@ -6,13 +6,11 @@
     <!-- android:summary="Please provide your username" -->
     <!-- android:title="Your Name" > -->
     <!-- </EditTextPreference> -->
-
-
-    <!-- <CheckBoxPreference -->
-    <!-- android:defaultValue="true" -->
-    <!-- android:key="pref_sync" -->
-    <!-- android:summary="abc" -->
-    <!-- android:title="xyz" /> -->
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="debug_mode"
+        android:summary="Run the app in debug mode. Show additional information, put restriction on the lesson content by limiting number of questions etc."
+        android:title="Debug Mode" />
 
     <com.ago.guitartrainer.prefs.IntListPreference
         android:defaultValue="30"
@@ -29,7 +27,7 @@
         android:summary="The pause duration after succeessful answer"
         android:title="Post-Question Pause" />
     <com.ago.guitartrainer.prefs.IntListPreference
-        android:defaultValue="10"
+        android:defaultValue="7"
         android:entries="@array/notesview_sensitivity_titles"
         android:entryValues="@array/notesview_sensitivity_values"
         android:key="notesview_sensitivity"

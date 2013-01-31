@@ -27,6 +27,9 @@ public class SettingsActivity extends Activity {
 
     public static final String KEY_NOTESVIEW_SENSITIVITY = "notesview_sensitivity";
 
+    public static final String KEY_DEBUG_MODE = "debug_mode";
+    
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
