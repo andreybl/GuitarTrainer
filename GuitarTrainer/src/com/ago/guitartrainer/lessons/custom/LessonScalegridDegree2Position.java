@@ -3,7 +3,6 @@ package com.ago.guitartrainer.lessons.custom;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,7 +10,6 @@ import java.util.Map;
 import android.content.SharedPreferences;
 import android.os.CountDownTimer;
 import android.preference.PreferenceManager;
-import android.text.format.Time;
 import android.util.Log;
 
 import com.ago.guitartrainer.R;
@@ -178,7 +176,9 @@ public class LessonScalegridDegree2Position extends ALesson {
         lessonMetrics.stopTime();
         fretView.clearLayer(layerLesson);
 
-        pauseTimer.cancel();
+        if (pauseTimer != null)
+            pauseTimer.cancel();
+
         questionTimer.cancel();
 
         currentQuestionMetrics.submitAnswer(false);
@@ -351,6 +351,12 @@ public class LessonScalegridDegree2Position extends ALesson {
 
     @Override
     public void showMetrics() {
+        
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(MainFragment.getInstance()
+                .getActivity());
+        int shortestReactionTimeMs = sharedPref.getInt(SettingsActivity.KEY_QUESTION_SHORTEST_REACTION_TIME, 1000);
+
+        
         /*
          * TODO:
          * 
@@ -429,13 +435,14 @@ public class LessonScalegridDegree2Position extends ALesson {
 
                     Double avg = mapDegree2Avg.get(degree);
 
-                    if (avg > 10000) {
+                    if (avg > shortestReactionTimeMs * 2) {
                         color = R.color.red;
-                    } else if (avg > 5000) {
+                    } else if (avg > shortestReactionTimeMs) {
                         color = R.color.orange;
-                    } else if (avg > 0) {
+                    } else if (avg > 0 && avg <= shortestReactionTimeMs) {
                         color = R.color.green;
                     } else {
+                        // avg == 0
                         color = R.color.gray;
                     }
                     mapPosition2Color.put(position, color);

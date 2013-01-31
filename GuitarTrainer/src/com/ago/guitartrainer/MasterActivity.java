@@ -1,6 +1,6 @@
 package com.ago.guitartrainer;
 
-import android.os.Build;
+import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
@@ -15,17 +15,13 @@ public class MasterActivity extends FragmentActivity {
 
     private static String TAG = "GT-MasterActivity";
 
-    // private SlidingMenu menu;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            getActionBar().hide();
-        }
-
-        setContentView(R.layout.main2);
+        // if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+        // getActionBar().hide();
+        // }
 
         // set the Above View
         setContentView(R.layout.content_frame);
@@ -55,8 +51,23 @@ public class MasterActivity extends FragmentActivity {
     }
 
     public boolean onOptionsItemSelected(MenuItem item) {
-        // respond to menu item selection
-        return true;
+        switch (item.getItemId()) {
+        case R.id.menu_settings: {
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
+            break;
+        }
+        case R.id.about: {
+            AboutDialog about = new AboutDialog(this);
+            about.setTitle("about this app");
+
+            about.show();
+
+            break;
+        }
+        }
+
+        return false;
     }
 
     public void replaceFragment(Fragment frg) {
@@ -65,14 +76,5 @@ public class MasterActivity extends FragmentActivity {
         ft.addToBackStack(null);
         ft.commit();
     }
-
-    // @Override
-    // public void onBackPressed() {
-    // FragmentTransaction ft = getFragmentManager().beginTransaction();
-    // ft.replace(android.R.id.content, new MainFragment());
-    // ft.addToBackStack(null);
-    // ft.commit();
-    //
-    // }
 
 }

@@ -2,11 +2,13 @@ package com.ago.guitartrainer.ui;
 
 import java.util.Hashtable;
 import java.util.Map;
-import java.util.Set;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Color;
+import android.graphics.Bitmap;
+import android.graphics.Matrix;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -14,8 +16,8 @@ import android.view.GestureDetector.OnDoubleTapListener;
 import android.view.GestureDetector.OnGestureListener;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.ago.guitartrainer.R;
@@ -112,6 +114,15 @@ public class NotesView extends AInoutView<Note> {
 
         imgNote = (ImageView) mainLayout.findViewById(R.id.note_image);
 
+        /*
+         * TODO: suboptimal solution, the size 250dp is only fine on my device.
+         * 
+         * Originally the scaling is required here, so that the "Select Lesson", "Start" etc. buttons under the
+         * NotesView are visible on one side. But on the other side, I do not want to resize the pictures with notes for
+         * this.
+         */
+        scaleImage(imgNote, 250);
+
         tvNoteText = (TextView) mainLayout.findViewById(R.id.note_text);
 
         gestures = new GestureDetector(getContext(), new GestureListener());
@@ -205,6 +216,62 @@ public class NotesView extends AInoutView<Note> {
 
         super.setEnabled(enabled);
     }
+
+    /**
+     * Scale ImageView by keeping its ratio.
+     * 
+     * The solution found at {@link http
+     * ://argillander.wordpress.com/2011/11/24/scale-image-into-imageview-then-resize-imageview-to-match-the-image/}
+     * 
+     * @param view
+     * @param boundBoxInDp
+     * 
+     * 
+     */
+    private void scaleImage(ImageView view, int boundBoxInDp) {
+        // Get the ImageView and its bitmap
+        Drawable drawing = view.getDrawable();
+        Bitmap bitmap = ((BitmapDrawable) drawing).getBitmap();
+
+        // Get current dimensions
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+
+        // Determine how much to scale: the dimension requiring less scaling is
+        // closer to the its side. This way the image always stays inside your
+        // bounding box AND either x/y axis touches it.
+        float xScale = ((float) boundBoxInDp) / width;
+        float yScale = ((float) boundBoxInDp) / height;
+        float scale = (xScale <= yScale) ? xScale : yScale;
+
+        // Create a matrix for the scaling and add the scaling data
+        Matrix matrix = new Matrix();
+        matrix.postScale(scale, scale);
+
+        // Create a new bitmap and convert it to a format understood by the ImageView
+        Bitmap scaledBitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, true);
+        BitmapDrawable result = new BitmapDrawable(scaledBitmap);
+        width = scaledBitmap.getWidth();
+        height = scaledBitmap.getHeight();
+
+        // Apply the scaled bitmap
+        view.setImageDrawable(result);
+
+        // Now change ImageView's dimensions to match the scaled image
+        LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) view.getLayoutParams();
+        params.width = width;
+        params.height = height;
+        view.setLayoutParams(params);
+    }
+
+    private int dpToPx(int dp) {
+        float density = getContext().getResources().getDisplayMetrics().density;
+        return Math.round((float) dp * density);
+    }
+
+    /*
+     * ***** INNER CLASSES
+     */
 
     private class GestureListener implements OnGestureListener, OnDoubleTapListener {
 

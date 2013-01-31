@@ -38,8 +38,6 @@ public class MainFragment extends Fragment {
 
     private Button btnMetricsLesson;
 
-    private Button btnSettings;
-
     private ILesson currentLesson;
 
     private FretView fretView;
@@ -61,7 +59,7 @@ public class MainFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        LinearLayout mainLayout = (LinearLayout) inflater.inflate(R.layout.main2, container, false);
+        LinearLayout mainLayout = (LinearLayout) inflater.inflate(R.layout.fragment_main, container, false);
         /* Start: custom views: fret/shape/notes etc. */
         fretView = (FretView) mainLayout.findViewById(R.id.view_fretview);
         shapestView = (ScalegridsView) mainLayout.findViewById(R.id.view_scalegridview);
@@ -80,20 +78,17 @@ public class MainFragment extends Fragment {
         btnNextLesson = (Button) mainLayout.findViewById(R.id.btn_lesson_next);
         btnStopLesson = (Button) mainLayout.findViewById(R.id.btn_lesson_stop);
         btnMetricsLesson = (Button) mainLayout.findViewById(R.id.btn_lesson_metrics);
-        btnSettings = (Button) mainLayout.findViewById(R.id.btn_settings);
 
         btnSelectLessonDialog.setOnClickListener(innerOnClickListener);
         btnStartLesson.setOnClickListener(innerOnClickListener);
         btnNextLesson.setOnClickListener(innerOnClickListener);
         btnStopLesson.setOnClickListener(innerOnClickListener);
         btnMetricsLesson.setOnClickListener(innerOnClickListener);
-        btnSettings.setOnClickListener(innerOnClickListener);
 
         btnStartLesson.setEnabled(false);
         btnNextLesson.setEnabled(false);
         btnStopLesson.setEnabled(false);
         btnMetricsLesson.setEnabled(false);
-        btnSettings.setEnabled(true);
 
         // Note: the assignment must be done before the ILesson is instantiated.
         instance = this;
@@ -220,11 +215,6 @@ public class MainFragment extends Fragment {
 
                 if (currentLesson != null)
                     currentLesson.stop();
-                break;
-            }
-            case R.id.btn_settings: {
-                Intent intent = new Intent(getActivity(), SettingsActivity.class); 
-                 startActivity(intent);
                 break;
             }
             case R.id.btn_lesson_metrics: {

@@ -22,6 +22,8 @@ public class SettingsActivity extends Activity {
     public static final String KEY_QUESTION_DURATION_MAX = "question_duration_max";
     
     public static final String KEY_POST_QUESTION_PAUSE_DURATION = "post_question_pause_duration";
+    
+    public static final String KEY_QUESTION_SHORTEST_REACTION_TIME = "question_shortest_reaction_time";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

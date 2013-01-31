@@ -14,7 +14,6 @@
         <item>50</item>
         <item>60</item>
     </string-array>
-
     <string-array name="seconds_titles">
         <item>0 sec</item>
         <item>1 sec</item>
@@ -29,5 +28,17 @@
         <item>50 sec</item>
         <item>60 sec</item>
     </string-array>
-    
+    <string-array name="milliseconds_values">
+        <item>700</item>
+        <item>1000</item>
+        <item>2000</item>
+        <item>3000</item>
+    </string-array>
+    <string-array name="milliseconds_titles">
+        <item>Very Strics (700ms/1.4s)</item>
+        <item>Strict (1s/2s)</item>
+        <item>Tolerant (2s/4s)</item>
+        <item>Very Tolerant (3s/6s)</item>
+    </string-array>
+
 </resources>

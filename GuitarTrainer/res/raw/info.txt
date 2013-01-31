@@ -1,0 +1,11 @@
+<h3>Guitar Trainer</h3>
+
+Version 1.0<br>
+Latest build on: 31.Jan.2013<br>
+Copyright 2013<br>
+<b>not available yet</b>
+<br>
+<br>
+Andrej GOLOVKO<br>
++49-179-2190094<br>
+golovko(_at_)mytum.de
