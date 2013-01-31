@@ -2,13 +2,11 @@ package com.ago.guitartrainer.lessons.custom;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import android.content.SharedPreferences;
-import android.os.CountDownTimer;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -17,12 +15,8 @@ import com.ago.guitartrainer.SettingsActivity;
 import com.ago.guitartrainer.db.DatabaseHelper;
 import com.ago.guitartrainer.events.NotePlayingEvent;
 import com.ago.guitartrainer.events.OnViewSelectionListener;
-import com.ago.guitartrainer.lessons.AQuestion.QuestionStatus;
 import com.ago.guitartrainer.lessons.AQuestion;
-import com.ago.guitartrainer.lessons.LessonMetrics;
 import com.ago.guitartrainer.lessons.QuestionMetrics;
-import com.ago.guitartrainer.lessons.helpers.PauseTimer;
-import com.ago.guitartrainer.lessons.helpers.QuestionTimer;
 import com.ago.guitartrainer.notation.Degree;
 import com.ago.guitartrainer.notation.Position;
 import com.ago.guitartrainer.scalegrids.ScaleGrid;
@@ -30,7 +24,6 @@ import com.ago.guitartrainer.scalegrids.ScaleGrid.Type;
 import com.ago.guitartrainer.ui.DegreesView;
 import com.ago.guitartrainer.ui.FretView;
 import com.ago.guitartrainer.ui.FretView.Layer;
-import com.ago.guitartrainer.ui.LearningStatusView;
 import com.ago.guitartrainer.ui.MainFragment;
 import com.ago.guitartrainer.ui.ScalegridsView;
 import com.ago.guitartrainer.utils.LessonsUtils;
@@ -59,6 +52,7 @@ public class LessonScalegridDegree2Position extends ALesson {
      * is selected randomly.
      */
     private boolean isShapeInputAllowed = true;
+    private ScaleGrid.Type userScalegridType = Type.ALPHA;
 
     /**
      * if true, the user is allowed decided on the degree parameter by himself. If false, the degree is selected
@@ -81,8 +75,8 @@ public class LessonScalegridDegree2Position extends ALesson {
      */
     private QuestionScalegridDegree2Position currentQuestion;
 
-    private RuntimeExceptionDao<QuestionScalegridDegree2Position, Integer> qDao = dbHelper
-            .getRuntimeExceptionDao(QuestionScalegridDegree2Position.class);
+    // TODO: remove from class var? it is cached in DatabaseHelper anyway
+    private RuntimeExceptionDao<QuestionScalegridDegree2Position, Integer> qDao;
 
     @Override
     public String getTitle() {
@@ -91,6 +85,8 @@ public class LessonScalegridDegree2Position extends ALesson {
 
     @Override
     public void doPrepareUi() {
+
+        qDao = DatabaseHelper.getInstance().getRuntimeExceptionDao(QuestionScalegridDegree2Position.class);
 
         // initialize views required for the current type of lesson
         MainFragment uiControls = MainFragment.getInstance();
@@ -142,7 +138,7 @@ public class LessonScalegridDegree2Position extends ALesson {
          * 
          * So we use temporal vars, which type actually corresponds to the AQuestion vars types.
          */
-        Type scaleGridType = Type.ALPHA;
+        // Type scaleGridType = Type.ALPHA;
         int fretPosition = 0;
         Degree degree = Degree.ONE;
 
@@ -154,15 +150,15 @@ public class LessonScalegridDegree2Position extends ALesson {
          */
         if (!isShapeInputAllowed) {
             // param1: grid shape type must be random
-            scaleGridType = randomGridShapeType();
+            userScalegridType = LessonsUtils.randomGridShapeType();
         }
 
         if (!isAreaStartInputAllowed) {
-            fretPosition = randomFretPositionForGridShapeType(currentQuestion.scaleGridType);
+            fretPosition = LessonsUtils.randomFretPositionForGridShapeType(currentQuestion.scaleGridType);
         }
 
         if (!isDegreeInputAllowed) {
-            degree = randomDegree();
+            degree = LessonsUtils.randomDegree();
         }
 
         /*
@@ -174,11 +170,11 @@ public class LessonScalegridDegree2Position extends ALesson {
         try {
             // resolve question
             List<QuestionScalegridDegree2Position> quests = qDao.queryBuilder().where()
-                    .eq("scaleGridType", scaleGridType).and().eq("fretPosition", fretPosition).and()
+                    .eq("scaleGridType", userScalegridType).and().eq("fretPosition", fretPosition).and()
                     .eq("degree", degree).query();
             if (quests.size() == 0) {
                 currentQuestion = new QuestionScalegridDegree2Position();
-                currentQuestion.scaleGridType = scaleGridType;
+                currentQuestion.scaleGridType = userScalegridType;
                 currentQuestion.fretPosition = fretPosition;
                 currentQuestion.degree = degree;
                 // in the next step the metrics object will be added
@@ -321,52 +317,6 @@ public class LessonScalegridDegree2Position extends ALesson {
         }
     }
 
-    private ScaleGrid.Type randomGridShapeType() {
-        int indexOfGridShape = LessonsUtils.random(0, ScaleGrid.Type.values().length - 1);
-        ScaleGrid.Type gridShapeType = ScaleGrid.Type.values()[indexOfGridShape];
-
-        return gridShapeType;
-    }
-
-    /**
-     * Calculates a random but still valid start of the area in which the scale grid of a given type may reside.
-     * 
-     * The start area is considered to be valid, if it lays somewhere inside of the 0..
-     * {@value ScaleGrid#FRETS_ON_GUITAR} frets of the guitar.
-     * 
-     * @param gst
-     *            type of the scale grid
-     * @return valid start of the area
-     */
-    private int randomFretPositionForGridShapeType(ScaleGrid.Type gst) {
-        int fretPosition = LessonsUtils.random(0, ScaleGrid.FRETS_ON_GUITAR);
-        int fretPositionEnd = fretPosition + gst.numOfFrets();
-        if (fretPositionEnd > ScaleGrid.FRETS_ON_GUITAR) {
-            fretPosition = ScaleGrid.FRETS_ON_GUITAR - (fretPositionEnd - fretPosition);
-        }
-        return fretPosition;
-    }
-
-    /**
-     * Return a random {@link Degree} from those which are I, II...
-     * 
-     * @return degree of the scale grid
-     */
-    private Degree randomDegree() {
-        Degree[] mainDegrees = new Degree[] { Degree.ONE, Degree.TWO, Degree.THREE, Degree.FOUR, Degree.FIVE,
-                Degree.SIX, Degree.SEVEN };
-
-        boolean isMainDegree = false;
-        Degree degree;
-        do {
-            int indexOfDegree = LessonsUtils.random(0, Degree.values().length - 1);
-            degree = Degree.values()[indexOfDegree];
-            isMainDegree = Arrays.binarySearch(mainDegrees, degree) >= 0;
-        } while (!isMainDegree);
-
-        return degree;
-    }
-
     /**
      * Calculates whether the answer provided by the user - reflected with <code>exactPosition</code> and
      * <code>possiblePositions</code> - can be considered as a successful answer.
@@ -424,13 +374,6 @@ public class LessonScalegridDegree2Position extends ALesson {
                     if (acceptedPositions == null)
                         return;
 
-                    /*
-                     * no lesson is currently running.
-                     * 
-                     * Maybe we are in phase of going to the next question.
-                     * 
-                     * TODO: rework so that no dependency on currentQuestionMetrics is available here
-                     */
                     if (!isLessonRunning())
                         return;
 
@@ -468,9 +411,10 @@ public class LessonScalegridDegree2Position extends ALesson {
         @Override
         public void onViewElementSelected(ScaleGrid.Type element) {
 
-            if (currentQuestion != null)
-                currentQuestion.scaleGridType = element;
-
+            // if (currentQuestion != null)
+            userScalegridType = element;
+            if (isLessonRunning())
+                next();
         }
 
     }

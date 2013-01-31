@@ -9,6 +9,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import com.ago.guitartrainer.db.DatabaseHelper;
 import com.ago.guitartrainer.ui.MainFragment;
 import com.ago.guitartrainer.ui.dialogs.AboutDialog;
 
@@ -56,6 +57,13 @@ public class MasterActivity extends FragmentActivity {
         case R.id.menu_settings: {
             Intent intent = new Intent(this, SettingsActivity.class);
             startActivity(intent);
+            break;
+        }case R.id.menu_reset_database: {
+//            Intent intent = new Intent(this, SettingsActivity.class);
+//            startActivity(intent);
+            
+            DatabaseHelper.getInstance().resetData();
+            
             break;
         }
         case R.id.about: {

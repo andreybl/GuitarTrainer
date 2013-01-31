@@ -3,6 +3,7 @@
 
     <string name="app_name">Guitar Trainer</string>
     <string name="menu_settings">Settings</string>
+    <string name="menu_reset_data">Reset data</string>
     <string name="undefined">--</string>
 
 </resources>

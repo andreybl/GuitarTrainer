@@ -4,7 +4,10 @@
         android:id="@+id/menu_settings"
         android:showAsAction="never"
         android:title="@string/menu_settings"/>
-    
+    <item
+        android:id="@+id/menu_reset_database"
+        android:showAsAction="never"
+        android:title="@string/menu_reset_data"/>
     <item
         android:id="@+id/about"
         android:title="About"/>

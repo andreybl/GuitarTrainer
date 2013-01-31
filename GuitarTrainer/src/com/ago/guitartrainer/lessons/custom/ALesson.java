@@ -64,16 +64,17 @@ public abstract class ALesson implements ILesson {
      * */
     private QuestionMetrics currentQuestionMetrics;
 
-    protected DatabaseHelper dbHelper = new DatabaseHelper(MainFragment.getInstance().getActivity());
-
-    protected RuntimeExceptionDao<QuestionMetrics, Integer> qmDao = dbHelper
-            .getRuntimeExceptionDao(QuestionMetrics.class);
+    // TOODO: remove from class var?
+    protected RuntimeExceptionDao<QuestionMetrics, Integer> qmDao; 
 
     @Override
     public void prepareUi() {
         MainFragment uiControls = MainFragment.getInstance();
-
         learningStatusView = uiControls.getLearningStatusView();
+        
+        qmDao = 
+                DatabaseHelper.getInstance().getRuntimeExceptionDao(QuestionMetrics.class);
+        
         doPrepareUi();
     }
 
@@ -90,18 +91,6 @@ public abstract class ALesson implements ILesson {
     }
 
     public void next() {
-
-        /*-
-         *  
-         * During starting new or skipping to new question inside of 
-         * the current lesson loop we must either create or pick from dB:
-         *   - LessonMetrics, this is done once in the loop
-         *   - Question (appropriate for this lesson type) 
-         *   - QuestionMetrics for the question
-         *  
-         *  
-         * 
-         **/
 
         /*-
          * 1. start the question countdown 
@@ -154,11 +143,8 @@ public abstract class ALesson implements ILesson {
         int questionMaxDurationSec = sharedPref.getInt(SettingsActivity.KEY_QUESTION_DURATION_MAX, 10);
         questionTimer = new QuestionTimer(this, learningStatusView, questionMaxDurationSec * 1000, 300);
         questionTimer.start();
-        /*
-         * TODO: we have reference to AQuestion here, but it must be a reference through AQuestion
-         * 
-         * Log.d(getTag(), currentQuestion.toString());
-         */
+
+        Log.d(getTag(), getCurrentQuestion().toString());
     }
 
     protected QuestionMetrics resolveQuestionMetrics(AQuestion question) {

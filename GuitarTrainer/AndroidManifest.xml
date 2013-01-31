@@ -10,7 +10,7 @@
 
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
-    <application
+    <application android:name=".GuitarTrainerApplication"
         android:icon="@drawable/icon"
         android:label="Guitar Trainer" >
         <activity android:name="com.ichi2.anki.DeckPicker" />

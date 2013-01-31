@@ -23,6 +23,8 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
     private final String TAG = "GT-" + DatabaseHelper.class.getName();
 
+    private static DatabaseHelper INSTANCE;
+
     // name of the database file for your application -- change to something appropriate for your app
     private static final String DATABASE_NAME = "guitartrainer.db";
 
@@ -33,8 +35,25 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     private Dao<QuestionScalegridDegree2Position, Integer> simpleDao = null;
     private RuntimeExceptionDao<QuestionScalegridDegree2Position, Integer> simpleRuntimeDao = null;
 
-    public DatabaseHelper(Context context) {
+    private DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION, R.raw.ormlite_config);
+    }
+
+    /**
+     * Create and initialize the DatabseHelper. Is usually called once.
+     * 
+     * @param context
+     */
+    public static void initDatabaseHelperInstance(Context context) {
+        if (INSTANCE == null) {
+            INSTANCE = new DatabaseHelper(context);
+        }
+    }
+
+    public static DatabaseHelper getInstance() {
+        if (INSTANCE == null)
+            throw new NullPointerException("The DatabaseHelper must be initialized before getIntance() called");
+        return INSTANCE;
     }
 
     /**
@@ -45,8 +64,9 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     public void onCreate(SQLiteDatabase db, ConnectionSource connectionSource) {
         try {
             Log.i(TAG, "onCreate");
-            TableUtils.createTable(connectionSource, QuestionScalegridDegree2Position.class);
-            TableUtils.createTable(connectionSource, QuestionMetrics.class);
+            for (Class<?> clazz : DatabaseConfigUtil.classes) {
+                TableUtils.createTable(connectionSource, clazz);
+            }
         } catch (SQLException e) {
             Log.e(TAG, "Can't create database", e);
             throw new RuntimeException(e);
@@ -62,12 +82,25 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, ConnectionSource connectionSource, int oldVersion, int newVersion) {
         try {
             Log.i(TAG, "onUpgrade");
-            TableUtils.dropTable(connectionSource, QuestionScalegridDegree2Position.class, true);
-            TableUtils.dropTable(connectionSource, QuestionMetrics.class, true);
+            for (Class<?> clazz : DatabaseConfigUtil.classes) {
+                TableUtils.dropTable(connectionSource, clazz, true);
+            }
             // after we drop the old databases, we create the new ones
             onCreate(db, connectionSource);
         } catch (SQLException e) {
             Log.e(TAG, "Can't drop databases", e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void resetData() {
+        try {
+            Log.i(TAG, "resetData");
+            for (Class<?> clazz : DatabaseConfigUtil.classes) {
+                TableUtils.clearTable(getConnectionSource(), clazz);
+            }
+        } catch (SQLException e) {
+            Log.e(TAG, "Can't reset databases data", e);
             throw new RuntimeException(e);
         }
     }
@@ -82,7 +115,6 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         }
         return simpleDao;
     }
-
 
     /**
      * Returns the RuntimeExceptionDao (Database Access Object) version of a Dao for our SimpleData class. It will
