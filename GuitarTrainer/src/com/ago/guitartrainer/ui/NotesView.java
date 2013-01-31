@@ -5,10 +5,12 @@ import java.util.Map;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.preference.PreferenceManager;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -21,6 +23,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.ago.guitartrainer.R;
+import com.ago.guitartrainer.SettingsActivity;
 import com.ago.guitartrainer.notation.Key;
 import com.ago.guitartrainer.notation.Note;
 import com.ago.guitartrainer.notation.NoteStave;
@@ -331,7 +334,12 @@ public class NotesView extends AInoutView<Note> {
              * The distanceY specify the direction of the gestures on the Y-axis.
              */
 
-            if (e2.getY() > 25) {
+            SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(MainFragment.getInstance()
+                    .getActivity());
+            int pixelsTreshold = sharedPref.getInt(SettingsActivity.KEY_NOTESVIEW_SENSITIVITY, 7);
+
+            
+            if (e2.getY() > pixelsTreshold) {
                 if (distanceY > 0) {
                     selectedNote = NoteStave.getInstance().nextHasNoSharpsFlats(selectedNote);
                 } else {

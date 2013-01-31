@@ -25,6 +25,8 @@ public class SettingsActivity extends Activity {
     
     public static final String KEY_QUESTION_SHORTEST_REACTION_TIME = "question_shortest_reaction_time";
 
+    public static final String KEY_NOTESVIEW_SENSITIVITY = "notesview_sensitivity";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

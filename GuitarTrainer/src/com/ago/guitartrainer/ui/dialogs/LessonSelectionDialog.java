@@ -6,10 +6,14 @@ import java.util.List;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.view.View;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 
 import com.ago.guitartrainer.R;
@@ -36,6 +40,11 @@ public class LessonSelectionDialog extends Dialog {
 
     private ArrayAdapter<ILesson> adapter;
 
+    /**
+     * The padding from the dialog border to the screen border, given as percent of the total screen size
+     */
+    private static final double PADDING_TO_BORDER_AS_PERCENT = 0.2;
+
     public LessonSelectionDialog(Context context) {
         super(context);
     }
@@ -44,7 +53,17 @@ public class LessonSelectionDialog extends Dialog {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.list_lessons);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        // getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+
+        DisplayMetrics dm = getContext().getResources().getDisplayMetrics();
+
+        int width = dm.widthPixels - (int) Math.round(dm.widthPixels * PADDING_TO_BORDER_AS_PERCENT);
+        int height = dm.heightPixels - (int) Math.round(dm.heightPixels * PADDING_TO_BORDER_AS_PERCENT);
+
+        setContentView(R.layout.dialog_lessonselection);
+        final LinearLayout mainLayout = (LinearLayout) findViewById(R.id.dialog_lessonselection);
+        mainLayout.setLayoutParams(new FrameLayout.LayoutParams(width, height));
 
         lvLessons = (ListView) findViewById(R.id.list_lessons);
 
@@ -55,6 +74,8 @@ public class LessonSelectionDialog extends Dialog {
 
         OnItemClickListener onItemSelected = new InnerOnItemClickListener();
         lvLessons.setOnItemClickListener(onItemSelected);
+
+        // getActionBar().setTitle(R.string.dialog_lessonselection_title);
 
     }
 
@@ -84,7 +105,7 @@ public class LessonSelectionDialog extends Dialog {
      * 
      * @return selected lesson, or <code>null</code>
      */
-    public ILesson currentLesson() {
+    public ILesson selectedLesson() {
         return currentSelection;
     }
 

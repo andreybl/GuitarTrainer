@@ -1,12 +1,13 @@
 package com.ago.guitartrainer.lessons.custom;
 
+import org.apache.http.MethodNotSupportedException;
+
 import android.graphics.Color;
 import android.util.Log;
-import android.widget.TextView;
 
 import com.ago.guitartrainer.R;
 import com.ago.guitartrainer.events.OnViewSelectionListener;
-import com.ago.guitartrainer.lessons.ILesson;
+import com.ago.guitartrainer.lessons.AQuestion;
 import com.ago.guitartrainer.notation.Note;
 import com.ago.guitartrainer.notation.NoteStave;
 import com.ago.guitartrainer.notation.Position;
@@ -31,7 +32,7 @@ import com.ago.guitartrainer.utils.LessonsUtils;
  * 
  */
 
-public class LessonPosition2Note implements ILesson {
+public class LessonPosition2Note extends ALesson {
 
     private String TAG = "GT-SimpleLesson";
 
@@ -48,7 +49,14 @@ public class LessonPosition2Note implements ILesson {
 
     @Override
     public String getTitle() {
-        return "Position 2 Note";
+        String str = MainFragment.getInstance().getResources().getString(R.string.lesson_position2note_title);
+        return str;
+    }
+
+    @Override
+    public String getDescription() {
+        String str = MainFragment.getInstance().getResources().getString(R.string.lesson_position2note_description);
+        return str;
     }
 
     @Override
@@ -58,7 +66,7 @@ public class LessonPosition2Note implements ILesson {
     }
 
     @Override
-    public void prepareUi() {
+    public void doPrepareUi() {
         /*-
          * TODO:
          *   * highlight the fret as input (with red background)
@@ -109,7 +117,7 @@ public class LessonPosition2Note implements ILesson {
     }
 
     @Override
-    public void stop() {
+    public void doStop() {
         fretView.clearLayer(layerLesson);
     }
 
@@ -126,7 +134,7 @@ public class LessonPosition2Note implements ILesson {
      * 
      **/
     @Override
-    public void next() {
+    public void doNext() {
 
         fretView.clearLayer(layerLesson);
 
@@ -151,6 +159,10 @@ public class LessonPosition2Note implements ILesson {
         Log.d(TAG, "Position: " + pos + ", Note: " + expectedNote);
     }
 
+    @Override
+    protected AQuestion getCurrentQuestion() {
+        return null;
+    }
     /*
      * *** INNER CLASSES
      */

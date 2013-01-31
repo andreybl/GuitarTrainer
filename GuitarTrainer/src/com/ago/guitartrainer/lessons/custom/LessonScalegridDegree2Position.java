@@ -80,7 +80,16 @@ public class LessonScalegridDegree2Position extends ALesson {
 
     @Override
     public String getTitle() {
-        return "ScalegridDegree2Position";
+        String str = MainFragment.getInstance().getResources()
+                .getString(R.string.lesson_scalegriddegree2position_title);
+        return str;
+    }
+
+    @Override
+    public String getDescription() {
+        String str = MainFragment.getInstance().getResources()
+                .getString(R.string.lesson_scalegriddegree2position_description);
+        return str;
     }
 
     @Override
@@ -167,30 +176,14 @@ public class LessonScalegridDegree2Position extends ALesson {
          * now we ready either to pick AQuestion from dB, or create a new one. And also the same for related
          * QuestionMetrics.
          */
-        try {
-            // resolve question
-            List<QuestionScalegridDegree2Position> quests = qDao.queryBuilder().where()
-                    .eq("scaleGridType", userScalegridType).and().eq("fretPosition", fretPosition).and()
-                    .eq("degree", degree).query();
-            if (quests.size() == 0) {
-                currentQuestion = new QuestionScalegridDegree2Position();
-                currentQuestion.scaleGridType = userScalegridType;
-                currentQuestion.fretPosition = fretPosition;
-                currentQuestion.degree = degree;
-                // in the next step the metrics object will be added
-
-                QuestionMetrics qm = resolveQuestionMetrics(currentQuestion);
-                currentQuestion.setMetrics(qm);
-                qDao.create(currentQuestion);
-
-            } else if (quests.size() == 1) {
-                currentQuestion = quests.get(0);
-            } else {
-                throw new RuntimeException("The question object is not unique.");
-            }
-
-        } catch (SQLException e) {
-            Log.e(getTag(), e.getMessage(), e);
+        currentQuestion = resolveOrCreateQuestion(userScalegridType, fretPosition, degree);
+        QuestionMetrics qm = resolveOrCreateQuestionMetrics(currentQuestion);
+        if (qm.getId() == 0) {
+            qmDao.create(qm);
+        }
+        if (currentQuestion.getId() == 0) {
+            currentQuestion.setMetrics(qm);
+            qDao.create(currentQuestion);
         }
 
         /* 3. visualize the question to the user */
@@ -203,6 +196,41 @@ public class LessonScalegridDegree2Position extends ALesson {
         degreesView.show(currentQuestion.degree);
         fretView.show(layerLesson, gridShape);
 
+    }
+
+    /**
+     * Find question in dB or create a new one. The question crated is not persisted in the method.
+     * 
+     * @param scalegridType
+     * @param fretPosition
+     * @param degree
+     * @return
+     */
+    private QuestionScalegridDegree2Position resolveOrCreateQuestion(Type scalegridType, int fretPosition, Degree degree) {
+        QuestionScalegridDegree2Position question = null;
+        try {
+            // resolve question
+            List<QuestionScalegridDegree2Position> quests = qDao.queryBuilder().where()
+                    .eq("scaleGridType", scalegridType).and().eq("fretPosition", fretPosition).and()
+                    .eq("degree", degree).query();
+            if (quests.size() == 0) {
+                question = new QuestionScalegridDegree2Position();
+                question.scaleGridType = scalegridType;
+                question.fretPosition = fretPosition;
+                question.degree = degree;
+                // in the next step the metrics object will be added
+
+            } else if (quests.size() == 1) {
+                question = quests.get(0);
+            } else {
+                throw new RuntimeException("The question object is not unique.");
+            }
+
+        } catch (SQLException e) {
+            Log.e(getTag(), e.getMessage(), e);
+        }
+
+        return question;
     }
 
     @Override

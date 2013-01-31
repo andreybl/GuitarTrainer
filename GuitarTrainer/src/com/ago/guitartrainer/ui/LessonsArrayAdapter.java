@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.ago.guitartrainer.R;
 import com.ago.guitartrainer.lessons.ILesson;
+import com.ago.guitartrainer.lessons.LessonMetrics;
 
 public class LessonsArrayAdapter extends ArrayAdapter<ILesson> {
 
@@ -27,19 +28,26 @@ public class LessonsArrayAdapter extends ArrayAdapter<ILesson> {
 
         if (row == null) {
             LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            row = inflater.inflate(R.layout.list_lessons_item, parent, false);
+            row = inflater.inflate(R.layout.lessonselection_listitem, parent, false);
 
             ILesson lesson = getItem(position);
-            
+
             TextView tvTitle = (TextView) row.findViewById(R.id.list_lessons_item_title);
             TextView tvTime = (TextView) row.findViewById(R.id.list_lessons_item_time);
+            TextView tvDescription = (TextView) row.findViewById(R.id.list_lessons_item_description);
 
             tvTitle.setText(lesson.getTitle());
+            tvDescription.setText(lesson.getDescription());
 
-            SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm aa");
-            Date dt = new Date(lesson.getDuration());
-            String strValue = timeFormat.format(dt);
-            tvTime.setText(strValue);
+            LessonMetrics lessonMetrics = lesson.getLessonMetrics();
+            if (lessonMetrics != null) {
+                SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm aa");
+                Date dt = new Date(lessonMetrics.durationTotal());
+                String strValue = timeFormat.format(dt);
+                tvTime.setText(strValue);
+            } else {
+                tvTime.setText("unknown");
+            }
 
         }
 

@@ -40,5 +40,15 @@
         <item>Tolerant (2s/4s)</item>
         <item>Very Tolerant (3s/6s)</item>
     </string-array>
+    <string-array name="notesview_sensitivity_values">
+        <item>16</item>
+        <item>7</item>
+        <item>2</item>
+    </string-array>
+    <string-array name="notesview_sensitivity_titles">
+        <item>Sensitivity: Low</item>
+        <item>Sensitivity: Middle</item>
+        <item>Sensitivity: Hight</item>
+    </string-array>
 
 </resources>

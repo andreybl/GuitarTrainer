@@ -21,6 +21,15 @@ public interface ILesson {
     public String getTitle();
 
     /**
+     * Returns short description of the lesson.
+     * 
+     * The description is shown for instance in the lessons selection dialog.
+     * 
+     * @return
+     */
+    public String getDescription();
+
+    /**
      * Returns total duration of the lesson as accumulated through all loops of the lesson.
      * 
      * @return
@@ -54,4 +63,6 @@ public interface ILesson {
      * 
      */
     public void showMetrics();
+    
+    public LessonMetrics getLessonMetrics();
 }

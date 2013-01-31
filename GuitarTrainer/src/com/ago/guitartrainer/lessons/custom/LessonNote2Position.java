@@ -11,6 +11,7 @@ import android.widget.TextView;
 import com.ago.guitartrainer.R;
 import com.ago.guitartrainer.events.NotePlayingEvent;
 import com.ago.guitartrainer.events.OnViewSelectionListener;
+import com.ago.guitartrainer.lessons.AQuestion;
 import com.ago.guitartrainer.lessons.ILesson;
 import com.ago.guitartrainer.lessons.LessonMetrics;
 import com.ago.guitartrainer.notation.Key;
@@ -38,7 +39,7 @@ import com.ago.guitartrainer.utils.LessonsUtils;
  * 
  */
 
-public class LessonNote2Position implements ILesson {
+public class LessonNote2Position extends ALesson {
 
     private String TAG = "GT-SimpleLesson";
 
@@ -48,8 +49,6 @@ public class LessonNote2Position implements ILesson {
 
     private LearningStatusView learningStatusView;
 
-    /** counts the lessons */
-    private int counter = 0;
 
     /** the note for which the fret position must be found */
     private Note questionedNote;
@@ -84,11 +83,17 @@ public class LessonNote2Position implements ILesson {
         mainKeys.add(Key.B);
     }
 
-    private LessonMetrics lessonMetrics = new LessonMetrics();
 
     @Override
     public String getTitle() {
-        return "Note 2 Position";
+        String str = MainFragment.getInstance().getResources().getString(R.string.lesson_note2position_title);
+        return str;
+    }
+
+    @Override
+    public String getDescription() {
+        String str = MainFragment.getInstance().getResources().getString(R.string.lesson_note2position_description);
+        return str;
     }
 
     @Override
@@ -98,7 +103,7 @@ public class LessonNote2Position implements ILesson {
     }
 
     @Override
-    public void prepareUi() {
+    public void doPrepareUi() {
 
         // initialize views required for the current type of lesson
         MainFragment uiControls = MainFragment.getInstance();
@@ -119,7 +124,7 @@ public class LessonNote2Position implements ILesson {
     }
 
     @Override
-    public void stop() {
+    public void doStop() {
         fretView.clearLayer(layerLesson);
     }
 
@@ -136,9 +141,7 @@ public class LessonNote2Position implements ILesson {
      * 
      **/
     @Override
-    public void next() {
-
-        counter++;
+    public void doNext() {
 
         fretView.clearLayer(layerLesson);
 
@@ -187,6 +190,11 @@ public class LessonNote2Position implements ILesson {
         Log.d(TAG, "Note: " + questionedNote + ", Allowed positions: " + acceptedPositions);
     }
 
+    @Override
+    protected AQuestion getCurrentQuestion() {
+     
+        return null;
+    }
     /*
      * *** INNER CLASSES
      */

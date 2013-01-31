@@ -169,7 +169,7 @@ public class MainFragment extends Fragment {
 
                     @Override
                     public void onDismiss(DialogInterface dialog) {
-                        currentLesson = lessonDialog.currentLesson();
+                        currentLesson = lessonDialog.selectedLesson();
                         if (currentLesson != null) {
 
                             Editor editor = PreferenceManager.getDefaultSharedPreferences(getActivity()).edit();

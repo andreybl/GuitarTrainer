@@ -4,6 +4,15 @@
     <string name="app_name">Guitar Trainer</string>
     <string name="menu_settings">Settings</string>
     <string name="menu_reset_data">Reset data</string>
+    <string name="dialog_lessonselection_title">Dialog: Lesson Selection</string>
     <string name="undefined">--</string>
 
+    <!-- For each lesson available: Titles and Descriptions -->
+    <string name="lesson_scalegriddegree2position_title">ScalegridDegree2Position</string>
+    <string name="lesson_scalegriddegree2position_description">The position must be found on fret for proposed ScaleGrid + Degree combination</string>
+    <string name="lesson_position2note_title">Position2Note</string>
+    <string name="lesson_position2note_description">The note must be submited for every position shown on the fret</string>
+    <string name="lesson_note2position_title">Note2Position</string>
+    <string name="lesson_note2position_description">The position must be submited for every note shown</string>
+    
 </resources>

@@ -65,16 +65,15 @@ public abstract class ALesson implements ILesson {
     private QuestionMetrics currentQuestionMetrics;
 
     // TOODO: remove from class var?
-    protected RuntimeExceptionDao<QuestionMetrics, Integer> qmDao; 
+    protected RuntimeExceptionDao<QuestionMetrics, Integer> qmDao;
 
     @Override
     public void prepareUi() {
         MainFragment uiControls = MainFragment.getInstance();
         learningStatusView = uiControls.getLearningStatusView();
-        
-        qmDao = 
-                DatabaseHelper.getInstance().getRuntimeExceptionDao(QuestionMetrics.class);
-        
+
+        qmDao = DatabaseHelper.getInstance().getRuntimeExceptionDao(QuestionMetrics.class);
+
         doPrepareUi();
     }
 
@@ -134,7 +133,7 @@ public abstract class ALesson implements ILesson {
          * the question was asked
          */
         AQuestion currentQuestion = getCurrentQuestion();
-        currentQuestionMetrics = resolveQuestionMetrics(currentQuestion);
+        currentQuestionMetrics = resolveOrCreateQuestionMetrics(currentQuestion);
         currentQuestionMetrics.start();
 
         /* 6. start the question timer */
@@ -147,7 +146,13 @@ public abstract class ALesson implements ILesson {
         Log.d(getTag(), getCurrentQuestion().toString());
     }
 
-    protected QuestionMetrics resolveQuestionMetrics(AQuestion question) {
+    /**
+     * Resolve question metrics or create a new one. The question metrics is not persisted to the dB.
+     * 
+     * @param question
+     * @return
+     */
+    protected QuestionMetrics resolveOrCreateQuestionMetrics(AQuestion question) {
         QuestionMetrics qm = null;
         try {
             // resolve metrics for the question
@@ -160,10 +165,6 @@ public abstract class ALesson implements ILesson {
                 throw new RuntimeException("The question metrics object is not unique.");
             }
 
-            // save both object to dB, if they did not exist before
-            if (qm.getId() == 0) {
-                qmDao.create(qm);
-            }
         } catch (SQLException e) {
             Log.e(getTag(), e.getMessage(), e);
         }
@@ -242,4 +243,8 @@ public abstract class ALesson implements ILesson {
 
     protected abstract AQuestion getCurrentQuestion();
 
+    @Override
+    public LessonMetrics getLessonMetrics() {
+        return lessonMetrics;
+    }
 }

@@ -8,6 +8,7 @@ import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.ago.guitartrainer.db.DatabaseHelper;
 import com.ago.guitartrainer.ui.MainFragment;
@@ -58,12 +59,10 @@ public class MasterActivity extends FragmentActivity {
             Intent intent = new Intent(this, SettingsActivity.class);
             startActivity(intent);
             break;
-        }case R.id.menu_reset_database: {
-//            Intent intent = new Intent(this, SettingsActivity.class);
-//            startActivity(intent);
-            
+        }
+        case R.id.menu_reset_database: {
             DatabaseHelper.getInstance().resetData();
-            
+            Toast.makeText(this, "The database content truncated", 2000).show();
             break;
         }
         case R.id.about: {

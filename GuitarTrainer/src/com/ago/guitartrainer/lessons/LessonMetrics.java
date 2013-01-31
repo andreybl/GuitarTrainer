@@ -14,9 +14,9 @@ public class LessonMetrics {
 
     /** either timestamp of the end for current loop, or 0 */
     private long currentLoopEnd = 0;
-    
+
     private long currentLoopDuration = 0;
-    
+
     /** counter for questions asked in the current lesson loop */
     private int questionsCounter;
 
@@ -28,6 +28,10 @@ public class LessonMetrics {
     public void submitLastLessonDuration(long lastLessonDuration) {
         this.lastLessonDuration = lastLessonDuration;
         totalLessonDuration += lastLessonDuration;
+    }
+
+    public long durationTotal() {
+        return totalLessonDuration;
     }
 
     /**
@@ -71,11 +75,11 @@ public class LessonMetrics {
         else if (currentLoopStart == 0)
             return 0; // the question was not started yet
         else
-            return System.currentTimeMillis()-currentLoopStart; // the question is running
-        
+            return System.currentTimeMillis() - currentLoopStart; // the question is running
+
     }
-    
-    public boolean isFinished(){
+
+    public boolean isFinished() {
         return currentLoopEnd != 0;
     }
 
@@ -83,6 +87,5 @@ public class LessonMetrics {
         questionsCounter++;
         return questionsCounter;
     }
-
 
 }
