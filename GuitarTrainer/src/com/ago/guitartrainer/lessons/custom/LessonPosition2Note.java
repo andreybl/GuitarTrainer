@@ -245,20 +245,12 @@ public class LessonPosition2Note extends ALesson {
 
         @Override
         public void onViewElementSelected(final Note note) {
-            // TODO: must it still be in runOnUiThread() ???
-            MainFragment.getInstance().getActivity().runOnUiThread(new Runnable() {
-
-                @Override
-                public void run() {
-                    Log.d(getTag(), "Notes soll/ist: " + expectedNote + "/" + note);
-                    if (note.equals(expectedNote)) {
-                        onSuccess();
-                    } else {
-                        onFailure();
-                    }
-
-                }
-            });
+            Log.d(getTag(), "Notes soll/ist: " + expectedNote + "/" + note);
+            if (note.equals(expectedNote)) {
+                onSuccess();
+            } else {
+                onFailure();
+            }
 
         }
     }

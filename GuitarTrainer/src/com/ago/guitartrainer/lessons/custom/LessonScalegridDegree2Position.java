@@ -393,33 +393,24 @@ public class LessonScalegridDegree2Position extends ALesson {
         @Override
         public void onViewElementSelected(final NotePlayingEvent npEvent) {
 
-            MainFragment.getInstance().getActivity().runOnUiThread(new Runnable() {
+            /* the lesson has not started. So we ignore all events. */
+            if (acceptedPositions == null)
+                return;
 
-                @Override
-                public void run() {
+            if (!isLessonRunning())
+                return;
 
-                    /* the lesson has not started. So we ignore all events. */
-                    if (acceptedPositions == null)
-                        return;
+            boolean isSuccessful = isAnswerAccepted(acceptedPositions, npEvent.position, npEvent.possiblePositions);
 
-                    if (!isLessonRunning())
-                        return;
+            if (isSuccessful) {
 
-                    boolean isSuccessful = isAnswerAccepted(acceptedPositions, npEvent.position,
-                            npEvent.possiblePositions);
+                onSuccess();
+                fretView.show(layerLesson, acceptedPositions);
 
-                    if (isSuccessful) {
+            } else {
 
-                        onSuccess();
-                        fretView.show(layerLesson, acceptedPositions);
-
-                    } else {
-
-                        onFailure();
-                    }
-                }
-
-            });
+                onFailure();
+            }
 
         }
     }
