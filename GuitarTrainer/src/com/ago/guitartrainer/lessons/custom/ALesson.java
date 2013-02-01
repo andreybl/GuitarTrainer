@@ -3,7 +3,9 @@ package com.ago.guitartrainer.lessons.custom;
 import java.sql.SQLException;
 import java.util.List;
 
+import android.content.Context;
 import android.os.CountDownTimer;
+import android.os.Vibrator;
 import android.util.Log;
 
 import com.ago.guitartrainer.GuitarTrainerApplication;
@@ -211,7 +213,7 @@ public abstract class ALesson implements ILesson {
         questionTimer.cancel();
 
         currentQuestionMetrics.submitAnswer(false);
-        
+
         learningStatusView.updateMessageToUser(null);
 
         doStop();
@@ -228,6 +230,8 @@ public abstract class ALesson implements ILesson {
          * TODO: update metrics for question, persist it to db; update lesson metrics and persist. go to next question
          */
         currentQuestionMetrics.submitAnswer(IS_SUCCESS);
+
+        vibrateYesAndCompleted();
 
         questionTimer.cancel();
 
@@ -249,7 +253,7 @@ public abstract class ALesson implements ILesson {
     }
 
     protected boolean isLessonRunning() {
-        boolean isRunning = lessonMetrics==null || !lessonMetrics.isFinished();
+        boolean isRunning = lessonMetrics == null || !lessonMetrics.isFinished();
 
         return isRunning;
     }
@@ -276,5 +280,40 @@ public abstract class ALesson implements ILesson {
     @Override
     public LessonMetrics getLessonMetrics() {
         return lessonMetrics;
+    }
+
+    /**
+     * Vibrates shortly, when the answer from user is correct, but not complete. E.g. additional user inputs are
+     * expected.
+     */
+    protected void vibrateYesButUncompleted() {
+        Vibrator vibratorService = (Vibrator) MainFragment.getInstance().getActivity()
+                .getSystemService(Context.VIBRATOR_SERVICE);
+        vibratorService.vibrate(200);
+
+    }
+
+    /**
+     * Vibrate in pattern, when the answer of user is completed. E.g. the question was answered successfully and we can
+     * go to the next question.
+     */
+    protected void vibrateYesAndCompleted() {
+        Vibrator vibratorService = (Vibrator) MainFragment.getInstance().getActivity()
+                .getSystemService(Context.VIBRATOR_SERVICE);
+        vibratorService.vibrate(300);
+
+        // This example will cause the phone to vibrate in Morse Code
+        int dot = 200; // Length of a Morse Code "dot" in milliseconds
+        int dash = 500; // Length of a Morse Code "dash" in milliseconds
+        int short_gap = 200; // Length of Gap Between dots/dashes
+        int medium_gap = 500; // Length of Gap Between Letters
+        int long_gap = 1000; // Length of Gap Between Words
+        long[] pattern = { 0, // Start immediately
+                dot, short_gap, dot // s
+        };
+
+        // Only perform this pattern one time (-1 means "do not repeat")
+        vibratorService.vibrate(pattern, -1);
+
     }
 }

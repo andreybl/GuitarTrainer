@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import android.content.Context;
+import android.os.Vibrator;
 import android.util.Log;
 
 import com.ago.guitartrainer.GuitarTrainerApplication;
@@ -410,8 +412,14 @@ public class LessonScalegridDegree2Position extends ALesson {
 
             Collection<Position> positions = calculatedAcceptedPositions(expectedPositions, npEvent);
             if (!ArrayUtils.isEmpty(positions)) {
-                /* the user answer accepted. Make sense to check if the question answer is complete. */
 
+                vibrateYesButUncompleted();
+
+                /*
+                 * the user answer accepted. But is it complete?
+                 * 
+                 * We check here if this and previous answers are complete.
+                 */
                 submittedPositions.addAll(positions);
 
                 if (ArrayUtils.isEqual(expectedPositions, submittedPositions)) {

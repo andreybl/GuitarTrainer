@@ -9,8 +9,10 @@
         android:targetSdkVersion="14" />
 
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.VIBRATE" />
 
-    <application android:name=".GuitarTrainerApplication"
+    <application
+        android:name=".GuitarTrainerApplication"
         android:icon="@drawable/icon"
         android:label="Guitar Trainer" >
         <activity android:name="com.ichi2.anki.DeckPicker" />
