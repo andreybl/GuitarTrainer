@@ -1,6 +1,23 @@
 #
-# generated on 2013/01/31 11:42:00
+# generated on 2013/02/01 08:40:30
 #
+# --table-start--
+dataClass=com.ago.guitartrainer.lessons.LessonMetrics
+tableName=lessonmetrics
+# --table-fields-start--
+# --field-start--
+fieldName=id
+generatedId=true
+# --field-end--
+# --field-start--
+fieldName=lessonClazz
+# --field-end--
+# --field-start--
+fieldName=totalLessonDuration
+# --field-end--
+# --table-fields-end--
+# --table-end--
+#################################
 # --table-start--
 dataClass=com.ago.guitartrainer.lessons.custom.QuestionScalegridDegree2Position
 tableName=questionscalegriddegree2position

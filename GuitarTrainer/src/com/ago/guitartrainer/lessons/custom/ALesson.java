@@ -73,7 +73,7 @@ public abstract class ALesson implements ILesson {
      * */
     private QuestionMetrics currentQuestionMetrics;
 
-    // TOODO: remove from class var?
+    // TODO: remove from class var?
     protected RuntimeExceptionDao<QuestionMetrics, Integer> qmDao;
 
     @Override
@@ -119,19 +119,21 @@ public abstract class ALesson implements ILesson {
 
         /* 2. start lesson related metrics */
         if (lessonMetrics == null) {
-            /*
-             * TODO: we must read the lesson metrics from db here.
-             */
-            lessonMetrics = new LessonMetrics();
 
-            /*
-             * the operations on metrics instance is done only once at this place - at the very beginning of the lesson,
-             * just before the first question is asked
-             */
+            RuntimeExceptionDao<LessonMetrics, Integer> lmDao = DatabaseHelper.getInstance().getRuntimeExceptionDao(
+                    LessonMetrics.class);
+
+            lessonMetrics = resolveOrCreateLessonMetrics(lmDao, this.getClass());
+            if (lessonMetrics.getId() == 0)
+                lmDao.create(lessonMetrics);
+        }
+
+        if (lessonMetrics.isFinished()) {
             lessonMetrics.startTime();
 
             int currentLoop = lessonMetrics.increaseLoop();
             learningStatusView.updateLessonLoop(currentLoop);
+
         }
 
         /* 3. update the learning status view */
@@ -187,6 +189,29 @@ public abstract class ALesson implements ILesson {
         return qm;
     }
 
+    private LessonMetrics resolveOrCreateLessonMetrics(RuntimeExceptionDao<LessonMetrics, Integer> dao,
+            Class<? extends ALesson> clazz) {
+        LessonMetrics obj = null;
+        try {
+            // resolve question
+            List<LessonMetrics> results = dao.queryBuilder().where().eq("lessonClazz", clazz.getSimpleName()).query();
+
+            if (results.size() == 0) {
+                obj = new LessonMetrics();
+                obj.lessonClazz = clazz.getSimpleName();
+            } else if (results.size() == 1) {
+                obj = results.get(0);
+            } else {
+                throw new RuntimeException("The object is not unique: " + LessonMetrics.class.getSimpleName());
+            }
+
+        } catch (SQLException e) {
+            Log.e(getTag(), e.getMessage(), e);
+        }
+
+        return obj;
+    }
+
     protected void registerQuestion(RuntimeExceptionDao qDao, AQuestion currentQuestion, QuestionMetrics qm) {
         if (qm.getId() == 0) {
             qmDao.create(qm);
@@ -206,6 +231,9 @@ public abstract class ALesson implements ILesson {
     public void stop() {
 
         lessonMetrics.stopTime();
+        RuntimeExceptionDao<LessonMetrics, Integer> lmDao = DatabaseHelper.getInstance().getRuntimeExceptionDao(
+                LessonMetrics.class);
+        lmDao.update(lessonMetrics);
 
         if (pauseTimer != null)
             pauseTimer.cancel();
@@ -245,14 +273,14 @@ public abstract class ALesson implements ILesson {
                 SettingsActivity.KEY_POST_QUESTION_PAUSE_DURATION, 5);
         if (pauseDuration > 0) {
             MainFragment.getInstance().getActivity().runOnUiThread(new Runnable() {
-                
+
                 @Override
                 public void run() {
                     pauseTimer = new PauseTimer(ALesson.this, learningStatusView, pauseDuration * 1000, 1000);
                     pauseTimer.start();
                 }
             });
-            
+
         } else {
             next();
         }
@@ -260,7 +288,7 @@ public abstract class ALesson implements ILesson {
     }
 
     protected boolean isLessonRunning() {
-        boolean isRunning = lessonMetrics == null || !lessonMetrics.isFinished();
+        boolean isRunning = (lessonMetrics != null) && !lessonMetrics.isFinished();
 
         return isRunning;
     }

@@ -1,7 +1,18 @@
 package com.ago.guitartrainer.lessons;
 
+import com.j256.ormlite.field.DatabaseField;
+
 public class LessonMetrics {
 
+    @DatabaseField(generatedId = true)
+    private int id;
+
+    /** simple class name of the lesson as returned with {@link Class#getSimpleName()} */
+    @DatabaseField
+    public String lessonClazz;
+
+    /** total duration of the lesson as accumulated through all its loops */
+    @DatabaseField
     private long totalLessonDuration;
 
     private long lastLessonDuration;
@@ -19,6 +30,12 @@ public class LessonMetrics {
 
     /** counter for questions asked in the current lesson loop */
     private int questionsCounter;
+
+    private boolean isRunning = false;
+
+    public int getId() {
+        return id;
+    }
 
     /**
      * 
@@ -50,6 +67,7 @@ public class LessonMetrics {
     }
 
     public void startTime() {
+        isRunning = true;
         currentLoopStart = System.currentTimeMillis();
     }
 
@@ -60,8 +78,13 @@ public class LessonMetrics {
      *            of the current lesson
      * */
     public long stopTime() {
+        isRunning = false;
         currentLoopEnd = System.currentTimeMillis();
-        return (currentLoopEnd - currentLoopStart);
+
+        long duration = (currentLoopEnd - currentLoopStart);
+        totalLessonDuration += duration;
+
+        return duration;
     }
 
     /**
@@ -80,7 +103,7 @@ public class LessonMetrics {
     }
 
     public boolean isFinished() {
-        return currentLoopEnd != 0;
+        return !isRunning;
     }
 
     public int increaseQuestionsCounter() {

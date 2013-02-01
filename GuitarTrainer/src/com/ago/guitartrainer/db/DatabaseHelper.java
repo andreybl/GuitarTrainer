@@ -1,13 +1,15 @@
 package com.ago.guitartrainer.db;
 
 import java.sql.SQLException;
+import java.util.List;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import com.ago.guitartrainer.R;
-import com.ago.guitartrainer.lessons.QuestionMetrics;
+import com.ago.guitartrainer.lessons.ILesson;
+import com.ago.guitartrainer.lessons.LessonMetrics;
 import com.ago.guitartrainer.lessons.custom.QuestionScalegridDegree2Position;
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
 import com.j256.ormlite.dao.Dao;
@@ -29,11 +31,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     private static final String DATABASE_NAME = "guitartrainer.db";
 
     // any time you make changes to your database objects, you may have to increase the database version
-    private static final int DATABASE_VERSION = 13;
-
-    // the DAO object we use to access the SimpleData table
-    private Dao<QuestionScalegridDegree2Position, Integer> simpleDao = null;
-    private RuntimeExceptionDao<QuestionScalegridDegree2Position, Integer> simpleRuntimeDao = null;
+    private static final int DATABASE_VERSION = 14;
 
     private DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION, R.raw.ormlite_config);
@@ -105,34 +103,19 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         }
     }
 
-    /**
-     * Returns the Database Access Object (DAO) for our QuestionScalegridDegree2Position class. It will create it or
-     * just give the cached value.
-     */
-    public Dao<QuestionScalegridDegree2Position, Integer> getDao() throws SQLException {
-        if (simpleDao == null) {
-            simpleDao = getDao(QuestionScalegridDegree2Position.class);
+    public LessonMetrics findLessonMetrics(Class<? extends ILesson> lessonClazz) {
+        RuntimeExceptionDao<LessonMetrics, Integer> dao = DatabaseHelper.getInstance().getRuntimeExceptionDao(
+                LessonMetrics.class);
+        LessonMetrics result = null;
+        try {
+            List<LessonMetrics> results = dao.queryBuilder().where().eq("lessonClazz", lessonClazz.getSimpleName())
+                    .query();
+            result = (results.size() > 0) ? results.get(0) : null;
+        } catch (SQLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
-        return simpleDao;
-    }
 
-    /**
-     * Returns the RuntimeExceptionDao (Database Access Object) version of a Dao for our SimpleData class. It will
-     * create it or just give the cached value. RuntimeExceptionDao only through RuntimeExceptions.
-     */
-    public RuntimeExceptionDao<QuestionScalegridDegree2Position, Integer> getDao2() {
-        if (simpleRuntimeDao == null) {
-            simpleRuntimeDao = getRuntimeExceptionDao(QuestionScalegridDegree2Position.class);
-        }
-        return simpleRuntimeDao;
-    }
-
-    /**
-     * Close the database connections and clear any cached DAOs.
-     */
-    @Override
-    public void close() {
-        super.close();
-        simpleRuntimeDao = null;
+        return result;
     }
 }

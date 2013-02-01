@@ -156,8 +156,7 @@ public class LessonScalegridDegree2Position extends ALesson {
          * 
          * So we use temporal vars, which type actually corresponds to the AQuestion vars types.
          */
-        // Type scaleGridType = Type.ALPHA;
-        int fretPosition = 0;
+        int fretPosition = 1;
         Degree degree = Degree.ONE;
 
         /*
@@ -207,6 +206,8 @@ public class LessonScalegridDegree2Position extends ALesson {
         }
     }
 
+    private MediaPlayer mediaPlayer;
+
     private void playDegree(Degree degree) {
         int mp3Id = R.raw.one;
         switch (degree) {
@@ -237,8 +238,9 @@ public class LessonScalegridDegree2Position extends ALesson {
         }
         ;
 
-        MediaPlayer mediaPlayer = MediaPlayer.create(MainFragment.getInstance().getActivity(), mp3Id);
+        mediaPlayer = MediaPlayer.create(MainFragment.getInstance().getActivity(), mp3Id);
         mediaPlayer.start();
+
     }
 
     /**

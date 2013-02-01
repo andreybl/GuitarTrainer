@@ -3,6 +3,7 @@ package com.ago.guitartrainer.ui;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -12,8 +13,11 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.ago.guitartrainer.R;
+import com.ago.guitartrainer.db.DatabaseHelper;
 import com.ago.guitartrainer.lessons.ILesson;
 import com.ago.guitartrainer.lessons.LessonMetrics;
+import com.ago.guitartrainer.utils.TimeUtils;
+import com.j256.ormlite.dao.RuntimeExceptionDao;
 
 public class LessonsArrayAdapter extends ArrayAdapter<ILesson> {
 
@@ -39,11 +43,10 @@ public class LessonsArrayAdapter extends ArrayAdapter<ILesson> {
             tvTitle.setText(lesson.getTitle());
             tvDescription.setText(lesson.getDescription());
 
-            LessonMetrics lessonMetrics = lesson.getLessonMetrics();
+            LessonMetrics lessonMetrics = DatabaseHelper.getInstance().findLessonMetrics(lesson.getClass());
+
             if (lessonMetrics != null) {
-                SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm aa");
-                Date dt = new Date(lessonMetrics.durationTotal());
-                String strValue = timeFormat.format(dt);
+                String strValue = TimeUtils.formatDuration(lessonMetrics.durationTotal());
                 tvTime.setText(strValue);
             } else {
                 tvTime.setText("unknown");

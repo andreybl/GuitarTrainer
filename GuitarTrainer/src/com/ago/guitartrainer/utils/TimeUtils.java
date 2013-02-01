@@ -4,15 +4,15 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 public class TimeUtils {
-    
+
     /**
      * Calculates the "time ago" string for the <code>timeNow</code> in respect to <code>timePast</code>. In other
      * words, the "time ago" is calculated based on the difference (<code>timeNow</code> - <code>timePast</code>).
      * 
      * Examples for the differences and how they are formatted:
      * <ul>
-     * <li> milliseconds are formatted like "123ms ago"
-     * <li> seconds are formatted like 4" (precision in milliseconds is ignored)  
+     * <li>milliseconds are formatted like "123ms ago"
+     * <li>seconds are formatted like 4" (precision in milliseconds is ignored)
      * <li>
      * <ul>
      * 
@@ -59,6 +59,23 @@ public class TimeUtils {
             str = "now";
         }
 
+        return str;
+
+    }
+
+    public static String formatDuration(long milliseconds) {
+        int seconds = (int) (milliseconds / 1000) % 60;
+        int minutes = (int) ((milliseconds / (1000 * 60)) % 60);
+        int hours = (int) ((milliseconds / (1000 * 60 * 60)) % 24);
+
+        String str = "";
+
+        if (hours > 0)
+            str += hours + "h";
+        if (minutes > 0 || str.length() > 0)
+            str += " " + minutes + "m";
+        if (seconds > 0 || str.length() > 0)
+            str += " " + seconds + "s";
         return str;
 
     }

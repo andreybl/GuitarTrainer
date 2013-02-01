@@ -18,7 +18,7 @@ public class QuestionMetrics {
 
     @DatabaseField(generatedId = true)
     private int id;
-
+    
     /** timestamp when the question was started */
     private long startedAt = 0;
 

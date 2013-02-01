@@ -2,7 +2,6 @@ package com.ago.guitartrainer.ui;
 
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnDismissListener;
-import android.content.Intent;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -14,12 +13,9 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
-import com.ago.guitartrainer.MasterActivity;
 import com.ago.guitartrainer.R;
-import com.ago.guitartrainer.SettingsActivity;
-import com.ago.guitartrainer.SettingsFragment;
-import com.ago.guitartrainer.TestV4Fragment;
 import com.ago.guitartrainer.lessons.ILesson;
 import com.ago.guitartrainer.ui.dialogs.LessonSelectionDialog;
 
@@ -169,9 +165,11 @@ public class MainFragment extends Fragment {
 
                     @Override
                     public void onDismiss(DialogInterface dialog) {
-                        currentLesson = lessonDialog.selectedLesson();
-                        if (currentLesson != null) {
+                        ILesson selectedLesson = lessonDialog.selectedLesson();
+                        if (selectedLesson != null) {
 
+                            currentLesson = selectedLesson;
+                            
                             Editor editor = PreferenceManager.getDefaultSharedPreferences(getActivity()).edit();
                             editor.putString(IPrefKeys.KEY_LESSON_CLAZZ, currentLesson.getClass().getName());
                             editor.commit();
@@ -179,6 +177,8 @@ public class MainFragment extends Fragment {
                             btnStartLesson.setEnabled(true);
                             btnMetricsLesson.setEnabled(true);
                             learningStatusView.updateLessonName(currentLesson.getTitle());
+                        } else {
+                            Toast.makeText(getActivity(), "No lesson selected. Using the previous one", 2000).show();
                         }
                     }
                 });
