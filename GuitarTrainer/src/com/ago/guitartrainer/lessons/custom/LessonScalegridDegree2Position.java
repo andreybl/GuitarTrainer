@@ -2,12 +2,13 @@ package com.ago.guitartrainer.lessons.custom;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.ago.guitartrainer.GuitarTrainerApplication;
@@ -16,9 +17,9 @@ import com.ago.guitartrainer.SettingsActivity;
 import com.ago.guitartrainer.db.DatabaseHelper;
 import com.ago.guitartrainer.events.NotePlayingEvent;
 import com.ago.guitartrainer.events.OnViewSelectionListener;
-import com.ago.guitartrainer.lessons.AQuestion;
 import com.ago.guitartrainer.lessons.QuestionMetrics;
 import com.ago.guitartrainer.notation.Degree;
+import com.ago.guitartrainer.notation.Note;
 import com.ago.guitartrainer.notation.Position;
 import com.ago.guitartrainer.scalegrids.ScaleGrid;
 import com.ago.guitartrainer.scalegrids.ScaleGrid.Type;
@@ -27,6 +28,7 @@ import com.ago.guitartrainer.ui.FretView;
 import com.ago.guitartrainer.ui.FretView.Layer;
 import com.ago.guitartrainer.ui.MainFragment;
 import com.ago.guitartrainer.ui.ScalegridsView;
+import com.ago.guitartrainer.utils.ArrayUtils;
 import com.ago.guitartrainer.utils.LessonsUtils;
 import com.j256.ormlite.dao.RuntimeExceptionDao;
 
@@ -45,8 +47,22 @@ public class LessonScalegridDegree2Position extends ALesson {
 
     /* END: views to visualize questions */
 
-    /** positions, which are accepted by the lesson as successful answer to the current question */
-    private List<Position> acceptedPositions;
+    /**
+     * Positions, which are accepted by the lesson as successful answer to the current question.
+     * 
+     * In general, there are several positions available for the same degree inside of the scale grid. Each such
+     * position correspond to a different {@link Note}. In this lesson we assume the user submit all of the positions
+     * step-by-step.
+     * */
+    private List<Position> expectedPositions;
+
+    /**
+     * _Correctly_ submitted by the user positions, as mentioned in javadoc for {@link #expectedPositions}.
+     * 
+     * The question of the lesson is considered to be accomplished, when the {@link #submittedPositions} contains the
+     * same objects as {@link #expectedPositions}
+     * */
+    private Set<Position> submittedPositions = new HashSet<Position>();
 
     /**
      * if true, the grid shape used as lesson parameter is allowed to be entered by the user. Otherwise, the parameter
@@ -176,7 +192,7 @@ public class LessonScalegridDegree2Position extends ALesson {
         ScaleGrid gridShape = ScaleGrid.create(quest.scaleGridType, quest.fretPosition);
 
         /* both positions must be played for the answer to be accepted */
-        acceptedPositions = gridShape.degree2Positions(quest.degree);
+        expectedPositions = gridShape.degree2Positions(quest.degree);
 
         shapesView.show(gridShape.getType());
         degreesView.show(quest.degree);
@@ -246,13 +262,12 @@ public class LessonScalegridDegree2Position extends ALesson {
         try {
             fretView.clearLayer(layerLesson);
 
-            ScaleGrid.Type scaleGridType = ScaleGrid.Type.ALPHA;
             /*
              * TODO: implementation is sub-optimal. The query could actually be done with single left-join query. But
              * currently, I donn't know how to do it with ORMLite
              */
             List<QuestionScalegridDegree2Position> quests = qDao.queryBuilder().where()
-                    .eq("scaleGridType", scaleGridType).query();
+                    .eq("scaleGridType", userScalegridType).query();
 
             /* collection metrics about degrees */
             Map<Degree, Double> mapDegree2Avg = new HashMap<Degree, Double>();
@@ -280,7 +295,7 @@ public class LessonScalegridDegree2Position extends ALesson {
             }
 
             /* Preparing the position to color map, Map<Position, Integer> */
-            ScaleGrid scaleGrid = ScaleGrid.create(ScaleGrid.Type.ALPHA, 0);
+            ScaleGrid scaleGrid = ScaleGrid.create(userScalegridType, 0);
             Map<Position, Integer> mapPosition2Color = new HashMap<Position, Integer>();
 
             for (Degree degree : Degree.STRONG_DEGREES) {
@@ -293,6 +308,12 @@ public class LessonScalegridDegree2Position extends ALesson {
                  */
                 List<Position> positions = scaleGrid.degree2Positions(degree);
 
+                /*
+                 * we must be more tolerant to response time, when the user is requested to submit more positions rather
+                 * than one
+                 */
+                int tolleranceCoefficient = positions.size();
+
                 for (Position position : positions) {
                     int color = R.color.black;
 
@@ -303,14 +324,14 @@ public class LessonScalegridDegree2Position extends ALesson {
 
                     Double avg = mapDegree2Avg.get(degree);
 
-                    if (avg > shortestReactionTimeMs * 2) {
+                    if (avg > shortestReactionTimeMs * 2 * tolleranceCoefficient) {
                         color = R.color.red;
-                    } else if (avg > shortestReactionTimeMs) {
+                    } else if (avg > shortestReactionTimeMs * tolleranceCoefficient) {
                         color = R.color.orange;
-                    } else if (avg > 0 && avg <= shortestReactionTimeMs) {
+                    } else if (avg > 0 && avg <= shortestReactionTimeMs * tolleranceCoefficient) {
                         color = R.color.green;
                     } else {
-                        // avg == 0
+                        // avg == 0, e.g. question was shown, but the user even did not try to answer it
                         color = R.color.gray;
                     }
                     mapPosition2Color.put(position, color);
@@ -326,37 +347,44 @@ public class LessonScalegridDegree2Position extends ALesson {
     }
 
     /**
-     * Calculates whether the answer provided by the user - reflected with <code>exactPosition</code> and
-     * <code>possiblePositions</code> - can be considered as a successful answer.
+     * Return those positions, which were played/touched by the user (delivered in <code>npEvent</code>) and are in
+     * <code>expectedPosition</code>.
      * 
-     * @param acceptedPositions
+     * Usually the returned position(-s) are only a subset of those expected. But during the question run the user
+     * delivered positions are accumulated to match the whole list of expected positions.
+     * 
+     * @param expectedPositions
      *            positions on fret, which are expected by the question
-     * @param exactPosition
-     *            which was pressed on fret, if unambiguous detection was possible
-     * @param possiblePositions
-     *            which could have been pressed, usually due to note detection with help of sound
+     * @param npEvent
+     *            contains either exact position played on the fret or a set of plausible positions played
      * @return
      */
-    private boolean isAnswerAccepted(List<Position> acceptedPositions, Position exactPosition,
-            List<Position> possiblePositions) {
-        // TODO: the npe.position is not set, when detected with FFT. It is not possible to
-        // resolve unique position.
+    private List<Position> calculatedAcceptedPositions(List<Position> expectedPositions, NotePlayingEvent npEvent) {
 
-        List<Position> possibleAcceptedInterception = new ArrayList<Position>();
+        List<Position> correctPositions = new ArrayList<Position>();
 
-        if (possiblePositions != null)
-            possibleAcceptedInterception.addAll(possiblePositions);
+        if (npEvent.position != null) {
+            if (expectedPositions.contains(npEvent.position)) {
+                correctPositions.add(npEvent.position);
+            }
+        } else if (!ArrayUtils.isEmpty(npEvent.possiblePositions)) {
+            /*
+             * The "interception" will contain all positions from submitted by the user, which match the expected
+             * positions.
+             * 
+             * Example: assume, we expect position X, Y, Z; npEvent.possiblePositions contains A, Z, C. The interception
+             * will contain the Z. In other words, we a happy to see any user input, even if it is partially correct.
+             * The reason: the position is detected with FFT from played note, and such detection can not be precise for
+             * guitar.
+             */
+            List<Position> interception = new ArrayList<Position>();
+            interception.addAll(npEvent.possiblePositions);
+            interception.retainAll(expectedPositions);
 
-        possibleAcceptedInterception.retainAll(acceptedPositions);
-
-        boolean isAnswerAccepted = false;
-        if (exactPosition != null && acceptedPositions.contains(exactPosition)) {
-            isAnswerAccepted = true;
-        } else if (possibleAcceptedInterception.size() > 0) {
-            isAnswerAccepted = true;
+            correctPositions.addAll(interception);
         }
 
-        return isAnswerAccepted;
+        return correctPositions;
     }
 
     /*
@@ -374,25 +402,36 @@ public class LessonScalegridDegree2Position extends ALesson {
         public void onViewElementSelected(final NotePlayingEvent npEvent) {
 
             /* the lesson has not started. So we ignore all events. */
-            if (acceptedPositions == null)
+            if (expectedPositions == null)
                 return;
 
             if (!isLessonRunning())
                 return;
 
-            boolean isSuccessful = isAnswerAccepted(acceptedPositions, npEvent.position, npEvent.possiblePositions);
+            Collection<Position> positions = calculatedAcceptedPositions(expectedPositions, npEvent);
+            if (!ArrayUtils.isEmpty(positions)) {
+                /* the user answer accepted. Make sense to check if the question answer is complete. */
 
-            if (isSuccessful) {
+                submittedPositions.addAll(positions);
 
-                onSuccess();
-                fretView.show(layerLesson, acceptedPositions);
+                if (ArrayUtils.isEqual(expectedPositions, submittedPositions)) {
+                    onSuccess();
+                    fretView.show(layerLesson, expectedPositions);
+                    // clean
+                    messageInLearningStatus(null);
+                    submittedPositions.clear();
+                } else {
+                    messageInLearningStatus("You found " + submittedPositions.size() + " of "
+                            + expectedPositions.size() + " positions.");
+                }
 
             } else {
-
+                /* no expected position was delivered at all */
                 onFailure();
             }
 
         }
+
     }
 
     /**

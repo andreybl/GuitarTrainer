@@ -2,11 +2,9 @@ package com.ago.guitartrainer.ui;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
 
 import android.app.Activity;
 import android.content.Context;
-import android.text.format.Time;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.GridLayout;
@@ -35,6 +33,8 @@ public class LearningStatusView extends GridLayout {
     private TextView nextQuestionIndicator;
     
     private TextView lessonName;
+    
+    private TextView message4user;
 
     /**
      * Formatting used to represent the fields reflecting duration of any kind.
@@ -77,7 +77,7 @@ public class LearningStatusView extends GridLayout {
         nextQuestionIndicator = (TextView) mainLayout.findViewById(R.id.next_question_indicator);
         
         lessonName = (TextView) mainLayout.findViewById(R.id.current_lesson_name);
-        
+        message4user = (TextView) mainLayout.findViewById(R.id.message4user);
 
     }
 
@@ -161,6 +161,17 @@ public class LearningStatusView extends GridLayout {
             ctx.runOnUiThread(new TextViewRunnable(lastAnswerStatus, str, R.color.black));
         }
     }
+    
+    public void updateMessageToUser(String msg) {
+        
+        String str = msg;
+        
+        if (msg==null)
+            str = "";
+        
+        ctx.runOnUiThread(new TextViewRunnable(message4user, str));
+    }
+
 
     /**
      * Update field, which shows the current lesson loop

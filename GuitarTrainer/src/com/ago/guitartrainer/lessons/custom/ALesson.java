@@ -90,6 +90,19 @@ public abstract class ALesson implements ILesson {
         return "GT-" + getClass().getSimpleName();
     }
 
+    /**
+     * Set free format message from lesson to be shown to the user in learning status view.
+     * 
+     * This is a way for lesson to give the user feedback about how he is doing. For instance, the question can inform
+     * user that some more input is required from him.
+     * 
+     * @param msg
+     *            to be shown in the learning status view
+     */
+    protected void messageInLearningStatus(String msg) {
+        learningStatusView.updateMessageToUser(msg);
+    }
+
     public void next() {
 
         /*-
@@ -191,13 +204,15 @@ public abstract class ALesson implements ILesson {
     public void stop() {
 
         lessonMetrics.stopTime();
-        
+
         if (pauseTimer != null)
             pauseTimer.cancel();
 
         questionTimer.cancel();
 
         currentQuestionMetrics.submitAnswer(false);
+        
+        learningStatusView.updateMessageToUser(null);
 
         doStop();
 
@@ -234,7 +249,7 @@ public abstract class ALesson implements ILesson {
     }
 
     protected boolean isLessonRunning() {
-        boolean isRunning = !lessonMetrics.isFinished();
+        boolean isRunning = lessonMetrics==null || !lessonMetrics.isFinished();
 
         return isRunning;
     }
