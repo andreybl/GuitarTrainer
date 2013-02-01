@@ -14,13 +14,13 @@
             android:layout_height="wrap_content" >
 
             <RadioButton
-                android:id="@+id/rb_lesson1"
+                android:id="@+id/rb_input_manual"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="" />
 
             <RadioButton
-                android:id="@+id/rb_lesson2"
+                android:id="@+id/rb_input_sound"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="" />

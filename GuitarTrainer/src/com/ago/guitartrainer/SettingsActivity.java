@@ -29,6 +29,13 @@ public class SettingsActivity extends Activity {
 
     public static final String KEY_DEBUG_MODE = "debug_mode";
     
+    public static final String KEY_PLAY_SOUNDS = "play_sounds";
+    
+    public static final String KEY_PLAY_VIBRATIONS = "play_vibrations";
+    
+    public static final String KEY_INPUT_METHOD_MANUAL = "input_method_manual";
+    
+    
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {

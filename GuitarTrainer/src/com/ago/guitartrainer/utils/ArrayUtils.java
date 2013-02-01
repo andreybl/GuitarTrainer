@@ -3,6 +3,7 @@ package com.ago.guitartrainer.utils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import com.ago.guitartrainer.notation.Position;
 
@@ -72,5 +73,14 @@ public class ArrayUtils {
         boolean isEqual = interception.size() == arr1.size();
 
         return isEqual;
+    }
+
+    public static List<Position> intersect(Set<Position> submittedPositions, Collection<Position> positions) {
+        List<Position> tmp = new ArrayList<Position>();
+        tmp.addAll(submittedPositions);
+        
+        tmp.retainAll(positions);
+        return tmp;
+        
     }
 }

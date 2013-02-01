@@ -241,11 +241,18 @@ public abstract class ALesson implements ILesson {
         learningStatusView.updateAnswerStatus(QuestionStatus.SUCCESS);
         learningStatusView.updateCurrentQuestionTrials(currentQuestionMetrics.numOfTrialsLastLoop());
 
-        int pauseDuration = GuitarTrainerApplication.getPrefs().getInt(
+        final int pauseDuration = GuitarTrainerApplication.getPrefs().getInt(
                 SettingsActivity.KEY_POST_QUESTION_PAUSE_DURATION, 5);
         if (pauseDuration > 0) {
-            pauseTimer = new PauseTimer(this, learningStatusView, pauseDuration * 1000, 1000);
-            pauseTimer.start();
+            MainFragment.getInstance().getActivity().runOnUiThread(new Runnable() {
+                
+                @Override
+                public void run() {
+                    pauseTimer = new PauseTimer(ALesson.this, learningStatusView, pauseDuration * 1000, 1000);
+                    pauseTimer.start();
+                }
+            });
+            
         } else {
             next();
         }
@@ -287,6 +294,11 @@ public abstract class ALesson implements ILesson {
      * expected.
      */
     protected void vibrateYesButUncompleted() {
+        boolean doVibrate = GuitarTrainerApplication.getPrefs().getBoolean(SettingsActivity.KEY_PLAY_VIBRATIONS, true);
+
+        if (!doVibrate)
+            return;
+
         Vibrator vibratorService = (Vibrator) MainFragment.getInstance().getActivity()
                 .getSystemService(Context.VIBRATOR_SERVICE);
         vibratorService.vibrate(200);
@@ -298,6 +310,12 @@ public abstract class ALesson implements ILesson {
      * go to the next question.
      */
     protected void vibrateYesAndCompleted() {
+
+        boolean doVibrate = GuitarTrainerApplication.getPrefs().getBoolean(SettingsActivity.KEY_PLAY_VIBRATIONS, true);
+
+        if (!doVibrate)
+            return;
+
         Vibrator vibratorService = (Vibrator) MainFragment.getInstance().getActivity()
                 .getSystemService(Context.VIBRATOR_SERVICE);
         vibratorService.vibrate(300);
@@ -305,7 +323,7 @@ public abstract class ALesson implements ILesson {
         // This example will cause the phone to vibrate in Morse Code
         int dot = 200; // Length of a Morse Code "dot" in milliseconds
         int dash = 500; // Length of a Morse Code "dash" in milliseconds
-        int short_gap = 200; // Length of Gap Between dots/dashes
+        int short_gap = 100; // Length of Gap Between dots/dashes
         int medium_gap = 500; // Length of Gap Between Letters
         int long_gap = 1000; // Length of Gap Between Words
         long[] pattern = { 0, // Start immediately

@@ -26,8 +26,10 @@ import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.TextView;
 
+import com.ago.guitartrainer.GuitarTrainerApplication;
 import com.ago.guitartrainer.PitchDetector;
 import com.ago.guitartrainer.R;
+import com.ago.guitartrainer.SettingsActivity;
 import com.ago.guitartrainer.events.INoteEventListener;
 import com.ago.guitartrainer.events.NotePlayingEvent;
 import com.ago.guitartrainer.midi.FFTPitchDetectorListener;
@@ -55,21 +57,21 @@ import com.ago.guitartrainer.scalegrids.ScaleGrid;
  */
 public class FretView extends AInoutView<NotePlayingEvent> {
 
+    /** z-index of the layer, where the lesson can draw/visualize its questions */
+    public final static int LAYER_Z_LESSON = 2;
+
     /** z-index of the layer, which is used to draw user touches */
     public final static int LAYER_Z_TOUCHES = 3;
 
     /** z-index of the layer, which is used to draw notes detected with FFT */
     public final static int LAYER_Z_FFT = 4;
 
-    /** z-index of the layer, where the lesson can draw/visualize its questions */
-    public final static int LAYER_Z_LESSON = 2;
-
     private FretImageView fretImageView;
 
     /** contains the name of the last note played */
     private TextView tvNoteName;
 
-    /** radio groupd for selection between two input modes: either manual or by playing guitar */
+    /** radio group for selection between two input modes: either manual or by playing guitar */
     private RadioGroup rgInputMode;
 
     /** ImageView's used to represent the status of the FFT */
@@ -128,14 +130,18 @@ public class FretView extends AInoutView<NotePlayingEvent> {
 
         tvNoteName = (TextView) mainLayout.findViewById(R.id.tv_note);
 
-        /*
-         * TODO: read here previous state from SharedPreferences, set button appropriately.
-         * 
-         * Also, if rb_lesson2 selected - start the sound input mode
-         */
-
-        RadioButton rbLesson1 = (RadioButton) mainLayout.findViewById(R.id.rb_lesson1);
-        rbLesson1.setChecked(true);
+        /* decide on input mode: either manual or sound */
+        boolean isManualInput = GuitarTrainerApplication.getPrefs().getBoolean(
+                SettingsActivity.KEY_INPUT_METHOD_MANUAL, true);
+        RadioButton rbInputMode = (isManualInput) ? (RadioButton) mainLayout.findViewById(R.id.rb_input_manual)
+                : (RadioButton) mainLayout.findViewById(R.id.rb_input_sound);
+        rbInputMode.setChecked(true);
+        if (isManualInput) {
+            startManualInput();
+        } else {
+            startSoundInput();
+        }
+        
 
         imgStatusRunning = (ImageView) mainLayout.findViewById(R.id.pitchdetector_status_running);
         imgStatusSampling = (ImageView) mainLayout.findViewById(R.id.pitchdetector_status_sampling);
@@ -152,6 +158,40 @@ public class FretView extends AInoutView<NotePlayingEvent> {
         rgInputMode.setOnCheckedChangeListener(innerOnRadioListener);
 
         // TODO: register listeners for the fretImageView or for the current view
+
+    }
+
+    private void startSoundInput() {
+        /*-
+         * sound input mode
+         * 
+         * The notes are inputed with help of the guitar itself. Two listeners are registered on FFT
+         * detector: 
+         *     - one listens for notes detected, 
+         *     - another listens for FFT detector internals phases
+         *     
+         * Both events are used for visualization:
+         *     - notes are transformed to positions and are shown
+         *     - FFT detector phases are visualized with dots
+         */
+        FFTPitchDetectorListener innerFFTListener = new InnerFFTPitchDetectorListener();
+        INoteEventListener innerNotesListener = new InnerNotesListener();
+        PitchDetector pd = new PitchDetector(innerFFTListener);
+        pd.registerNotesListener(innerNotesListener);
+        pitchDetectorThread = new Thread(pd);
+
+        // NOTE: it would be possible also to clear only touch layer
+        clearAllLayers();
+
+        pitchDetectorThread.start();
+    }
+
+    private void startManualInput() {
+        if (pitchDetectorThread != null && pitchDetectorThread.isAlive())
+            pitchDetectorThread.interrupt();
+
+        // NOTE: it would be possible also to clear only FFT layer
+        clearAllLayers();
 
     }
 
@@ -365,37 +405,12 @@ public class FretView extends AInoutView<NotePlayingEvent> {
         public void onCheckedChanged(RadioGroup group, int checkedId) {
             if (group == rgInputMode) {
                 switch (checkedId) {
-                case R.id.rb_lesson1:
+                case R.id.rb_input_manual:
                     // manual input mode
-                    if (pitchDetectorThread != null && pitchDetectorThread.isAlive())
-                        pitchDetectorThread.interrupt();
-
-                    // NOTE: it would be possible also to clear only FFT layer
-                    clearAllLayers();
+                    startManualInput();
                     break;
-                case R.id.rb_lesson2:
-                    /*-
-                     * sound input mode
-                     * 
-                     * The notes are inputed with help of the guitar itself. Two listeners are registered on FFT
-                     * detector: 
-                     *     - one listens for notes detected, 
-                     *     - another listens for FFT detector internals phases
-                     *     
-                     * Both events are used for visualization:
-                     *     - notes are transformed to positions and are shown
-                     *     - FFT detector phases are visualized with dots
-                     */
-                    FFTPitchDetectorListener innerFFTListener = new InnerFFTPitchDetectorListener();
-                    INoteEventListener innerNotesListener = new InnerNotesListener();
-                    PitchDetector pd = new PitchDetector(innerFFTListener);
-                    pd.registerNotesListener(innerNotesListener);
-                    pitchDetectorThread = new Thread(pd);
-
-                    // NOTE: it would be possible also to clear only touch layer
-                    clearAllLayers();
-
-                    pitchDetectorThread.start();
+                case R.id.rb_input_sound:
+                    startSoundInput();
                     break;
 
                 default:

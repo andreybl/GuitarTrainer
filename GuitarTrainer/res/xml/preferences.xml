@@ -11,6 +11,21 @@
         android:key="debug_mode"
         android:summary="Run the app in debug mode. Show additional information, put restriction on the lesson content by limiting number of questions etc."
         android:title="Debug Mode" />
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="input_method_manual"
+        android:summary="Sets manual to be the default input method. If unchecked, the sound input method is default"
+        android:title="Manual as Default input method" />
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="play_sounds"
+        android:summary="Allow playing sounds of the application, like loud pronunciation of number for degree: one, two, ... "
+        android:title="Play sounds" />
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="play_vibrations"
+        android:summary="Allow the application to vibrate, for instance when giving feedback about correctness/completeness of user answers"
+        android:title="Play vibrations" />
 
     <com.ago.guitartrainer.prefs.IntListPreference
         android:defaultValue="30"

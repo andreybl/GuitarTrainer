@@ -9,8 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import android.content.Context;
-import android.os.Vibrator;
+import android.media.MediaPlayer;
 import android.util.Log;
 
 import com.ago.guitartrainer.GuitarTrainerApplication;
@@ -193,13 +192,53 @@ public class LessonScalegridDegree2Position extends ALesson {
         /* 3. visualize the question to the user */
         ScaleGrid gridShape = ScaleGrid.create(quest.scaleGridType, quest.fretPosition);
 
-        /* both positions must be played for the answer to be accepted */
+        /* all positions must be played for the answer to be accepted */
         expectedPositions = gridShape.degree2Positions(quest.degree);
+        submittedPositions.clear();
+        messageInLearningStatus(null);
 
         shapesView.show(gridShape.getType());
         degreesView.show(quest.degree);
         fretView.show(layerLesson, gridShape);
 
+        boolean playSound = GuitarTrainerApplication.getPrefs().getBoolean(SettingsActivity.KEY_PLAY_SOUNDS, false);
+        if (playSound) {
+            playDegree(quest.degree);
+        }
+    }
+
+    private void playDegree(Degree degree) {
+        int mp3Id = R.raw.one;
+        switch (degree) {
+        case ONE:
+            mp3Id = R.raw.one;
+            break;
+        case TWO:
+            mp3Id = R.raw.two;
+            break;
+        case THREE:
+            mp3Id = R.raw.three;
+            break;
+        case FOUR:
+            mp3Id = R.raw.four;
+            break;
+        case FIVE:
+            mp3Id = R.raw.five;
+            break;
+        case SIX:
+            mp3Id = R.raw.six;
+            break;
+        case SEVEN:
+            mp3Id = R.raw.seven;
+            break;
+
+        default:
+            break;
+        }
+        ;
+
+        MediaPlayer mediaPlayer = MediaPlayer.create(MainFragment.getInstance().getActivity(), mp3Id);
+        mediaPlayer.start();
     }
 
     /**
@@ -410,27 +449,39 @@ public class LessonScalegridDegree2Position extends ALesson {
             if (!isLessonRunning())
                 return;
 
+            /* accepted positions, also those which were submitted in previously */
             Collection<Position> positions = calculatedAcceptedPositions(expectedPositions, npEvent);
+
             if (!ArrayUtils.isEmpty(positions)) {
 
-                vibrateYesButUncompleted();
+                List<Position> knownPositions = ArrayUtils.intersect(submittedPositions, positions);
 
-                /*
-                 * the user answer accepted. But is it complete?
-                 * 
-                 * We check here if this and previous answers are complete.
-                 */
-                submittedPositions.addAll(positions);
+                if (knownPositions.size() == 0) {
 
-                if (ArrayUtils.isEqual(expectedPositions, submittedPositions)) {
-                    onSuccess();
-                    fretView.show(layerLesson, expectedPositions);
-                    // clean
-                    messageInLearningStatus(null);
-                    submittedPositions.clear();
-                } else {
+                    /*
+                     * the user answer accepted. But is it complete?
+                     * 
+                     * We check here if this and previous answers are complete.
+                     */
+                    submittedPositions.addAll(positions);
+
                     messageInLearningStatus("You found " + submittedPositions.size() + " of "
                             + expectedPositions.size() + " positions.");
+
+                    /* all positions from users are new */
+                    if (ArrayUtils.isEqual(expectedPositions, submittedPositions)) {
+                        onSuccess();
+                        fretView.show(layerLesson, expectedPositions);
+
+                    } else {
+
+                        vibrateYesButUncompleted();
+                        if (submittedPositions.size() > expectedPositions.size()) {
+                            Log.e(getTag(), "NOT POSSIBLE");
+                        }
+                    }
+                } else {
+                    // Otherwise: just ignore the event
                 }
 
             } else {
