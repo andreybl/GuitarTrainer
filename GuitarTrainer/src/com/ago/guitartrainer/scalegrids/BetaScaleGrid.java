@@ -15,15 +15,15 @@ public class BetaScaleGrid extends ScaleGrid {
         Degree.FOUR_HALF };
     //@formatter:on
 
-    private static int frets = 5;
+    private static ScaleGrid.Type scaleGridType = Type.BETA;
 
     private static int[] rootStrings = new int[] { 2, 4 };
 
     BetaScaleGrid(Note key) {
-        super(zeroFretDegrees, frets, rootStrings, key);
+        super(zeroFretDegrees, scaleGridType.numOfFrets(), rootStrings, key);
     }
 
     BetaScaleGrid(int suggestedFret) {
-        super(zeroFretDegrees, frets, rootStrings, suggestedFret);
+        super(zeroFretDegrees, scaleGridType.numOfFrets(), rootStrings, suggestedFret);
     }
 }

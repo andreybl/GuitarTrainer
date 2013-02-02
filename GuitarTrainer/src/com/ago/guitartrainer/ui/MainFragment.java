@@ -167,7 +167,7 @@ public class MainFragment extends Fragment {
                     public void onDismiss(DialogInterface dialog) {
                         ILesson selectedLesson = lessonDialog.selectedLesson();
                         if (selectedLesson != null) {
-
+                            currentLesson.stop();
                             currentLesson = selectedLesson;
                             
                             Editor editor = PreferenceManager.getDefaultSharedPreferences(getActivity()).edit();

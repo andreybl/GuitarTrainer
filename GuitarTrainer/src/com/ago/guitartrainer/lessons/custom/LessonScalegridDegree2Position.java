@@ -46,6 +46,9 @@ public class LessonScalegridDegree2Position extends ALesson {
     private Layer layerLesson = new Layer(FretView.LAYER_Z_LESSON, MainFragment.getInstance().getResources()
             .getColor(R.color.blue));
 
+    private Layer layerLessonSubmited = new Layer(FretView.LAYER_Z_LESSON + 100, MainFragment.getInstance()
+            .getResources().getColor(R.color.green));
+
     /* END: views to visualize questions */
 
     /**
@@ -86,6 +89,16 @@ public class LessonScalegridDegree2Position extends ALesson {
 
     // TODO: remove from class var? it is cached in DatabaseHelper anyway
     private RuntimeExceptionDao<QuestionScalegridDegree2Position, Integer> qDao;
+
+    /**
+     * Defines whether only position in Ist degrees is shown.
+     * 
+     * If true, only the Ist degree position is shown. If several Ist degree positions are available, only the one with
+     * lower fret is selected.
+     * 
+     * If false, positions for all main degrees are shown - I, II, ... VII.
+     * */
+    private boolean isOnly1stDegreeShown = false;
 
     @Override
     public String getTitle() {
@@ -149,6 +162,10 @@ public class LessonScalegridDegree2Position extends ALesson {
     @Override
     public void doNext() {
         fretView.clearLayer(layerLesson);
+        fretView.clearLayer(layerLessonSubmited);
+        fretView.clearLayerByZIndex(FretView.LAYER_Z_TOUCHES);
+        fretView.clearLayerByZIndex(FretView.LAYER_Z_FFT);
+
         /*
          * the original idea was to keep the question params completely in an appropriate AQuestion subclass. But the
          * problems is, that we must decided on the params before we can pick the question from the dB. And the
@@ -193,12 +210,21 @@ public class LessonScalegridDegree2Position extends ALesson {
 
         /* all positions must be played for the answer to be accepted */
         expectedPositions = gridShape.degree2Positions(quest.degree);
+
+        /** TMP:start: the chord is shown */
+        // expectedPositions = gridShape.chord2Positions(Chord.major);
+        /** TMP:end */
+
         submittedPositions.clear();
         messageInLearningStatus(null);
 
         shapesView.show(gridShape.getType());
         degreesView.show(quest.degree);
-        fretView.show(layerLesson, gridShape);
+        if (!isOnly1stDegreeShown) {
+            fretView.show(layerLesson, gridShape);
+        } else {
+            fretView.show(layerLesson, gridShape.getRootPosition());
+        }
 
         boolean playSound = GuitarTrainerApplication.getPrefs().getBoolean(SettingsActivity.KEY_PLAY_SOUNDS, false);
         if (playSound) {
@@ -459,6 +485,7 @@ public class LessonScalegridDegree2Position extends ALesson {
                 List<Position> knownPositions = ArrayUtils.intersect(submittedPositions, positions);
 
                 if (knownPositions.size() == 0) {
+                    /* all positions are new, unknown */
 
                     /*
                      * the user answer accepted. But is it complete?
@@ -470,11 +497,16 @@ public class LessonScalegridDegree2Position extends ALesson {
                     messageInLearningStatus("You found " + submittedPositions.size() + " of "
                             + expectedPositions.size() + " positions.");
 
+                    /* clean either touch of fft drawn layer, show what was correctly submitted by the user till now */
+                    List<Position> tmp = new ArrayList<Position>();
+                    tmp.addAll(submittedPositions);
+                    fretView.show(layerLessonSubmited, tmp);
+                    fretView.clearLayerByZIndex(FretView.LAYER_Z_TOUCHES);
+                    fretView.clearLayerByZIndex(FretView.LAYER_Z_FFT);
+
                     /* all positions from users are new */
                     if (ArrayUtils.isEqual(expectedPositions, submittedPositions)) {
                         onSuccess();
-                        fretView.show(layerLesson, expectedPositions);
-
                     } else {
 
                         vibrateYesButUncompleted();

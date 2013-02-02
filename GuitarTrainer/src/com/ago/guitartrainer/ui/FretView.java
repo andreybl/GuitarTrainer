@@ -199,6 +199,10 @@ public class FretView extends AInoutView<NotePlayingEvent> {
         fretImageView.clearLayer(layer);
     }
 
+    public void clearLayerByZIndex(int zIndex) {
+        fretImageView.clearLayer(zIndex);
+    }
+    
     public void clearAllLayers() {
         fretImageView.clearAllLayers();
     }
@@ -500,6 +504,19 @@ public class FretView extends AInoutView<NotePlayingEvent> {
 
         public FretImageView(Context context) {
             super(context);
+        }
+
+        public void clearLayer(int zIndex) {
+            Set<Layer> layersToClear = new HashSet<FretView.Layer>();
+            for (Layer layer : mapLayer2Positions.keySet()) {
+                if (layer.zIndex == zIndex) {
+                    layersToClear.add(layer);
+                }
+            }
+            
+            for (Layer layer : layersToClear) {
+                clearLayer(layer);    
+            }
         }
 
         public FretImageView(Context context, AttributeSet attrs) {

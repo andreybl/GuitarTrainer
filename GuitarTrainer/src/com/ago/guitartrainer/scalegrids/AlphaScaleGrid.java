@@ -15,16 +15,16 @@ public class AlphaScaleGrid extends ScaleGrid {
         Degree.THREE };
     //@formatter:on
 
-    private static int frets = 4;
+    private static ScaleGrid.Type scaleGridType = Type.ALPHA;
 
     private static int[] rootStrings = new int[] { 1, 4 };
 
     AlphaScaleGrid(Note key) {
-        super(zeroFretDegrees, frets, rootStrings, key);
+        super(zeroFretDegrees, scaleGridType.numOfFrets(), rootStrings, key);
     }
 
     AlphaScaleGrid(int suggestedFret) {
-        super(zeroFretDegrees, frets, rootStrings, suggestedFret);
+        super(zeroFretDegrees, scaleGridType.numOfFrets(), rootStrings, suggestedFret);
     }
 
 }

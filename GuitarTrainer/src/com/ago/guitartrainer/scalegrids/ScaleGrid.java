@@ -1,11 +1,13 @@
 package com.ago.guitartrainer.scalegrids;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
 import com.ago.guitartrainer.R;
+import com.ago.guitartrainer.notation.Chord;
 import com.ago.guitartrainer.notation.Degree;
 import com.ago.guitartrainer.notation.Note;
 import com.ago.guitartrainer.notation.NoteStave;
@@ -24,26 +26,123 @@ import com.ago.guitartrainer.utils.ArrayUtils;
  */
 public abstract class ScaleGrid {
 
+    private static Map<Degree[], Integer[]> mapAlphaChord2Form = new HashMap<Degree[], Integer[]>();
+
+    private static Map<Degree[], Integer[]> mapBetaChord2Form = new HashMap<Degree[], Integer[]>();
+
+    private static Map<Degree[], Integer[]> mapGammaChord2Form = new HashMap<Degree[], Integer[]>();
+
+    private static Map<Degree[], Integer[]> mapDeltaChord2Form = new HashMap<Degree[], Integer[]>();
+
+    private static Map<Degree[], Integer[]> mapEpsilonChord2Form = new HashMap<Degree[], Integer[]>();
+
+    static {
+        mapAlphaChord2Form.put(Chord.major, new Integer[] { 0, 1, 4, 2, 3, Chord.NOTPLAYED });
+        mapAlphaChord2Form.put(Chord.minor, new Integer[] { 3, 1, 0, 1, 3, Chord.NOTPLAYED });
+        // mapAlphaChord2Form.put(Chord.dim, new Integer[] { XXX });
+        // mapAlphaChord2Form.put(Chord.aug, new Integer[] { XXX });
+        mapAlphaChord2Form.put(Chord.major7thChord, new Integer[] { 0, 1, 4, 2, 3, Chord.NOTPLAYED });
+        mapAlphaChord2Form.put(Chord.minor7thChord, new Integer[] { Chord.NOTPLAYED, 1, 3, 1, 3, Chord.NOTPLAYED });
+        mapAlphaChord2Form.put(Chord.dominantSeptChord, new Integer[] { 0, 1, 3, 2, 3, Chord.NOTPLAYED });
+        // mapAlphaChord2Form.put(Chord.dim7thChord, new Integer[] { XXX });
+    }
+
+    static {
+        mapBetaChord2Form.put(Chord.major, new Integer[] { 1, 3, 3, 3, 1, -1 });
+        mapBetaChord2Form.put(Chord.minor, new Integer[] { 1, 2, 3, 3, 1, -1 });
+        // mapBetaChord2Form.put(Chord.dim, new Integer[] { XXX });
+        // mapBetaChord2Form.put(Chord.aug, new Integer[] { XXX });
+        mapBetaChord2Form.put(Chord.major7thChord, new Integer[] { 1, 3, 2, 3, 1, -1 });
+        mapBetaChord2Form.put(Chord.minor7thChord, new Integer[] { 1, 2, 1, 3, 1, -1 });
+        mapBetaChord2Form.put(Chord.dominantSeptChord, new Integer[] { 1, 3, 1, 3, 1, 2 });
+        // mapBetaChord2Form.put(Chord.dim7thChord, new Integer[] { XXX });
+    }
+
+    static {
+        mapGammaChord2Form.put(Chord.major, new Integer[] { 4, 1, 1, 1, 3, 4 });
+        mapGammaChord2Form.put(Chord.minor, new Integer[] { 4, 4, 1, 1, 2, 4 });
+        // mapGammaChord2Form.put(Chord.dim, new Integer[] { XXX });
+        // mapGammaChord2Form.put(Chord.aug, new Integer[] { XXX });
+        mapGammaChord2Form.put(Chord.major7thChord, new Integer[] { 3, 1, 1, 1, 3, 4 });
+        mapGammaChord2Form.put(Chord.minor7thChord, new Integer[] { 2, -1, 1, 1, 2, 4 });
+        mapGammaChord2Form.put(Chord.dominantSeptChord, new Integer[] { 2, 1, 1, 1, 3, 4 });
+        // mapGammaChord2Form.put(Chord.dim7thChord, new Integer[] { XXX });
+    }
+
+    static {
+        mapDeltaChord2Form.put(Chord.major, new Integer[] { 1, 1, 2, 3, 3, 1 });
+        mapDeltaChord2Form.put(Chord.minor, new Integer[] { 1, 1, 1, 3, 3, 1 });
+        // mapDeltaChord2Form.put(Chord.dim, new Integer[] { XXX });
+        // mapDeltaChord2Form.put(Chord.aug, new Integer[] { XXX });
+        mapDeltaChord2Form.put(Chord.major7thChord, new Integer[] { 1, 1, 2, 2, 3, 1 });
+        mapDeltaChord2Form.put(Chord.minor7thChord, new Integer[] { 1, 1, 1, 1, 3, 1 });
+        mapDeltaChord2Form.put(Chord.dominantSeptChord, new Integer[] { 1, 1, 2, 1, 3, 1 });
+        // mapDeltaChord2Form.put(Chord.dim7thChord, new Integer[] { XXX });
+    }
+
+    static {
+        mapEpsilonChord2Form.put(Chord.major, new Integer[] { 3, 4, 3, 1, -1, -1 });
+        mapEpsilonChord2Form.put(Chord.minor, new Integer[] { 2, 4, 3, 1, Chord.NOTPLAYED, Chord.NOTPLAYED });
+        // mapEpsilonChord2Form.put(Chord.dim, new Integer[] { XXX });
+        // mapEpsilonChord2Form.put(Chord.aug, new Integer[] { XXX });
+        mapEpsilonChord2Form.put(Chord.major7thChord, new Integer[] { 3, 3, 3, 1, -1, -1 });
+        mapEpsilonChord2Form.put(Chord.minor7thChord, new Integer[] { 2, 2, 3, 1, -1, -1 });
+        mapEpsilonChord2Form.put(Chord.dominantSeptChord, new Integer[] { 3, 2, 3, 1, -1, -1 });
+        // mapEpsilonChord2Form.put(Chord.dim7thChord, new Integer[] { XXX });
+    }
+
     public enum Type {
-        ALPHA(4),
 
-        BETA(5),
+        ALPHA('C', 5, mapAlphaChord2Form),
 
-        GAMMA(5),
+        BETA('A', 5, mapBetaChord2Form),
 
-        DELTA(4),
+        GAMMA('G', 5, mapGammaChord2Form),
 
-        EPSILON(5);
+        DELTA('E', 4, mapDeltaChord2Form),
+
+        EPSILON('D', 5, mapEpsilonChord2Form);
 
         /* number of frets, which are taken by this grid shape */
         private int numOfFrets;
 
-        Type(int numOfFrets) {
+        private char cagedCode;
+
+        private Map<Degree[], Integer[]> mapChord2Form = new HashMap<Degree[], Integer[]>();
+
+        // /**
+        // *
+        // * @param cagedCode
+        // * @param numOfFrets
+        // * @deprecated use the constructor initialized with chord2form mapping
+        // */
+        // Type(char cagedCode, int numOfFrets) {
+        // this.cagedCode = cagedCode;
+        // this.numOfFrets = numOfFrets;
+        // }
+
+        Type(char cagedCode, int numOfFrets, Map<Degree[], Integer[]> mapChord2Form) {
+            this.cagedCode = cagedCode;
             this.numOfFrets = numOfFrets;
+            this.mapChord2Form = mapChord2Form;
         }
 
         public int numOfFrets() {
             return numOfFrets;
+        }
+
+        public String cagedCode() {
+            return String.valueOf(cagedCode);
+        }
+
+        public Integer[] getChorForm(Degree[] chord) {
+            if (mapChord2Form == null)
+                return null;
+
+            if (mapChord2Form.containsKey(chord))
+                return mapChord2Form.get(chord);
+            else
+                return null;
         }
 
     }
@@ -91,14 +190,8 @@ public abstract class ScaleGrid {
 
     protected ScaleGrid(Degree[] zeroFretDegrees, int numOfFrets, int[] rootStrings, Note note) {
         this.numOfFrets = numOfFrets;
-        int fretOfRoot = calculateFretForNote(note, rootStrings);
-        // initByRootFret(zeroFretDegrees, fretOfRoot);
 
     }
-
-    // private void initByRootFret(Degree[] zeroFretDegrees, int rootFret) {
-    //
-    // }
 
     public Type getType() {
         if (this instanceof AlphaScaleGrid) {
@@ -228,7 +321,7 @@ public abstract class ScaleGrid {
         List<Position> positions = new ArrayList<Position>();
 
         for (Position position : degreeToPosition.get(degree)) {
-            positions.add(new Position(position.getStringIndex()+1, position.getFret()));
+            positions.add(new Position(position.getStringIndex() + 1, position.getFret()));
         }
 
         return positions;
@@ -241,7 +334,7 @@ public abstract class ScaleGrid {
             if (ArrayUtils.inArray(d, degreesStrong)) {
                 List<Position> origPositions = degreeToPosition.get(d);
                 for (Position origPosition : origPositions) {
-                    positions.add(new Position(origPosition.getStringIndex()+1, origPosition.getFret()));
+                    positions.add(new Position(origPosition.getStringIndex() + 1, origPosition.getFret()));
                 }
 
             }
@@ -294,6 +387,10 @@ public abstract class ScaleGrid {
         }
 
         return projected;
+    }
+
+    public int getStartingFret() {
+        return startingFret;
     }
 
     /**
@@ -379,22 +476,51 @@ public abstract class ScaleGrid {
         return gs;
     }
 
-    private static ScaleGrid create(Class clazz, Note note) {
-        ScaleGrid gs = null;
+    public List<Position> chord2Positions(Degree[] chord) {
 
-        if (clazz.equals(AlphaScaleGrid.class)) {
-            gs = new AlphaScaleGrid(note);
-        } else if (clazz.equals(BetaScaleGrid.class)) {
-            gs = new BetaScaleGrid(note);
-        } else if (clazz.equals(GammaScaleGrid.class)) {
-            gs = new GammaScaleGrid(note);
-        } else if (clazz.equals(DeltaScaleGrid.class)) {
-            gs = new DeltaScaleGrid(note);
-        } else if (clazz.equals(EpsilonScaleGrid.class)) {
-            gs = new EpsilonScaleGrid(note);
+        List<Position> positions = new ArrayList<Position>();
+
+        Integer[] fretOffsets = getType().getChorForm(chord);
+
+        if (fretOffsets != null) {
+
+            for (int string = 1; string <= 6; string++) {
+                int stringIndex = string - 1;
+                int offsetValue = fretOffsets[stringIndex];
+                if (offsetValue != Chord.NOTPLAYED) {
+                    Position chordPosition = new Position(string, offsetValue + getStartingFret());
+                    positions.add(chordPosition);
+                }
+            }
+
+        } else {
+            // no unique chord form was registered for the scale grid
+            for (Degree degree : chord) {
+                List<Position> pos = degree2Positions(degree);
+                positions.addAll(pos);
+            }
+
         }
 
-        return gs;
+        return positions;
+    }
+
+    /**
+     * Returns the root - e.g. the Ist degree position - of the scale grid.
+     * 
+     * Among all Ist degree positions the one is returned, which is located on the lower fret.
+     * 
+     * @return
+     */
+    public Position getRootPosition() {
+        List<Position> firstPositions = degree2Positions(Degree.ONE);
+        Position root = firstPositions.get(0);
+        for (Position position : firstPositions) {
+            if (position.getFret() < root.getFret()) {
+                root = position;
+            }
+        }
+        return root;
     }
 
 }

@@ -2,6 +2,7 @@ package com.ago.guitartrainer.scalegrids;
 
 import com.ago.guitartrainer.notation.Degree;
 import com.ago.guitartrainer.notation.Note;
+import com.ago.guitartrainer.scalegrids.ScaleGrid.Type;
 
 public class DeltaScaleGrid extends ScaleGrid {
 
@@ -15,15 +16,15 @@ public class DeltaScaleGrid extends ScaleGrid {
         Degree.SEVEN };
     //@formatter:on
 
-    private static int frets = 4;
+    private static ScaleGrid.Type scaleGridType = Type.DELTA;
 
     private static int[] rootStrings = new int[] { 0, 3 };
 
     DeltaScaleGrid(Note key) {
-        super(zeroFretDegrees, frets, rootStrings, key);
+        super(zeroFretDegrees, scaleGridType.numOfFrets(), rootStrings, key);
     }
 
     DeltaScaleGrid(int suggestedFret) {
-        super(zeroFretDegrees, frets, rootStrings, suggestedFret);
+        super(zeroFretDegrees, scaleGridType.numOfFrets(), rootStrings, suggestedFret);
     }
 }
