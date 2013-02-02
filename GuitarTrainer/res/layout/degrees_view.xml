@@ -2,8 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:padding="5dp"
-    android:orientation="vertical" >
+    android:orientation="vertical"
+    android:padding="5dp" >
 
     <TextView
         android:id="@+id/txt_view_title"
@@ -17,8 +17,8 @@
         android:id="@+id/grid_for_buttons"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:columnCount="2"
-        android:rowCount="4" >
+        android:columnCount="3"
+        android:rowCount="3" >
 
         <Button
             android:id="@+id/degree_1"
@@ -55,5 +55,11 @@
             style="@style/Button_InViews"
             android:text="VII" />
     </GridLayout>
+
+    <CheckBox
+        android:id="@+id/cb_random_input"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="random" />
 
 </LinearLayout>

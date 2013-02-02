@@ -9,11 +9,13 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.GridLayout;
 import android.widget.TextView;
 
 import com.ago.guitartrainer.R;
 import com.ago.guitartrainer.scalegrids.ScaleGrid;
+import com.ago.guitartrainer.scalegrids.ScaleGrid.Type;
 
 public class ScalegridsView extends AInoutView<ScaleGrid.Type> {
 
@@ -22,10 +24,13 @@ public class ScalegridsView extends AInoutView<ScaleGrid.Type> {
     /** title of the view */
     private TextView tvViewTitle;
 
-    /** grid layout, where buttons are located */
-    private GridLayout gridForButtons;
-
     private View mainLayout;
+
+    private ScaleGrid.Type currentScalegridType;
+
+    private CheckBox cbIsRootOnlyShown;
+
+    private CheckBox cbIsRandomInput;
 
     public ScalegridsView(Context context) {
         super(context);
@@ -49,7 +54,6 @@ public class ScalegridsView extends AInoutView<ScaleGrid.Type> {
         mainLayout = ((Activity) getContext()).getLayoutInflater().inflate(R.layout.scalegrids_view, this, true);
 
         tvViewTitle = (TextView) mainLayout.findViewById(R.id.txt_view_title);
-        gridForButtons = (GridLayout) mainLayout.findViewById(R.id.grid_for_buttons);
 
         btn2Shape.put((Button) mainLayout.findViewById(R.id.gridshape_alpha), ScaleGrid.Type.ALPHA);
         btn2Shape.put((Button) mainLayout.findViewById(R.id.gridshape_beta), ScaleGrid.Type.BETA);
@@ -57,10 +61,20 @@ public class ScalegridsView extends AInoutView<ScaleGrid.Type> {
         btn2Shape.put((Button) mainLayout.findViewById(R.id.gridshape_delta), ScaleGrid.Type.DELTA);
         btn2Shape.put((Button) mainLayout.findViewById(R.id.gridshape_epsilon), ScaleGrid.Type.EPSILON);
 
+        cbIsRandomInput = (CheckBox) mainLayout.findViewById(R.id.cb_random_input);
+        cbIsRootOnlyShown = (CheckBox) mainLayout.findViewById(R.id.cb_root_only);
+
+        /* defaults for selected scalegrid type */
+        currentScalegridType = Type.ALPHA;
+        show(currentScalegridType);
+
         InnerOnClickListener onClickListener = new InnerOnClickListener();
         for (Button btnGrid : btn2Shape.keySet()) {
             btnGrid.setOnClickListener(onClickListener);
         }
+
+        cbIsRandomInput.setOnClickListener(onClickListener);
+        cbIsRootOnlyShown.setOnClickListener(onClickListener);
     }
 
     @Override
@@ -72,9 +86,6 @@ public class ScalegridsView extends AInoutView<ScaleGrid.Type> {
             button.setEnabled(enabled);
         }
 
-        // TODO: check compatibility problem. compiled fine once
-        // gridForButtons.setEnabled(enabled);
-
         super.setEnabled(enabled);
     }
 
@@ -85,6 +96,10 @@ public class ScalegridsView extends AInoutView<ScaleGrid.Type> {
 
         selectButton(btns, selectedBtn);
 
+    }
+
+    public ScaleGrid.Type scalegridType() {
+        return currentScalegridType;
     }
 
     private Button resolveDegree(Set<Button> btns, ScaleGrid.Type shape) {
@@ -99,6 +114,25 @@ public class ScalegridsView extends AInoutView<ScaleGrid.Type> {
         return selectedBtn;
     }
 
+    /**
+     * Returns true, if the user request that only Ist degree position (root) is shown on the currently shown scale
+     * grid.
+     * 
+     * @return
+     */
+    public boolean isRootOnlyShown() {
+        return cbIsRootOnlyShown.isChecked();
+    }
+
+    /**
+     * Returns true, if the user request the App itself to decide on the scale grid to be shown in lessons.
+     * 
+     * @return
+     */
+    public boolean isRandomInput() {
+        return cbIsRandomInput.isChecked();
+    }
+
     /*
      * **** INNER CLASSES
      */
@@ -106,15 +140,28 @@ public class ScalegridsView extends AInoutView<ScaleGrid.Type> {
 
         @Override
         public void onClick(View v) {
-            ScaleGrid.Type gridShape = btn2Shape.get(v);
 
-            Set<Button> btns = btn2Shape.keySet();
+            if (btn2Shape.containsKey(v)) {
+                ScaleGrid.Type gridShape = btn2Shape.get(v);
 
-            Button selectedBtn = resolveDegree(btns, gridShape);
+                currentScalegridType = gridShape;
 
-            selectButton(btns, selectedBtn);
+                Set<Button> btns = btn2Shape.keySet();
 
-            notifyListeners(gridShape);
+                Button selectedBtn = resolveDegree(btns, gridShape);
+
+                selectButton(btns, selectedBtn);
+
+                /*
+                 * TODO: remove listeners from **View classes at all?
+                 * 
+                 * The selection in view causes an event. But usually, i want to parameterize the lesson by selecting in
+                 * multiple views. So don't notify, but let the user to decided when to next().
+                 */
+                // notifyListeners(gridShape);
+            } else if (v == cbIsRandomInput) {
+                setEnabled(!cbIsRandomInput.isChecked());
+            }
         }
     }
 

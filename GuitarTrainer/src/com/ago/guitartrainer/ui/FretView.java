@@ -141,7 +141,6 @@ public class FretView extends AInoutView<NotePlayingEvent> {
         } else {
             startSoundInput();
         }
-        
 
         imgStatusRunning = (ImageView) mainLayout.findViewById(R.id.pitchdetector_status_running);
         imgStatusSampling = (ImageView) mainLayout.findViewById(R.id.pitchdetector_status_sampling);
@@ -202,7 +201,7 @@ public class FretView extends AInoutView<NotePlayingEvent> {
     public void clearLayerByZIndex(int zIndex) {
         fretImageView.clearLayer(zIndex);
     }
-    
+
     public void clearAllLayers() {
         fretImageView.clearAllLayers();
     }
@@ -513,9 +512,9 @@ public class FretView extends AInoutView<NotePlayingEvent> {
                     layersToClear.add(layer);
                 }
             }
-            
+
             for (Layer layer : layersToClear) {
-                clearLayer(layer);    
+                clearLayer(layer);
             }
         }
 

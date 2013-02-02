@@ -9,11 +9,13 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.GridLayout;
 import android.widget.TextView;
 
 import com.ago.guitartrainer.R;
 import com.ago.guitartrainer.notation.Degree;
+import com.ago.guitartrainer.scalegrids.ScaleGrid;
 
 public class DegreesView extends AInoutView<Degree> {
 
@@ -22,11 +24,12 @@ public class DegreesView extends AInoutView<Degree> {
     /** title of the view */
     private TextView tvViewTitle;
 
-    /** grid layout, where buttons are located */
-    private GridLayout gridForButtons;
-
     private View mainLayout;
 
+    private CheckBox cbIsRandomInput;
+
+    private Degree currentDegree;
+            
     public DegreesView(Context context) {
         super(context);
 
@@ -50,8 +53,6 @@ public class DegreesView extends AInoutView<Degree> {
 
         tvViewTitle = (TextView) mainLayout.findViewById(R.id.txt_view_title);
 
-        gridForButtons = (GridLayout) mainLayout.findViewById(R.id.grid_for_buttons);
-
         btn2Degree.put((Button) mainLayout.findViewById(R.id.degree_1), Degree.ONE);
         btn2Degree.put((Button) mainLayout.findViewById(R.id.degree_2), Degree.TWO);
         btn2Degree.put((Button) mainLayout.findViewById(R.id.degree_3), Degree.THREE);
@@ -60,10 +61,18 @@ public class DegreesView extends AInoutView<Degree> {
         btn2Degree.put((Button) mainLayout.findViewById(R.id.degree_6), Degree.SIX);
         btn2Degree.put((Button) mainLayout.findViewById(R.id.degree_7), Degree.SEVEN);
 
+        cbIsRandomInput = (CheckBox) mainLayout.findViewById(R.id.cb_random_input);
+
+        /* default degree selected */
+        currentDegree = Degree.ONE;
+        show(currentDegree);
+        
         InnerOnClickListener onClickListener = new InnerOnClickListener();
         for (Button btnGrid : btn2Degree.keySet()) {
             btnGrid.setOnClickListener(onClickListener);
         }
+
+        cbIsRandomInput.setOnClickListener(onClickListener);
 
     }
 
@@ -83,10 +92,20 @@ public class DegreesView extends AInoutView<Degree> {
             button.setEnabled(enabled);
         }
 
-        // TODO: check compatibility problem. compiled fine once
-        // gridForButtons.setEnabled(enabled);
-
         super.setEnabled(enabled);
+    }
+    
+    public Degree degree() {
+        return currentDegree;
+    }
+
+    /**
+     * Returns true, if the user request the App itself to decide on the degree to be shown in lessons.
+     * 
+     * @return
+     */
+    public boolean isRandomInput() {
+        return cbIsRandomInput.isChecked();
     }
 
     public void show(Degree degree) {
@@ -110,18 +129,28 @@ public class DegreesView extends AInoutView<Degree> {
         return selectedBtn;
     }
 
+    
     /*
      * ***** INNER CLASSES
      */
     private class InnerOnClickListener implements OnClickListener {
 
-        Degree selected = null;
-
         @Override
         public void onClick(View v) {
-            selected = btn2Degree.get(v);
+            if (btn2Degree.containsKey(v)) {
+                Degree degree = btn2Degree.get(v);
+                
+                currentDegree = degree;
 
-            System.out.println("Clicked: " + selected);
+                Set<Button> btns = btn2Degree.keySet();
+
+                Button selectedBtn = resolveDegree(btns, degree);
+
+                selectButton(btns, selectedBtn);
+
+            } else if (v == cbIsRandomInput) {
+                setEnabled(!cbIsRandomInput.isChecked());
+            }
         }
     }
 

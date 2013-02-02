@@ -38,7 +38,7 @@ public class LessonScalegridDegree2Position extends ALesson {
     /* START: views to visualize questions */
     private FretView fretView;
 
-    private ScalegridsView shapesView;
+    private ScalegridsView scalegridsView;
 
     private DegreesView degreesView;
 
@@ -72,14 +72,14 @@ public class LessonScalegridDegree2Position extends ALesson {
      * if true, the grid shape used as lesson parameter is allowed to be entered by the user. Otherwise, the parameter
      * is selected randomly.
      */
-    private boolean isShapeInputAllowed = true;
+//    private boolean isShapeInputAllowed = true;
     private ScaleGrid.Type userScalegridType = Type.ALPHA;
 
     /**
      * if true, the user is allowed decided on the degree parameter by himself. If false, the degree is selected
      * randomly.
      */
-    private boolean isDegreeInputAllowed = false;
+//    private boolean isDegreeInputAllowed = false;
 
     /**
      * if true, the user is allowed to decide on the start position of the scale grid. If false, the valid starting
@@ -97,6 +97,8 @@ public class LessonScalegridDegree2Position extends ALesson {
      * lower fret is selected.
      * 
      * If false, positions for all main degrees are shown - I, II, ... VII.
+     * 
+     * @deprecated see {@link ScalegridsView#isRootOnlyShown()}
      * */
     private boolean isOnly1stDegreeShown = false;
 
@@ -128,13 +130,13 @@ public class LessonScalegridDegree2Position extends ALesson {
 
         uiControls.getNotesView().setEnabled(false);
 
-        shapesView = uiControls.getShapestView();
-        shapesView.setEnabled(true);
-        shapesView.setEnabledInput(isShapeInputAllowed);
+        scalegridsView = uiControls.getShapestView();
+        scalegridsView.setEnabled(true);
+//        scalegridsView.setEnabledInput(isShapeInputAllowed);
 
-        if (isShapeInputAllowed) {
+        if (!scalegridsView.isRandomInput()) {
             InnerOnShapeSelectionListener onShapeSelection = new InnerOnShapeSelectionListener();
-            shapesView.registerListener(onShapeSelection);
+            scalegridsView.registerListener(onShapeSelection);
         }
 
         degreesView = uiControls.getDegreesView();
@@ -182,17 +184,21 @@ public class LessonScalegridDegree2Position extends ALesson {
          * In this block we decide on the parameters of the learning function. There are three params here, and each of
          * them can be either user selected or randomly picked.
          */
-        if (!isShapeInputAllowed) {
+        if (scalegridsView.isRandomInput()) {
             // param1: grid shape type must be random
             userScalegridType = LessonsUtils.randomGridShapeType();
+        } else {
+            userScalegridType = scalegridsView.scalegridType();
         }
 
         if (!isAreaStartInputAllowed) {
             fretPosition = LessonsUtils.randomFretPositionForGridShapeType(userScalegridType);
         }
 
-        if (!isDegreeInputAllowed) {
+        if (degreesView.isRandomInput()) {
             degree = LessonsUtils.randomDegree();
+        } else {
+            degree = degreesView.degree();
         }
 
         /*
@@ -218,9 +224,10 @@ public class LessonScalegridDegree2Position extends ALesson {
         submittedPositions.clear();
         messageInLearningStatus(null);
 
-        shapesView.show(gridShape.getType());
+        scalegridsView.show(gridShape.getType());
         degreesView.show(quest.degree);
-        if (!isOnly1stDegreeShown) {
+        
+        if (!scalegridsView.isRootOnlyShown()) {
             fretView.show(layerLesson, gridShape);
         } else {
             fretView.show(layerLesson, gridShape.getRootPosition());
