@@ -127,6 +127,7 @@ public class LessonScalegridDegree2Position extends ALesson {
         fretView = uiControls.getFretView();
         fretView.setEnabled(true);
         fretView.setEnabledInput(true);
+        fretView.showArea(3, 5);
 
         uiControls.getNotesView().setEnabled(false);
 

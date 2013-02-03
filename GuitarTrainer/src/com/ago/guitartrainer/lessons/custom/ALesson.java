@@ -230,6 +230,11 @@ public abstract class ALesson implements ILesson {
     @Override
     public void stop() {
 
+//        if (lessonMetrics == null) {
+//            /* the lessonMetrics is null, only if the lesson was selected but never started. */
+//            return;
+//        }
+
         lessonMetrics.stopTime();
         RuntimeExceptionDao<LessonMetrics, Integer> lmDao = DatabaseHelper.getInstance().getRuntimeExceptionDao(
                 LessonMetrics.class);
@@ -331,6 +336,14 @@ public abstract class ALesson implements ILesson {
                 .getSystemService(Context.VIBRATOR_SERVICE);
         vibratorService.vibrate(200);
 
+    }
+    
+    @Override
+    public boolean isRunning() {
+        if (lessonMetrics==null)
+            return false;
+        
+        return !lessonMetrics.isFinished();
     }
 
     /**

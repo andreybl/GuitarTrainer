@@ -11,7 +11,7 @@ import com.ago.guitartrainer.R;
 import com.ago.guitartrainer.db.DatabaseHelper;
 import com.ago.guitartrainer.events.NotePlayingEvent;
 import com.ago.guitartrainer.events.OnViewSelectionListener;
-import com.ago.guitartrainer.lessons.AQuestion;
+import com.ago.guitartrainer.instruments.GuitarUtils;
 import com.ago.guitartrainer.lessons.QuestionMetrics;
 import com.ago.guitartrainer.notation.Note;
 import com.ago.guitartrainer.notation.NoteStave;
@@ -97,7 +97,7 @@ public class LessonNote2Position extends ALesson {
 
     @Override
     public void showMetrics() {
-        Toast.makeText(MainFragment.getInstance().getActivity(), "No showMetrics() implemented", 2000).show(); 
+        Toast.makeText(MainFragment.getInstance().getActivity(), "No showMetrics() implemented", 2000).show();
     }
 
     /**
@@ -121,6 +121,10 @@ public class LessonNote2Position extends ALesson {
          */
 
         questionedNote = LessonsUtils.randomNote();
+        do {
+            acceptedPositions = NoteStave.getInstance().resolvePositions(questionedNote);
+            /* can be for instance the case for F5 (not on the fret at all) */
+        } while (acceptedPositions.size() == 0);
 
         RuntimeExceptionDao<QuestionNote2Position, Integer> qDao = DatabaseHelper.getInstance().getRuntimeExceptionDao(
                 QuestionNote2Position.class);
@@ -128,10 +132,20 @@ public class LessonNote2Position extends ALesson {
         QuestionMetrics qm = resolveOrCreateQuestionMetrics(currentQuestion.getId());
         registerQuestion(qDao, currentQuestion, qm);
 
+        // TODO: tmp solution, the "random" must be set'able by the user
+        boolean isRandomArea = true;
+        if (isRandomArea) {
+            int randomIndex = LessonsUtils.random(0, acceptedPositions.size() - 1);
+            Position randomPosition = acceptedPositions.get(randomIndex);
+            int[] startEnd = GuitarUtils.calculateUniqueAreaForPosition(acceptedPositions, randomPosition);
+            acceptedPositions.clear();
+            acceptedPositions.add(randomPosition);
+            fretView.showArea(startEnd[0], startEnd[1]);
+
+        }
+
         // visualize it
         notesView.showNote(questionedNote);
-
-        acceptedPositions = NoteStave.getInstance().resolvePositions(questionedNote);
 
         Log.d(getTag(), "Note: " + questionedNote + ", Allowed positions: " + acceptedPositions);
     }
@@ -158,7 +172,6 @@ public class LessonNote2Position extends ALesson {
         return question;
     }
 
-
     /*
      * *** INNER CLASSES
      */
@@ -177,7 +190,7 @@ public class LessonNote2Position extends ALesson {
             /* the lesson has not started. So we ignore all events. */
             if (acceptedPositions == null)
                 return;
-            
+
             if (!isLessonRunning())
                 return;
 

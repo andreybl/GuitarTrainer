@@ -58,4 +58,6 @@ public interface ILesson {
     public void showMetrics();
     
     public LessonMetrics getLessonMetrics();
+
+    public boolean isRunning();
 }

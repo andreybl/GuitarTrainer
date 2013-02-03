@@ -6,13 +6,12 @@ import java.util.Random;
 
 import com.ago.guitartrainer.GuitarTrainerApplication;
 import com.ago.guitartrainer.SettingsActivity;
+import com.ago.guitartrainer.instruments.GuitarUtils;
 import com.ago.guitartrainer.notation.Degree;
 import com.ago.guitartrainer.notation.Key;
 import com.ago.guitartrainer.notation.Note;
-import com.ago.guitartrainer.notation.NoteStave;
 import com.ago.guitartrainer.notation.Position;
 import com.ago.guitartrainer.scalegrids.ScaleGrid;
-import com.ago.guitartrainer.ui.NotesView;
 
 public class LessonsUtils {
 
@@ -60,10 +59,10 @@ public class LessonsUtils {
      * @return valid start of the area
      */
     public static int randomFretPositionForGridShapeType(ScaleGrid.Type gst) {
-        int fretPosition = LessonsUtils.random(0, ScaleGrid.FRETS_ON_GUITAR);
+        int fretPosition = LessonsUtils.random(0, GuitarUtils.FRETS_ON_GUITAR);
         int fretPositionEnd = fretPosition + gst.numOfFrets();
-        if (fretPositionEnd > ScaleGrid.FRETS_ON_GUITAR) {
-            fretPosition = ScaleGrid.FRETS_ON_GUITAR - (fretPositionEnd - fretPosition);
+        if (fretPositionEnd > GuitarUtils.FRETS_ON_GUITAR) {
+            fretPosition = GuitarUtils.FRETS_ON_GUITAR - (fretPositionEnd - fretPosition);
         }
         return fretPosition;
     }
@@ -111,7 +110,7 @@ public class LessonsUtils {
             int index = (isDebugMode) ? LessonsUtils.random(21, 32) : LessonsUtils.random(0, Note.values().length - 1);
             note = Note.values()[index];
             isMainKey = Arrays.binarySearch(mainKeys, note.getKey()) >= 0;
-            
+
         } while (!isMainKey);
 
         return note;
@@ -120,7 +119,7 @@ public class LessonsUtils {
     public static Position randomPosition() {
         boolean isDebugMode = GuitarTrainerApplication.getPrefs().getBoolean(SettingsActivity.KEY_DEBUG_MODE, true);
         int str = LessonsUtils.random(1, 6);
-        int fret = LessonsUtils.random(0, (isDebugMode) ? 5 : ScaleGrid.FRETS_ON_GUITAR);
+        int fret = LessonsUtils.random(0, (isDebugMode) ? 5 : GuitarUtils.FRETS_ON_GUITAR);
 
         Position pos = new Position(str, fret);
         return pos;

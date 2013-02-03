@@ -2,7 +2,6 @@ package com.ago.guitartrainer.scalegrids;
 
 import com.ago.guitartrainer.notation.Degree;
 import com.ago.guitartrainer.notation.Note;
-import com.ago.guitartrainer.scalegrids.ScaleGrid.Type;
 
 public class EpsilonScaleGrid extends ScaleGrid {
 

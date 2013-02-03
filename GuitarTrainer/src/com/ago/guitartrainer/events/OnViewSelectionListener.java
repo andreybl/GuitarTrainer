@@ -1,9 +1,9 @@
 package com.ago.guitartrainer.events;
 
+import android.widget.GridView;
+
 import com.ago.guitartrainer.ui.FretView;
 import com.ago.guitartrainer.ui.NotesView;
-
-import android.widget.GridView;
 
 /**
  * 

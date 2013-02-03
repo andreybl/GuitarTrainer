@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.ago.guitartrainer.R;
+import com.ago.guitartrainer.instruments.GuitarUtils;
 import com.ago.guitartrainer.notation.Chord;
 import com.ago.guitartrainer.notation.Degree;
 import com.ago.guitartrainer.notation.Note;
@@ -110,17 +111,6 @@ public abstract class ScaleGrid {
 
         private Map<Degree[], Integer[]> mapChord2Form = new HashMap<Degree[], Integer[]>();
 
-        // /**
-        // *
-        // * @param cagedCode
-        // * @param numOfFrets
-        // * @deprecated use the constructor initialized with chord2form mapping
-        // */
-        // Type(char cagedCode, int numOfFrets) {
-        // this.cagedCode = cagedCode;
-        // this.numOfFrets = numOfFrets;
-        // }
-
         Type(char cagedCode, int numOfFrets, Map<Degree[], Integer[]> mapChord2Form) {
             this.cagedCode = cagedCode;
             this.numOfFrets = numOfFrets;
@@ -160,8 +150,6 @@ public abstract class ScaleGrid {
      * Define how many frets belong to the shape. Required during decision about actual starting fret.
      */
     private int numOfFrets = 0;
-
-    public static int FRETS_ON_GUITAR = 12;
 
     private Degree[] degreesStrong = new Degree[] { Degree.ONE, Degree.TWO, Degree.THREE, Degree.FOUR, Degree.FIVE,
             Degree.SIX, Degree.SEVEN };
@@ -215,7 +203,6 @@ public abstract class ScaleGrid {
      * TODO: calculate the rootStrings from the shape itself. It can be done after degreeToPosition is calculated
      */
     private void initByStartingFret(Degree[] zeroFretDegrees, int suggestedStartingFret) {
-        // this.rootStrings = rootStrings;
 
         startingFret = calculateStartingFret(suggestedStartingFret);
         endingFret = startingFret + numOfFrets - 1;
@@ -253,7 +240,7 @@ public abstract class ScaleGrid {
      */
     private int calculateStartingFret(int suggestedStartFret) {
         int startFret = suggestedStartFret;
-        int overestimate = (suggestedStartFret + numOfFrets) - FRETS_ON_GUITAR;
+        int overestimate = (suggestedStartFret + numOfFrets) - GuitarUtils.FRETS_ON_GUITAR;
         if (suggestedStartFret < 0) {
             startFret = 0;
         } else if (overestimate > 0) {
@@ -272,7 +259,7 @@ public abstract class ScaleGrid {
     private int calculateFretForNote(Note key, int[] rootStrings) {
         NoteStave notes = NoteStave.getInstance();
         int noteFret = 0;
-        outerloop: for (int i = 0; i <= ScaleGrid.FRETS_ON_GUITAR; i++) {
+        outerloop: for (int i = 0; i <= GuitarUtils.FRETS_ON_GUITAR; i++) {
             for (int j = 0; j < rootStrings.length; j++) {
                 Note n = notes.resolveNote(new Position(rootStrings[j] + 1, i));
                 if (n == key) {
@@ -367,6 +354,7 @@ public abstract class ScaleGrid {
      * @param positions
      *            to project onto grid shape
      * @return subset of positions from original list, which are strong in current grind shape
+     * @deprecated the method seems to be useless, will be removed
      */
     public List<Position> applyShape(List<Position> positions) {
         List<Position> projected = new ArrayList<Position>();
@@ -391,32 +379,6 @@ public abstract class ScaleGrid {
 
     public int getStartingFret() {
         return startingFret;
-    }
-
-    /**
-     * 
-     * @param clazz
-     * @param position
-     * @return
-     * 
-     * @Deprecated use {@link #create(Type, int)} instead
-     */
-    public static ScaleGrid create(Class<? extends ScaleGrid> clazz, int position) {
-        ScaleGrid gs = null;
-
-        if (clazz.equals(AlphaScaleGrid.class)) {
-            gs = new AlphaScaleGrid(position);
-        } else if (clazz.equals(BetaScaleGrid.class)) {
-            gs = new BetaScaleGrid(position);
-        } else if (clazz.equals(GammaScaleGrid.class)) {
-            gs = new GammaScaleGrid(position);
-        } else if (clazz.equals(DeltaScaleGrid.class)) {
-            gs = new DeltaScaleGrid(position);
-        } else if (clazz.equals(EpsilonScaleGrid.class)) {
-            gs = new EpsilonScaleGrid(position);
-        }
-
-        return gs;
     }
 
     public static ScaleGrid create(ScaleGrid.Type gridShapeType, int fretPosition) {

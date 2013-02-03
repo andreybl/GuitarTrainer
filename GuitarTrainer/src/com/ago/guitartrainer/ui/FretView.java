@@ -238,6 +238,10 @@ public class FretView extends AInoutView<NotePlayingEvent> {
 
     }
 
+    public void showArea(int fromFret, int toFret) {
+        fretImageView.showArea(fromFret, toFret);
+    }
+
     public void show(Layer layer, ScaleGrid gridShape) {
         fretImageView.show(layer, gridShape);
     }
@@ -501,6 +505,10 @@ public class FretView extends AInoutView<NotePlayingEvent> {
 
         private Layer layerTouches = new Layer(LAYER_Z_TOUCHES, getResources().getColor(R.color.red));
 
+        private int startAreaFret = 0;
+
+        private int endAreaFret = 12;
+
         public FretImageView(Context context) {
             super(context);
         }
@@ -580,6 +588,8 @@ public class FretView extends AInoutView<NotePlayingEvent> {
             List<Layer> layers = new ArrayList<Layer>(mapLayer2Positions.keySet());
             Collections.sort(layers);
 
+            paint.setAlpha(255);
+
             for (Layer layer : layers) {
 
                 Set<Position> positions = mapLayer2Positions.get(layer);
@@ -604,6 +614,59 @@ public class FretView extends AInoutView<NotePlayingEvent> {
                     canvas.drawCircle(pxFret, pxStr, 10, paint);
                 }
             }
+
+            paint.setColor(Color.GRAY);
+            paint.setAlpha(150); // with 0, the transparency is at maximum
+
+            // do {
+            // fromFret = LessonsUtils.random(0, 12);
+            // toFret = LessonsUtils.random(0, 12);
+            // } while (fromFret > toFret);
+            //
+            // System.out.println("RANDOM: " + fromFret + "/" + toFret);
+
+            int start = midlesOfFrets[startAreaFret];
+            if (startAreaFret > 0) {
+                start -= Math.round((midlesOfFrets[startAreaFret] - midlesOfFrets[startAreaFret - 1]) / 2);
+            } else {
+                start = 0;
+            }
+
+            int end = midlesOfFrets[endAreaFret];
+            if (endAreaFret > 0) {
+                end += Math.round((midlesOfFrets[endAreaFret] - midlesOfFrets[endAreaFret - 1]) / 2);
+            }
+
+            canvas.drawRect(0, 0, start, getHeight(), paint);
+            canvas.drawRect(end, 0, getWidth(), getHeight(), paint);
+        }
+
+        /**
+         * Draw the area over the fret, which is "visible" for user.
+         * 
+         * The frets' numbers passed as parameters must be in range 0..12 and are inclusive. It means, the parameters
+         * (1,3) cause the frets 1,2,3 to be shown in full color, all other frets will be grayed out.
+         * 
+         * @param fromFret
+         *            start fret of the area in range 0..12
+         * @param toFret
+         *            end fret of the area in range 0..12
+         */
+        public void showArea(int fromFret, int toFret) {
+            
+            if (fromFret>toFret)
+                fromFret = toFret;
+                
+            if (fromFret < 0)
+                fromFret = 0;
+            
+            if (toFret > 12)
+                toFret = 12;
+            
+            
+            startAreaFret = fromFret;
+            endAreaFret = toFret;
+            postInvalidate();
         }
 
         @Override
@@ -653,7 +716,12 @@ public class FretView extends AInoutView<NotePlayingEvent> {
             NotePlayingEvent npe = new NotePlayingEvent(note, pos);
             if (fretView != null)
                 fretView.notifyListeners(npe);
-            return true;
+
+            /*
+             * if true returned, the image is invalidated and FretView#onDraw() is called. But it is done already in the
+             * show(..) called from current methods. So its enough to return false here.
+             */
+            return false;
         }
 
         /**

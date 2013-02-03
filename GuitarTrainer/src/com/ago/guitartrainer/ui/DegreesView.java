@@ -10,12 +10,10 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.GridLayout;
 import android.widget.TextView;
 
 import com.ago.guitartrainer.R;
 import com.ago.guitartrainer.notation.Degree;
-import com.ago.guitartrainer.scalegrids.ScaleGrid;
 
 public class DegreesView extends AInoutView<Degree> {
 

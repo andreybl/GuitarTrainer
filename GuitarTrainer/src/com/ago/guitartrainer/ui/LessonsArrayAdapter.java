@@ -1,9 +1,6 @@
 package com.ago.guitartrainer.ui;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -17,7 +14,6 @@ import com.ago.guitartrainer.db.DatabaseHelper;
 import com.ago.guitartrainer.lessons.ILesson;
 import com.ago.guitartrainer.lessons.LessonMetrics;
 import com.ago.guitartrainer.utils.TimeUtils;
-import com.j256.ormlite.dao.RuntimeExceptionDao;
 
 public class LessonsArrayAdapter extends ArrayAdapter<ILesson> {
 

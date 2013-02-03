@@ -7,7 +7,6 @@ import java.util.Set;
 import android.content.Context;
 import android.graphics.Color;
 import android.util.AttributeSet;
-import android.view.ViewDebug.ExportedProperty;
 import android.widget.Button;
 import android.widget.LinearLayout;
 

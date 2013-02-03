@@ -17,7 +17,6 @@ import com.ago.guitartrainer.lessons.QuestionMetrics;
 import com.ago.guitartrainer.notation.Note;
 import com.ago.guitartrainer.notation.NoteStave;
 import com.ago.guitartrainer.notation.Position;
-import com.ago.guitartrainer.scalegrids.ScaleGrid;
 import com.ago.guitartrainer.ui.FretView;
 import com.ago.guitartrainer.ui.FretView.Layer;
 import com.ago.guitartrainer.ui.MainFragment;
