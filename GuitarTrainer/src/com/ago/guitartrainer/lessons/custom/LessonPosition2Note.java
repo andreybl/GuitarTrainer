@@ -46,8 +46,7 @@ public class LessonPosition2Note extends ALesson {
 
     private Note expectedNote;
 
-    private Layer layerLesson = new Layer(FretView.LAYER_Z_LESSON, MainFragment.getInstance().getResources()
-            .getColor(R.color.blue));
+    private Layer layerLesson;
 
     @Override
     public String getTitle() {
@@ -63,6 +62,9 @@ public class LessonPosition2Note extends ALesson {
 
     @Override
     public void doPrepareUi() {
+
+        layerLesson = new Layer(FretView.LAYER_Z_LESSON, MainFragment.getInstance().getResources()
+                .getColor(R.color.blue));
 
         /*
          * It is not clear in advance, which UI controls the lesson may require. The lessons are quite different. So we
@@ -86,7 +88,7 @@ public class LessonPosition2Note extends ALesson {
         notesView.setEnabledInput(true);
 
         uiControls.getDegreesView().setEnabled(false);
-        uiControls.getShapestView().setEnabled(false);
+        uiControls.getScalegridView().setEnabled(false);
 
         OnViewSelectionListener<Note> onSelectionListener = new InnerOnSelectionListener();
         notesView.registerListener(onSelectionListener);
@@ -171,7 +173,7 @@ public class LessonPosition2Note extends ALesson {
         fretView.clearLayer(layerLesson);
 
         Position pos = LessonsUtils.randomPosition();
-        
+
         fretView.show(layerLesson, pos);
 
         RuntimeExceptionDao<QuestionPosition2Note, Integer> qDao = DatabaseHelper.getInstance().getRuntimeExceptionDao(
@@ -225,10 +227,10 @@ public class LessonPosition2Note extends ALesson {
 
         @Override
         public void onViewElementSelected(final Note note) {
-            
+
             if (!isLessonRunning())
                 return;
-            
+
             Log.d(getTag(), "Notes soll/ist: " + expectedNote + "/" + note);
             if (note.equals(expectedNote)) {
                 onSuccess();

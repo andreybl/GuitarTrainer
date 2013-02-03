@@ -127,11 +127,10 @@ public class LessonScalegridDegree2Position extends ALesson {
         fretView = uiControls.getFretView();
         fretView.setEnabled(true);
         fretView.setEnabledInput(true);
-        fretView.showArea(3, 5);
 
         uiControls.getNotesView().setEnabled(false);
 
-        scalegridsView = uiControls.getShapestView();
+        scalegridsView = uiControls.getScalegridView();
         scalegridsView.setEnabled(true);
 //        scalegridsView.setEnabledInput(isShapeInputAllowed);
 
@@ -144,7 +143,7 @@ public class LessonScalegridDegree2Position extends ALesson {
         degreesView.setEnabled(true);
         degreesView.setEnabledInput(false);
 
-        uiControls.getShapestView().setEnabled(true);
+        uiControls.getScalegridView().setEnabled(true);
 
         OnViewSelectionListener<NotePlayingEvent> onSelectionListener = new InnerOnSelectionListener();
         fretView.registerListener(onSelectionListener);
@@ -278,7 +277,7 @@ public class LessonScalegridDegree2Position extends ALesson {
     }
 
     /**
-     * Find question in dB or create a new one. The question crated is not persisted in the method.
+     * Find question in dB or create a new one. The question created is not persisted in the method.
      * 
      * @param scalegridType
      * @param fretPosition

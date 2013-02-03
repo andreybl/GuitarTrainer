@@ -4,7 +4,17 @@
     <string name="app_name">Guitar Trainer</string>
     <string name="menu_settings">Settings</string>
     <string name="menu_reset_data">Reset data</string>
+    
+    <!-- Lesson selection and execution controls -->
     <string name="dialog_lessonselection_title">Dialog: Lesson Selection</string>
+    <string name="lesson_select">Lessons</string>
+    <string name="lesson_start">Start</string>
+    <string name="lesson_next">Next</string>
+    <string name="lesson_stop">Stop</string>
+    <string name="instrument_select">Instruments</string>
+    <string name="lesson_metrics">Metrics</string>
+    
+    
     <string name="undefined">--</string>
 
     <!-- For each lesson available: Titles and Descriptions -->

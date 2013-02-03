@@ -83,7 +83,7 @@ public class LessonNote2Position extends ALesson {
         notesView.setEnabledInput(false);
 
         uiControls.getDegreesView().setEnabled(false);
-        uiControls.getShapestView().setEnabled(false);
+        uiControls.getScalegridView().setEnabled(false);
 
         OnViewSelectionListener<NotePlayingEvent> onSelectionListener = new InnerOnSelectionListener();
         fretView.registerListener(onSelectionListener);

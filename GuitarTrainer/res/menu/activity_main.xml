@@ -1,6 +1,30 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <item
+        android:id="@+id/menu_lesson_select"
+        android:showAsAction="always|withText"
+        android:title="@string/lesson_select"/>
+    <item
+        android:id="@+id/menu_lesson_start"
+        android:showAsAction="always|withText"
+        android:title="@string/lesson_start"/>
+    <item
+        android:id="@+id/menu_lesson_next"
+        android:showAsAction="always|withText"
+        android:title="@string/lesson_next"/>
+    <item
+        android:id="@+id/menu_lesson_stop"
+        android:showAsAction="always|withText"
+        android:title="@string/lesson_stop"/>
+    <item
+        android:id="@+id/menu_lesson_metrics"
+        android:showAsAction="ifRoom|withText"
+        android:title="@string/lesson_metrics"/>
+    <item
+        android:id="@+id/menu_instrument_select"
+        android:showAsAction="always|withText"
+        android:title="@string/instrument_select"/>
+    <item
         android:id="@+id/menu_settings"
         android:showAsAction="never"
         android:title="@string/menu_settings"/>
