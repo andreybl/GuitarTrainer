@@ -115,9 +115,9 @@ public class NoteStave {
         notesOnFret[3][7] = Note.A3;
         notesOnFret[3][8] = Note.A3di;
         notesOnFret[3][9] = Note.B3;
-        notesOnFret[3][10] = Note.C3;
-        notesOnFret[3][11] = Note.C3di;
-        notesOnFret[3][12] = Note.D3;
+        notesOnFret[3][10] = Note.C4;
+        notesOnFret[3][11] = Note.C4di;
+        notesOnFret[3][12] = Note.D4;
 
         // A - open 5th string
         notesOnFret[4][0] = Note.A2;

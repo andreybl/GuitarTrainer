@@ -69,7 +69,8 @@ public class FretView extends AInoutView<NotePlayingEvent> {
     private FretImageView fretImageView;
 
     /** contains the name of the last note played */
-    private TextView tvNoteName;
+    // TODO: make it back non-static. The only reason for static: the tvNoteName must be access from FretImageView
+    private static TextView tvNoteName;
 
     /** radio group for selection between two input modes: either manual or by playing guitar */
     private RadioGroup rgInputMode;
@@ -451,7 +452,6 @@ public class FretView extends AInoutView<NotePlayingEvent> {
      * @author Andrej Golovko - jambit GmbH
      * 
      */
-    // TODO: introduce the Visitor patter, where the logic of drawing is encapsulated in a class
     public static class FretImageView extends ImageView {
 
         /*
@@ -653,17 +653,16 @@ public class FretView extends AInoutView<NotePlayingEvent> {
          *            end fret of the area in range 0..12
          */
         public void showArea(int fromFret, int toFret) {
-            
-            if (fromFret>toFret)
+
+            if (fromFret > toFret)
                 fromFret = toFret;
-                
+
             if (fromFret < 0)
                 fromFret = 0;
-            
+
             if (toFret > 12)
                 toFret = 12;
-            
-            
+
             startAreaFret = fromFret;
             endAreaFret = toFret;
             postInvalidate();
@@ -713,6 +712,8 @@ public class FretView extends AInoutView<NotePlayingEvent> {
             show(layerTouches, pos);
 
             Note note = NoteStave.getInstance().resolveNote(pos);
+            tvNoteName.setText(note.toString());
+
             NotePlayingEvent npe = new NotePlayingEvent(note, pos);
             if (fretView != null)
                 fretView.notifyListeners(npe);

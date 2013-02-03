@@ -120,8 +120,9 @@ public class LessonNote2Position extends ALesson {
          * input it will be possible to decided, if the answer is as expected.
          */
 
-        questionedNote = LessonsUtils.randomNote();
+        
         do {
+            questionedNote = LessonsUtils.randomNote();
             acceptedPositions = NoteStave.getInstance().resolvePositions(questionedNote);
             /* can be for instance the case for F5 (not on the fret at all) */
         } while (acceptedPositions.size() == 0);
