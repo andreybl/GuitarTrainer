@@ -9,17 +9,19 @@ import java.util.Map;
 import android.util.Log;
 
 import com.ago.guitartrainer.GuitarTrainerApplication;
+import com.ago.guitartrainer.MasterActivity;
 import com.ago.guitartrainer.R;
 import com.ago.guitartrainer.SettingsActivity;
 import com.ago.guitartrainer.db.DatabaseHelper;
 import com.ago.guitartrainer.events.OnViewSelectionListener;
+import com.ago.guitartrainer.fragments.FragmentPosition2Note;
 import com.ago.guitartrainer.lessons.QuestionMetrics;
 import com.ago.guitartrainer.notation.Note;
 import com.ago.guitartrainer.notation.NoteStave;
 import com.ago.guitartrainer.notation.Position;
 import com.ago.guitartrainer.ui.FretView;
 import com.ago.guitartrainer.ui.FretView.Layer;
-import com.ago.guitartrainer.ui.MainFragment;
+import com.ago.guitartrainer.ui.LearningStatusView;
 import com.ago.guitartrainer.ui.NotesView;
 import com.ago.guitartrainer.utils.LessonsUtils;
 import com.j256.ormlite.dao.RuntimeExceptionDao;
@@ -40,64 +42,33 @@ import com.j256.ormlite.dao.RuntimeExceptionDao;
 
 public class LessonPosition2Note extends ALesson {
 
-    private FretView fretView;
-
-    private NotesView notesView;
+    private FragmentPosition2Note fragment;
 
     private Note expectedNote;
 
-    private Layer layerLesson;
+    private Layer layerLesson = new Layer(FretView.LAYER_Z_LESSON, MasterActivity.getInstance().getResources()
+            .getColor(R.color.blue));
 
     @Override
     public String getTitle() {
-        String str = MainFragment.getInstance().getResources().getString(R.string.lesson_position2note_title);
+        String str = MasterActivity.getInstance().getResources().getString(R.string.lesson_position2note_title);
         return str;
     }
 
     @Override
     public String getDescription() {
-        String str = MainFragment.getInstance().getResources().getString(R.string.lesson_position2note_description);
+        String str = MasterActivity.getInstance().getResources().getString(R.string.lesson_position2note_description);
         return str;
     }
 
     @Override
-    public void doPrepareUi() {
-
-        layerLesson = new Layer(FretView.LAYER_Z_LESSON, MainFragment.getInstance().getResources()
-                .getColor(R.color.blue));
-
-        /*
-         * It is not clear in advance, which UI controls the lesson may require. The lessons are quite different. So we
-         * just pick required controls from MainFragment.
-         * 
-         * The assumption is, that the MainFragment exists and is visible. We also may wish to set it per injection
-         * later and check if it is visible every time when using its widgets.
-         * 
-         * The viable alternative could also be provide necessary calls - like, registerForNoteSelection() - on the
-         * MainFragment itself. But it could result in to much methods on it. Basically, every view would require
-         * several methods associated with it.
-         */
-
-        // initialize views required for the current type of lesson
-        MainFragment uiControls = MainFragment.getInstance();
-        fretView = uiControls.getFretView();
-        notesView = uiControls.getNotesView();
-
-        fretView.setEnabled(true);
-        notesView.setEnabled(true);
-        notesView.setEnabledInput(true);
-
-        uiControls.getDegreesView().setEnabled(false);
-        uiControls.getScalegridView().setEnabled(false);
-
-        OnViewSelectionListener<Note> onSelectionListener = new InnerOnSelectionListener();
-        notesView.registerListener(onSelectionListener);
-
+    protected LearningStatusView getLearningStatusView() {
+        return fragment.getLearningStatusView();
     }
 
     @Override
     public void doStop() {
-        fretView.clearLayer(layerLesson);
+        fragment.getFretView().clearLayer(layerLesson);
     }
 
     @Override
@@ -109,7 +80,7 @@ public class LessonPosition2Note extends ALesson {
         int shortestReactionTimeMs = GuitarTrainerApplication.getPrefs().getInt(
                 SettingsActivity.KEY_QUESTION_SHORTEST_REACTION_TIME, 1000) * 3;
 
-        fretView.clearLayer(layerLesson);
+        fragment.getFretView().clearLayer(layerLesson);
 
         RuntimeExceptionDao<QuestionPosition2Note, Integer> qDao = DatabaseHelper.getInstance().getRuntimeExceptionDao(
                 QuestionPosition2Note.class);
@@ -158,7 +129,7 @@ public class LessonPosition2Note extends ALesson {
         }
 
         // visualize
-        fretView.show(layerLesson, mapPosition2Color);
+        fragment.getFretView().show(layerLesson, mapPosition2Color);
     }
 
     /**
@@ -170,11 +141,11 @@ public class LessonPosition2Note extends ALesson {
     @Override
     public void doNext() {
 
-        fretView.clearLayer(layerLesson);
+        fragment.getFretView().clearLayer(layerLesson);
 
         Position pos = LessonsUtils.randomPosition();
 
-        fretView.show(layerLesson, pos);
+        fragment.getFretView().show(layerLesson, pos);
 
         RuntimeExceptionDao<QuestionPosition2Note, Integer> qDao = DatabaseHelper.getInstance().getRuntimeExceptionDao(
                 QuestionPosition2Note.class);
@@ -212,6 +183,17 @@ public class LessonPosition2Note extends ALesson {
         }
 
         return question;
+    }
+
+    public void onFragmentInitializationCompleted(FragmentPosition2Note fragment) {
+        this.fragment = fragment;
+
+        fragment.getFretView().setEnabled(false);
+        fragment.getNotesView().setEnabled(true);
+        fragment.getNotesView().setEnabledInput(true);
+
+        OnViewSelectionListener<Note> onSelectionListener = new InnerOnSelectionListener();
+        fragment.getNotesView().registerListener(onSelectionListener);
     }
 
     /*

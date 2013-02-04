@@ -4,13 +4,16 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.ago.guitartrainer.MasterActivity;
 import com.ago.guitartrainer.R;
 import com.ago.guitartrainer.db.DatabaseHelper;
 import com.ago.guitartrainer.events.NotePlayingEvent;
 import com.ago.guitartrainer.events.OnViewSelectionListener;
+import com.ago.guitartrainer.fragments.FragmentNote2Position;
 import com.ago.guitartrainer.instruments.GuitarUtils;
 import com.ago.guitartrainer.lessons.QuestionMetrics;
 import com.ago.guitartrainer.notation.Note;
@@ -18,7 +21,7 @@ import com.ago.guitartrainer.notation.NoteStave;
 import com.ago.guitartrainer.notation.Position;
 import com.ago.guitartrainer.ui.FretView;
 import com.ago.guitartrainer.ui.FretView.Layer;
-import com.ago.guitartrainer.ui.MainFragment;
+import com.ago.guitartrainer.ui.LearningStatusView;
 import com.ago.guitartrainer.ui.NotesView;
 import com.ago.guitartrainer.utils.LessonsUtils;
 import com.j256.ormlite.dao.RuntimeExceptionDao;
@@ -39,15 +42,16 @@ import com.j256.ormlite.dao.RuntimeExceptionDao;
 
 public class LessonNote2Position extends ALesson {
 
-    private FretView fretView;
-
-    private NotesView notesView;
+    /**
+     * Fragment defining view of the current lesson
+     */
+    private FragmentNote2Position fragment;
 
     /** the note for which the fret position must be found */
     private Note questionedNote;
 
-    private Layer layerLesson = new Layer(FretView.LAYER_Z_LESSON, MainFragment.getInstance().getResources()
-            .getColor(R.color.blue));
+    private Layer layerLesson = new Layer(FretView.LAYER_Z_LESSON, MasterActivity.getInstance().getResources()
+            .getColor(R.color.blue));;
 
     /**
      * positions which are accepted as correct answer?
@@ -60,44 +64,29 @@ public class LessonNote2Position extends ALesson {
 
     @Override
     public String getTitle() {
-        String str = MainFragment.getInstance().getResources().getString(R.string.lesson_note2position_title);
+        String str = MasterActivity.getInstance().getResources().getString(R.string.lesson_note2position_title);
         return str;
     }
 
     @Override
     public String getDescription() {
-        String str = MainFragment.getInstance().getResources().getString(R.string.lesson_note2position_description);
+        String str = MasterActivity.getInstance().getResources().getString(R.string.lesson_note2position_description);
         return str;
     }
 
     @Override
-    public void doPrepareUi() {
-
-        // initialize views required for the current type of lesson
-        MainFragment uiControls = MainFragment.getInstance();
-        fretView = uiControls.getFretView();
-        notesView = uiControls.getNotesView();
-
-        fretView.setEnabled(true);
-        notesView.setEnabled(true);
-        notesView.setEnabledInput(false);
-
-        uiControls.getDegreesView().setEnabled(false);
-        uiControls.getScalegridView().setEnabled(false);
-
-        OnViewSelectionListener<NotePlayingEvent> onSelectionListener = new InnerOnSelectionListener();
-        fretView.registerListener(onSelectionListener);
-
+    protected LearningStatusView getLearningStatusView() {
+        return fragment.getLearningStatusView();
     }
 
     @Override
     public void doStop() {
-        fretView.clearLayer(layerLesson);
+        fragment.getFretView().clearLayer(layerLesson);
     }
 
     @Override
     public void showMetrics() {
-        Toast.makeText(MainFragment.getInstance().getActivity(), "No showMetrics() implemented", 2000).show();
+        Toast.makeText(MasterActivity.getInstance(), "No showMetrics() implemented", 2000).show();
     }
 
     /**
@@ -109,7 +98,7 @@ public class LessonNote2Position extends ALesson {
     @Override
     public void doNext() {
 
-        fretView.clearLayer(layerLesson);
+        fragment.getFretView().clearLayer(layerLesson);
 
         /*
          * in the Note2Position lesson the user is presented with the (random?) note, With the answer the user must find
@@ -120,7 +109,6 @@ public class LessonNote2Position extends ALesson {
          * input it will be possible to decided, if the answer is as expected.
          */
 
-        
         do {
             questionedNote = LessonsUtils.randomNote();
             acceptedPositions = NoteStave.getInstance().resolvePositions(questionedNote);
@@ -141,12 +129,12 @@ public class LessonNote2Position extends ALesson {
             int[] startEnd = GuitarUtils.calculateUniqueAreaForPosition(acceptedPositions, randomPosition);
             acceptedPositions.clear();
             acceptedPositions.add(randomPosition);
-            fretView.showArea(startEnd[0], startEnd[1]);
+            fragment.getFretView().showArea(startEnd[0], startEnd[1]);
 
         }
 
         // visualize it
-        notesView.showNote(questionedNote);
+        fragment.getNotesView().showNote(questionedNote);
 
         Log.d(getTag(), "Note: " + questionedNote + ", Allowed positions: " + acceptedPositions);
     }
@@ -171,6 +159,15 @@ public class LessonNote2Position extends ALesson {
         }
 
         return question;
+    }
+
+    public void onFragmentInitializationCompleted(FragmentNote2Position fragment) {
+        this.fragment = fragment;
+
+        fragment.getNotesView().setEnabled(false);
+
+        OnViewSelectionListener<NotePlayingEvent> onSelectionListener = new InnerOnSelectionListener();
+        this.fragment.getFretView().registerListener(onSelectionListener);
     }
 
     /*
@@ -213,8 +210,8 @@ public class LessonNote2Position extends ALesson {
             if (isAnswerAccepted) {
 
                 onSuccess();
-                fretView.clearLayer(layerLesson);
-                fretView.show(layerLesson, acceptedPositions);
+                fragment.getFretView().clearLayer(layerLesson);
+                fragment.getFretView().show(layerLesson, acceptedPositions);
             } else {
                 onFailure();
             }

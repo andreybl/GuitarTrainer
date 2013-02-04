@@ -1,5 +1,6 @@
 package com.ago.guitartrainer;
 
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnDismissListener;
 import android.content.Intent;
@@ -8,6 +9,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -15,10 +17,12 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.ago.guitartrainer.db.DatabaseHelper;
+import com.ago.guitartrainer.fragments.FragmentMain;
+import com.ago.guitartrainer.fragments.FragmentFromLessonFactory;
 import com.ago.guitartrainer.lessons.ILesson;
 import com.ago.guitartrainer.ui.IPrefKeys;
-import com.ago.guitartrainer.ui.MainFragment;
 import com.ago.guitartrainer.ui.dialogs.AboutDialog;
+import com.ago.guitartrainer.ui.dialogs.InstrumentSelectionDialog;
 import com.ago.guitartrainer.ui.dialogs.LessonSelectionDialog;
 
 public class MasterActivity extends FragmentActivity {
@@ -39,6 +43,8 @@ public class MasterActivity extends FragmentActivity {
 
     private MenuItem miMetrics;
 
+    private static MasterActivity INSTANCE;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,13 +63,25 @@ public class MasterActivity extends FragmentActivity {
          */
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 
-        android.support.v4.app.FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        ft.replace(R.id.content_frame, new MainFragment());
-        ft.addToBackStack(null);
-        ft.commit();
+        INSTANCE = this;
 
         currentLesson = currentLessonFromPreferences();
 
+        if (currentLesson != null) {
+            Fragment fragment = FragmentFromLessonFactory.fragmentForLesson(currentLesson);
+            replaceFragment(fragment);
+        } else {
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            ft.replace(R.id.content_frame, new FragmentMain());
+            ft.addToBackStack(null);
+            ft.commit();
+
+        }
+
+    }
+
+    public static MasterActivity getInstance() {
+        return INSTANCE;
     }
 
     private ILesson currentLessonFromPreferences() {
@@ -108,9 +126,10 @@ public class MasterActivity extends FragmentActivity {
         miNext.setEnabled(false);
         miStop.setEnabled(false);
         miMetrics.setEnabled(false);
+        miInstrumentSelect.setEnabled(true);
 
         if (currentLesson != null) {
-            currentLesson.prepareUi();
+            // currentLesson.prepareUi();
             miStart.setEnabled(true);
             /*
              * TODO: add "Info" icon to inform about lesson,
@@ -147,6 +166,7 @@ public class MasterActivity extends FragmentActivity {
             miStop.setEnabled(true);
             miNext.setEnabled(true);
             miMetrics.setEnabled(false);
+            miInstrumentSelect.setEnabled(false);
 
             if (currentLesson != null)
                 currentLesson.next();
@@ -168,6 +188,7 @@ public class MasterActivity extends FragmentActivity {
             miStop.setEnabled(false);
             miNext.setEnabled(false);
             miMetrics.setEnabled(true);
+            miInstrumentSelect.setEnabled(true);
 
             if (currentLesson != null)
                 currentLesson.stop();
@@ -180,7 +201,6 @@ public class MasterActivity extends FragmentActivity {
             break;
         }
         case R.id.menu_instrument_select: {
-            // xxx
             onMenuInstrumentSelectionSelected();
             break;
         }
@@ -199,7 +219,9 @@ public class MasterActivity extends FragmentActivity {
     }
 
     private void onMenuInstrumentSelectionSelected() {
-        // TODO
+        final Dialog dialog = new InstrumentSelectionDialog(this);
+        dialog.show();
+
     }
 
     private void onMenuLessonSelectionSelected() {
@@ -210,7 +232,7 @@ public class MasterActivity extends FragmentActivity {
             public void onDismiss(DialogInterface dialog) {
                 ILesson selectedLesson = lessonDialog.selectedLesson();
                 if (selectedLesson != null) {
-                    if (currentLesson.isRunning())
+                    if (currentLesson != null && currentLesson.isRunning())
                         currentLesson.stop();
 
                     currentLesson = selectedLesson;
@@ -219,8 +241,14 @@ public class MasterActivity extends FragmentActivity {
                     editor.putString(IPrefKeys.KEY_LESSON_CLAZZ, currentLesson.getClass().getName());
                     editor.commit();
 
-                    // btnStartLesson.setEnabled(true);
-                    // btnMetricsLesson.setEnabled(true);
+                    miStart.setEnabled(true);
+                    miMetrics.setEnabled(true);
+                    miInstrumentSelect.setEnabled(true);
+
+                    Fragment fragment = FragmentFromLessonFactory.fragmentForLesson(currentLesson);
+                    replaceFragment(fragment);
+
+                    // TODO: use the line in some way
                     // learningStatusView.updateLessonName(currentLesson.getTitle());
                 } else {
                     Toast.makeText(getApplicationContext(), "No lesson selected. Using the previous one", 2000).show();

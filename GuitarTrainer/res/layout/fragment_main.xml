@@ -3,36 +3,14 @@
     android:id="@+id/layout_main_view"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    android:gravity="center"
     android:orientation="vertical" >
 
-    <com.ago.guitartrainer.ui.FretView
-        android:id="@+id/view_fretview"
+    <TextView
+        android:id="@+id/textView1"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
-
-        <com.ago.guitartrainer.ui.ScalegridsView
-            android:id="@+id/view_scalegridview"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
-        <com.ago.guitartrainer.ui.DegreesView
-            android:id="@+id/view_degreesview"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
-        <com.ago.guitartrainer.ui.NotesView
-            android:id="@+id/view_notesview"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
-        <com.ago.guitartrainer.ui.LearningStatusView
-            android:id="@+id/learning_status"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-    </LinearLayout>
+        android:layout_height="wrap_content"
+        android:text="Welcome ot Instruments (Guitar) Trainer"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 
 </LinearLayout>

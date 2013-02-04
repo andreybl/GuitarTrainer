@@ -9,6 +9,7 @@ import android.os.Vibrator;
 import android.util.Log;
 
 import com.ago.guitartrainer.GuitarTrainerApplication;
+import com.ago.guitartrainer.MasterActivity;
 import com.ago.guitartrainer.SettingsActivity;
 import com.ago.guitartrainer.db.DatabaseHelper;
 import com.ago.guitartrainer.lessons.AQuestion;
@@ -19,7 +20,6 @@ import com.ago.guitartrainer.lessons.QuestionMetrics;
 import com.ago.guitartrainer.lessons.helpers.PauseTimer;
 import com.ago.guitartrainer.lessons.helpers.QuestionTimer;
 import com.ago.guitartrainer.ui.LearningStatusView;
-import com.ago.guitartrainer.ui.MainFragment;
 import com.j256.ormlite.dao.RuntimeExceptionDao;
 
 public abstract class ALesson implements ILesson {
@@ -27,9 +27,6 @@ public abstract class ALesson implements ILesson {
     private static final int UNDEFINED = 0;
 
     private static final boolean IS_SUCCESS = true;
-
-    /** UI view to represent the lesson status to the user. Is a widget, common for all lessons. */
-    private LearningStatusView learningStatusView;
 
     /**
      * Countdown during the question is asked.
@@ -73,20 +70,8 @@ public abstract class ALesson implements ILesson {
      * */
     private QuestionMetrics currentQuestionMetrics;
 
-    // TODO: remove from class var?
-    protected RuntimeExceptionDao<QuestionMetrics, Integer> qmDao;
-
-    @Override
-    public void prepareUi() {
-        MainFragment uiControls = MainFragment.getInstance();
-        learningStatusView = uiControls.getLearningStatusView();
-
-        qmDao = DatabaseHelper.getInstance().getRuntimeExceptionDao(QuestionMetrics.class);
-
-        doPrepareUi();
-    }
-
-    protected abstract void doPrepareUi();
+    protected RuntimeExceptionDao<QuestionMetrics, Integer> qmDao = DatabaseHelper.getInstance()
+            .getRuntimeExceptionDao(QuestionMetrics.class);
 
     public String getTag() {
         return "GT-" + getClass().getSimpleName();
@@ -102,7 +87,7 @@ public abstract class ALesson implements ILesson {
      *            to be shown in the learning status view
      */
     protected void messageInLearningStatus(String msg) {
-        learningStatusView.updateMessageToUser(msg);
+        getLearningStatusView().updateMessageToUser(msg);
     }
 
     public void next() {
@@ -132,16 +117,16 @@ public abstract class ALesson implements ILesson {
             lessonMetrics.startTime();
 
             int currentLoop = lessonMetrics.increaseLoop();
-            learningStatusView.updateLessonLoop(currentLoop);
+            getLearningStatusView().updateLessonLoop(currentLoop);
 
         }
 
         /* 3. update the learning status view */
-        learningStatusView.updateCurrentLessonDuration(lessonMetrics.currentDuration());
-        learningStatusView.updateAnswerStatus(QuestionStatus.UNDEFINED);
-        learningStatusView.updateNextQuestionIndication(UNDEFINED);
+        getLearningStatusView().updateCurrentLessonDuration(lessonMetrics.currentDuration());
+        getLearningStatusView().updateAnswerStatus(QuestionStatus.UNDEFINED);
+        getLearningStatusView().updateNextQuestionIndication(UNDEFINED);
         int qCounter = lessonMetrics.increaseQuestionsCounter();
-        learningStatusView.updateQuestionsCounter(qCounter);
+        getLearningStatusView().updateQuestionsCounter(qCounter);
 
         /* 4. highly custom: decide on question, show it to the user */
         doNext();
@@ -157,7 +142,7 @@ public abstract class ALesson implements ILesson {
         /* 6. start the question timer */
         int questionMaxDurationSec = GuitarTrainerApplication.getPrefs().getInt(
                 SettingsActivity.KEY_QUESTION_DURATION_MAX, 10);
-        questionTimer = new QuestionTimer(this, learningStatusView, questionMaxDurationSec * 1000, 300);
+        questionTimer = new QuestionTimer(this, getLearningStatusView(), questionMaxDurationSec * 1000, 300);
         questionTimer.start();
 
         Log.d(getTag(), getCurrentQuestion().toString());
@@ -230,10 +215,10 @@ public abstract class ALesson implements ILesson {
     @Override
     public void stop() {
 
-//        if (lessonMetrics == null) {
-//            /* the lessonMetrics is null, only if the lesson was selected but never started. */
-//            return;
-//        }
+        // if (lessonMetrics == null) {
+        // /* the lessonMetrics is null, only if the lesson was selected but never started. */
+        // return;
+        // }
 
         lessonMetrics.stopTime();
         RuntimeExceptionDao<LessonMetrics, Integer> lmDao = DatabaseHelper.getInstance().getRuntimeExceptionDao(
@@ -247,7 +232,7 @@ public abstract class ALesson implements ILesson {
 
         currentQuestionMetrics.submitAnswer(false);
 
-        learningStatusView.updateMessageToUser(null);
+        getLearningStatusView().updateMessageToUser(null);
 
         doStop();
 
@@ -270,18 +255,18 @@ public abstract class ALesson implements ILesson {
 
         qmDao.update(currentQuestionMetrics);
 
-        learningStatusView.updateTimestampOfLastSuccessfulAnswer(currentQuestionMetrics.lastSuccessfulAnswer());
-        learningStatusView.updateAnswerStatus(QuestionStatus.SUCCESS);
-        learningStatusView.updateCurrentQuestionTrials(currentQuestionMetrics.numOfTrialsLastLoop());
+        getLearningStatusView().updateTimestampOfLastSuccessfulAnswer(currentQuestionMetrics.lastSuccessfulAnswer());
+        getLearningStatusView().updateAnswerStatus(QuestionStatus.SUCCESS);
+        getLearningStatusView().updateCurrentQuestionTrials(currentQuestionMetrics.numOfTrialsLastLoop());
 
         final int pauseDuration = GuitarTrainerApplication.getPrefs().getInt(
                 SettingsActivity.KEY_POST_QUESTION_PAUSE_DURATION, 5);
         if (pauseDuration > 0) {
-            MainFragment.getInstance().getActivity().runOnUiThread(new Runnable() {
+            MasterActivity.getInstance().runOnUiThread(new Runnable() {
 
                 @Override
                 public void run() {
-                    pauseTimer = new PauseTimer(ALesson.this, learningStatusView, pauseDuration * 1000, 1000);
+                    pauseTimer = new PauseTimer(ALesson.this, getLearningStatusView(), pauseDuration * 1000, 1000);
                     pauseTimer.start();
                 }
             });
@@ -306,8 +291,8 @@ public abstract class ALesson implements ILesson {
 
         qmDao.update(currentQuestionMetrics);
 
-        learningStatusView.updateAnswerStatus(QuestionStatus.FAILURE);
-        learningStatusView.updateCurrentQuestionTrials(currentQuestionMetrics.numOfTrialsLastLoop());
+        getLearningStatusView().updateAnswerStatus(QuestionStatus.FAILURE);
+        getLearningStatusView().updateCurrentQuestionTrials(currentQuestionMetrics.numOfTrialsLastLoop());
     }
 
     public abstract void doStop();
@@ -332,17 +317,16 @@ public abstract class ALesson implements ILesson {
         if (!doVibrate)
             return;
 
-        Vibrator vibratorService = (Vibrator) MainFragment.getInstance().getActivity()
-                .getSystemService(Context.VIBRATOR_SERVICE);
+        Vibrator vibratorService = (Vibrator) MasterActivity.getInstance().getSystemService(Context.VIBRATOR_SERVICE);
         vibratorService.vibrate(200);
 
     }
-    
+
     @Override
     public boolean isRunning() {
-        if (lessonMetrics==null)
+        if (lessonMetrics == null)
             return false;
-        
+
         return !lessonMetrics.isFinished();
     }
 
@@ -357,8 +341,7 @@ public abstract class ALesson implements ILesson {
         if (!doVibrate)
             return;
 
-        Vibrator vibratorService = (Vibrator) MainFragment.getInstance().getActivity()
-                .getSystemService(Context.VIBRATOR_SERVICE);
+        Vibrator vibratorService = (Vibrator) MasterActivity.getInstance().getSystemService(Context.VIBRATOR_SERVICE);
         vibratorService.vibrate(300);
 
         // This example will cause the phone to vibrate in Morse Code
@@ -375,4 +358,6 @@ public abstract class ALesson implements ILesson {
         vibratorService.vibrate(pattern, -1);
 
     }
+
+    protected abstract LearningStatusView getLearningStatusView();
 }

@@ -22,6 +22,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.ago.guitartrainer.MasterActivity;
 import com.ago.guitartrainer.R;
 import com.ago.guitartrainer.SettingsActivity;
 import com.ago.guitartrainer.notation.Key;
@@ -334,11 +335,9 @@ public class NotesView extends AInoutView<Note> {
              * The distanceY specify the direction of the gestures on the Y-axis.
              */
 
-            SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(MainFragment.getInstance()
-                    .getActivity());
+            SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(MasterActivity.getInstance());
             int pixelsTreshold = sharedPref.getInt(SettingsActivity.KEY_NOTESVIEW_SENSITIVITY, 7);
 
-            
             if (e2.getY() > pixelsTreshold) {
                 if (distanceY > 0) {
                     selectedNote = NoteStave.getInstance().nextHasNoSharpsFlats(selectedNote);

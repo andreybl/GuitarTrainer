@@ -13,43 +13,36 @@ import android.media.MediaPlayer;
 import android.util.Log;
 
 import com.ago.guitartrainer.GuitarTrainerApplication;
+import com.ago.guitartrainer.MasterActivity;
 import com.ago.guitartrainer.R;
 import com.ago.guitartrainer.SettingsActivity;
 import com.ago.guitartrainer.db.DatabaseHelper;
 import com.ago.guitartrainer.events.NotePlayingEvent;
 import com.ago.guitartrainer.events.OnViewSelectionListener;
+import com.ago.guitartrainer.fragments.FragmentScalegridDegree2Position;
 import com.ago.guitartrainer.lessons.QuestionMetrics;
 import com.ago.guitartrainer.notation.Degree;
 import com.ago.guitartrainer.notation.Note;
 import com.ago.guitartrainer.notation.Position;
 import com.ago.guitartrainer.scalegrids.ScaleGrid;
 import com.ago.guitartrainer.scalegrids.ScaleGrid.Type;
-import com.ago.guitartrainer.ui.DegreesView;
 import com.ago.guitartrainer.ui.FretView;
 import com.ago.guitartrainer.ui.FretView.Layer;
-import com.ago.guitartrainer.ui.MainFragment;
-import com.ago.guitartrainer.ui.ScalegridsView;
+import com.ago.guitartrainer.ui.LearningStatusView;
 import com.ago.guitartrainer.utils.ArrayUtils;
 import com.ago.guitartrainer.utils.LessonsUtils;
 import com.j256.ormlite.dao.RuntimeExceptionDao;
 
 public class LessonScalegridDegree2Position extends ALesson {
 
-    /* START: views to visualize questions */
-    private FretView fretView;
-
-    private ScalegridsView scalegridsView;
-
-    private DegreesView degreesView;
+    private FragmentScalegridDegree2Position fragment;
 
     /** the layer for the fret view image, used to visualize the question on the fret */
-    private Layer layerLesson = new Layer(FretView.LAYER_Z_LESSON, MainFragment.getInstance().getResources()
+    private Layer layerLesson = new Layer(FretView.LAYER_Z_LESSON, MasterActivity.getInstance().getResources()
             .getColor(R.color.blue));
 
-    private Layer layerLessonSubmited = new Layer(FretView.LAYER_Z_LESSON + 100, MainFragment.getInstance()
+    private Layer layerLessonSubmited = new Layer(FretView.LAYER_Z_LESSON + 100, MasterActivity.getInstance()
             .getResources().getColor(R.color.green));
-
-    /* END: views to visualize questions */
 
     /**
      * Positions, which are accepted by the lesson as successful answer to the current question.
@@ -72,14 +65,7 @@ public class LessonScalegridDegree2Position extends ALesson {
      * if true, the grid shape used as lesson parameter is allowed to be entered by the user. Otherwise, the parameter
      * is selected randomly.
      */
-//    private boolean isShapeInputAllowed = true;
     private ScaleGrid.Type userScalegridType = Type.ALPHA;
-
-    /**
-     * if true, the user is allowed decided on the degree parameter by himself. If false, the degree is selected
-     * randomly.
-     */
-//    private boolean isDegreeInputAllowed = false;
 
     /**
      * if true, the user is allowed to decide on the start position of the scale grid. If false, the valid starting
@@ -88,71 +74,26 @@ public class LessonScalegridDegree2Position extends ALesson {
     private boolean isAreaStartInputAllowed = true;
 
     // TODO: remove from class var? it is cached in DatabaseHelper anyway
-    private RuntimeExceptionDao<QuestionScalegridDegree2Position, Integer> qDao;
-
-    /**
-     * Defines whether only position in Ist degrees is shown.
-     * 
-     * If true, only the Ist degree position is shown. If several Ist degree positions are available, only the one with
-     * lower fret is selected.
-     * 
-     * If false, positions for all main degrees are shown - I, II, ... VII.
-     * 
-     * @deprecated see {@link ScalegridsView#isRootOnlyShown()}
-     * */
-    private boolean isOnly1stDegreeShown = false;
+    private RuntimeExceptionDao<QuestionScalegridDegree2Position, Integer> qDao = DatabaseHelper.getInstance()
+            .getRuntimeExceptionDao(QuestionScalegridDegree2Position.class);
 
     @Override
     public String getTitle() {
-        String str = MainFragment.getInstance().getResources()
+        String str = MasterActivity.getInstance().getResources()
                 .getString(R.string.lesson_scalegriddegree2position_title);
         return str;
     }
 
     @Override
     public String getDescription() {
-        String str = MainFragment.getInstance().getResources()
+        String str = MasterActivity.getInstance().getResources()
                 .getString(R.string.lesson_scalegriddegree2position_description);
         return str;
     }
 
     @Override
-    public void doPrepareUi() {
-
-        qDao = DatabaseHelper.getInstance().getRuntimeExceptionDao(QuestionScalegridDegree2Position.class);
-
-        // initialize views required for the current type of lesson
-        MainFragment uiControls = MainFragment.getInstance();
-
-        fretView = uiControls.getFretView();
-        fretView.setEnabled(true);
-        fretView.setEnabledInput(true);
-
-        uiControls.getNotesView().setEnabled(false);
-
-        scalegridsView = uiControls.getScalegridView();
-        scalegridsView.setEnabled(true);
-//        scalegridsView.setEnabledInput(isShapeInputAllowed);
-
-        if (!scalegridsView.isRandomInput()) {
-            InnerOnShapeSelectionListener onShapeSelection = new InnerOnShapeSelectionListener();
-            scalegridsView.registerListener(onShapeSelection);
-        }
-
-        degreesView = uiControls.getDegreesView();
-        degreesView.setEnabled(true);
-        degreesView.setEnabledInput(false);
-
-        uiControls.getScalegridView().setEnabled(true);
-
-        OnViewSelectionListener<NotePlayingEvent> onSelectionListener = new InnerOnSelectionListener();
-        fretView.registerListener(onSelectionListener);
-
-    }
-
-    @Override
     public void doStop() {
-        fretView.clearLayer(layerLesson);
+        fragment.getFretView().clearLayer(layerLesson);
     }
 
     /**
@@ -163,10 +104,10 @@ public class LessonScalegridDegree2Position extends ALesson {
      **/
     @Override
     public void doNext() {
-        fretView.clearLayer(layerLesson);
-        fretView.clearLayer(layerLessonSubmited);
-        fretView.clearLayerByZIndex(FretView.LAYER_Z_TOUCHES);
-        fretView.clearLayerByZIndex(FretView.LAYER_Z_FFT);
+        fragment.getFretView().clearLayer(layerLesson);
+        fragment.getFretView().clearLayer(layerLessonSubmited);
+        fragment.getFretView().clearLayerByZIndex(fragment.getFretView().LAYER_Z_TOUCHES);
+        fragment.getFretView().clearLayerByZIndex(fragment.getFretView().LAYER_Z_FFT);
 
         /*
          * the original idea was to keep the question params completely in an appropriate AQuestion subclass. But the
@@ -184,21 +125,21 @@ public class LessonScalegridDegree2Position extends ALesson {
          * In this block we decide on the parameters of the learning function. There are three params here, and each of
          * them can be either user selected or randomly picked.
          */
-        if (scalegridsView.isRandomInput()) {
+        if (fragment.getScalegridView().isRandomInput()) {
             // param1: grid shape type must be random
             userScalegridType = LessonsUtils.randomGridShapeType();
         } else {
-            userScalegridType = scalegridsView.scalegridType();
+            userScalegridType = fragment.getScalegridView().scalegridType();
         }
 
         if (!isAreaStartInputAllowed) {
             fretPosition = LessonsUtils.randomFretPositionForGridShapeType(userScalegridType);
         }
 
-        if (degreesView.isRandomInput()) {
+        if (fragment.getDegreesView().isRandomInput()) {
             degree = LessonsUtils.randomDegree();
         } else {
-            degree = degreesView.degree();
+            degree = fragment.getDegreesView().degree();
         }
 
         /*
@@ -224,13 +165,13 @@ public class LessonScalegridDegree2Position extends ALesson {
         submittedPositions.clear();
         messageInLearningStatus(null);
 
-        scalegridsView.show(gridShape.getType());
-        degreesView.show(quest.degree);
-        
-        if (!scalegridsView.isRootOnlyShown()) {
-            fretView.show(layerLesson, gridShape);
+        fragment.getScalegridView().show(gridShape.getType());
+        fragment.getDegreesView().show(quest.degree);
+
+        if (!fragment.getScalegridView().isRootOnlyShown()) {
+            fragment.getFretView().show(layerLesson, gridShape);
         } else {
-            fretView.show(layerLesson, gridShape.getRootPosition());
+            fragment.getFretView().show(layerLesson, gridShape.getRootPosition());
         }
 
         boolean playSound = GuitarTrainerApplication.getPrefs().getBoolean(SettingsActivity.KEY_PLAY_SOUNDS, false);
@@ -271,7 +212,7 @@ public class LessonScalegridDegree2Position extends ALesson {
         }
         ;
 
-        mediaPlayer = MediaPlayer.create(MainFragment.getInstance().getActivity(), mp3Id);
+        mediaPlayer = MediaPlayer.create(MasterActivity.getInstance(), mp3Id);
         mediaPlayer.start();
 
     }
@@ -336,7 +277,7 @@ public class LessonScalegridDegree2Position extends ALesson {
          *    of specific scale grid starting from fretPosition=0. (the Integer specifies the color)
          */
         try {
-            fretView.clearLayer(layerLesson);
+            fragment.getFretView().clearLayer(layerLesson);
 
             /*
              * TODO: implementation is sub-optimal. The query could actually be done with single left-join query. But
@@ -415,7 +356,7 @@ public class LessonScalegridDegree2Position extends ALesson {
             }
 
             // visualize
-            fretView.show(layerLesson, mapPosition2Color);
+            fragment.getFretView().show(layerLesson, mapPosition2Color);
 
         } catch (SQLException e) {
             Log.d(getTag(), e.getMessage(), e);
@@ -463,6 +404,36 @@ public class LessonScalegridDegree2Position extends ALesson {
         return correctPositions;
     }
 
+    @Override
+    protected LearningStatusView getLearningStatusView() {
+        return fragment.getLearningStatusView();
+    }
+
+    public void onFragmentInitializationCompleted(FragmentScalegridDegree2Position fragment) {
+
+        this.fragment = fragment;
+
+        // initialize views required for the current type of lesson
+        fragment.getFretView().setEnabled(true);
+        fragment.getFretView().setEnabledInput(true);
+
+        fragment.getScalegridView().setEnabled(true);
+        // fragment.getScalegridView().setEnabledInput(isShapeInputAllowed);
+
+        if (!fragment.getScalegridView().isRandomInput()) {
+            InnerOnShapeSelectionListener onShapeSelection = new InnerOnShapeSelectionListener();
+            fragment.getScalegridView().registerListener(onShapeSelection);
+        }
+
+        fragment.getDegreesView().setEnabled(true);
+        fragment.getDegreesView().setEnabledInput(false);
+
+        fragment.getScalegridView().setEnabled(true);
+
+        OnViewSelectionListener<NotePlayingEvent> onSelectionListener = new InnerOnSelectionListener();
+        fragment.getFretView().registerListener(onSelectionListener);
+    }
+
     /*
      * *** INNER CLASSES
      */
@@ -507,9 +478,9 @@ public class LessonScalegridDegree2Position extends ALesson {
                     /* clean either touch of fft drawn layer, show what was correctly submitted by the user till now */
                     List<Position> tmp = new ArrayList<Position>();
                     tmp.addAll(submittedPositions);
-                    fretView.show(layerLessonSubmited, tmp);
-                    fretView.clearLayerByZIndex(FretView.LAYER_Z_TOUCHES);
-                    fretView.clearLayerByZIndex(FretView.LAYER_Z_FFT);
+                    fragment.getFretView().show(layerLessonSubmited, tmp);
+                    fragment.getFretView().clearLayerByZIndex(fragment.getFretView().LAYER_Z_TOUCHES);
+                    fragment.getFretView().clearLayerByZIndex(fragment.getFretView().LAYER_Z_FFT);
 
                     /* all positions from users are new */
                     if (ArrayUtils.isEqual(expectedPositions, submittedPositions)) {

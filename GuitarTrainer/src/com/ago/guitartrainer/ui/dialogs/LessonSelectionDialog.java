@@ -32,18 +32,13 @@ import com.ago.guitartrainer.ui.LessonsArrayAdapter;
  * @author Andrej Golovko - jambit GmbH
  * 
  */
-public class LessonSelectionDialog extends Dialog {
+public class LessonSelectionDialog extends AbstractCustomDialog {
 
     private ILesson currentSelection;
 
     private ListView lvLessons;
 
     private ArrayAdapter<ILesson> adapter;
-
-    /**
-     * The padding from the dialog border to the screen border, given as percent of the total screen size
-     */
-    private static final double PADDING_TO_BORDER_AS_PERCENT = 0.2;
 
     public LessonSelectionDialog(Context context) {
         super(context);
@@ -54,14 +49,12 @@ public class LessonSelectionDialog extends Dialog {
         super.onCreate(savedInstanceState);
 
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        // getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-
         DisplayMetrics dm = getContext().getResources().getDisplayMetrics();
-
         int width = dm.widthPixels - (int) Math.round(dm.widthPixels * PADDING_TO_BORDER_AS_PERCENT);
         int height = dm.heightPixels - (int) Math.round(dm.heightPixels * PADDING_TO_BORDER_AS_PERCENT);
 
         setContentView(R.layout.dialog_lessonselection);
+
         final LinearLayout mainLayout = (LinearLayout) findViewById(R.id.dialog_lessonselection);
         mainLayout.setLayoutParams(new FrameLayout.LayoutParams(width, height));
 
@@ -117,7 +110,7 @@ public class LessonSelectionDialog extends Dialog {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int pos, long id) {
             currentSelection = adapter.getItem(pos);
-            currentSelection.prepareUi();
+//            currentSelection.prepareUi();
             LessonSelectionDialog.this.dismiss();
 
         }
