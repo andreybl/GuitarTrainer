@@ -15,17 +15,15 @@ package com.ago.guitartrainer.test;
 import java.util.ArrayList;
 import java.util.List;
 
-import mockit.integration.junit4.JMockit;
-
 import android.test.ActivityInstrumentationTestCase2;
 
 import com.ago.guitartrainer.MasterActivity;
-import com.ago.guitartrainer.instruments.GuitarUtils;
+import com.ago.guitartrainer.instruments.guitar.GuitarFingeringHelper;
+import com.ago.guitartrainer.instruments.guitar.GuitarUtils;
+import com.ago.guitartrainer.instruments.guitar.Position;
 import com.ago.guitartrainer.notation.Degree;
 import com.ago.guitartrainer.notation.Note;
 import com.ago.guitartrainer.notation.NoteStave;
-import com.ago.guitartrainer.notation.Position;
-import com.ago.guitartrainer.scalegrids.AlphaScaleGrid;
 import com.ago.guitartrainer.scalegrids.ScaleGrid;
 import com.ago.guitartrainer.utils.ArrayUtils;
 import com.jayway.android.robotium.solo.Solo;
@@ -93,7 +91,7 @@ public class GuitarTrainerTest extends ActivityInstrumentationTestCase2<MasterAc
              *      > 8..12  (E3 on fret 12)
              */
 
-            List<Position> e3Positions = NoteStave.getInstance().resolvePositions(Note.E3);
+            List<Position> e3Positions = GuitarFingeringHelper.getInstance().resolvePositions(Note.E3);
             Position e3First = e3Positions.get(0);
             Position e3Second = e3Positions.get(1);
             Position e3Thirds = e3Positions.get(2);
@@ -101,13 +99,16 @@ public class GuitarTrainerTest extends ActivityInstrumentationTestCase2<MasterAc
             int[] e3SecondArea = GuitarUtils.calculateUniqueAreaForPosition(e3Positions, e3Second);
             int[] e3ThirdArea = GuitarUtils.calculateUniqueAreaForPosition(e3Positions, e3Thirds);
 
-            assertTrue("Wrong unique area calculation for first E3 position", ArrayUtils.isEqual(new int[] { 0, 6 }, e3FirstArea));
-            assertTrue("Wrong unique area calculation for second E3 position", ArrayUtils.isEqual(new int[] { 3, 11 }, e3SecondArea));
-            assertTrue("Wrong unique area calculation for third E3 position", ArrayUtils.isEqual(new int[] { 8, 12 }, e3ThirdArea));
+            assertTrue("Wrong unique area calculation for first E3 position",
+                    ArrayUtils.isEqual(new int[] { 0, 6 }, e3FirstArea));
+            assertTrue("Wrong unique area calculation for second E3 position",
+                    ArrayUtils.isEqual(new int[] { 3, 11 }, e3SecondArea));
+            assertTrue("Wrong unique area calculation for third E3 position",
+                    ArrayUtils.isEqual(new int[] { 8, 12 }, e3ThirdArea));
         }
 
         {
-            List<Position> positions = NoteStave.getInstance().resolvePositions(Note.A3);
+            List<Position> positions = GuitarFingeringHelper.getInstance().resolvePositions(Note.A3);
             Position firstPos = positions.get(0);
             Position secondPos = positions.get(1);
             Position thirdPos = positions.get(2);
@@ -117,7 +118,6 @@ public class GuitarTrainerTest extends ActivityInstrumentationTestCase2<MasterAc
             assertTrue(ArrayUtils.isEqual(new int[] { 0, 6 }, firstArea));
             assertTrue(ArrayUtils.isEqual(new int[] { 3, 11 }, secondArea));
             assertTrue(ArrayUtils.isEqual(new int[] { 8, 12 }, thirdArea));
-
 
             System.out.println("x");
         }

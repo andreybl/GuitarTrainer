@@ -15,10 +15,10 @@ import com.ago.guitartrainer.SettingsActivity;
 import com.ago.guitartrainer.db.DatabaseHelper;
 import com.ago.guitartrainer.events.OnViewSelectionListener;
 import com.ago.guitartrainer.fragments.FragmentPosition2Note;
+import com.ago.guitartrainer.instruments.guitar.GuitarFingeringHelper;
+import com.ago.guitartrainer.instruments.guitar.Position;
 import com.ago.guitartrainer.lessons.QuestionMetrics;
 import com.ago.guitartrainer.notation.Note;
-import com.ago.guitartrainer.notation.NoteStave;
-import com.ago.guitartrainer.notation.Position;
 import com.ago.guitartrainer.ui.FretView;
 import com.ago.guitartrainer.ui.FretView.Layer;
 import com.ago.guitartrainer.ui.LearningStatusView;
@@ -153,7 +153,7 @@ public class LessonPosition2Note extends ALesson {
         QuestionMetrics qm = resolveOrCreateQuestionMetrics(quest.getId());
         registerQuestion(qDao, quest, qm);
 
-        expectedNote = NoteStave.getInstance().resolveNote(pos);
+        expectedNote = GuitarFingeringHelper.getInstance().resolveNote(pos);
 
         Log.d(getTag(), "Position: " + pos + ", Note: " + expectedNote);
     }

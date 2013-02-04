@@ -1,10 +1,9 @@
-package com.ago.guitartrainer.instruments;
+package com.ago.guitartrainer.instruments.guitar;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.ago.guitartrainer.notation.Position;
 
 public class GuitarUtils {
 

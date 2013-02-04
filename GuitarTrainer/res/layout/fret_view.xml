@@ -34,14 +34,25 @@
 
         <!-- I user "class" here to be able to use inner class for a view -->
 
+
         <view
-            xmlns:android="http://schemas.android.com/apk/res/android"
-            android:id="@+id/img_fretimageview"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            class="com.ago.guitartrainer.ui.FretView$FretImageView"
-            android:adjustViewBounds="false"
-            android:src="@drawable/guitar_12_frets_50percent" />
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/img_fretimageview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        class="com.ago.guitartrainer.ui.FretImageView"
+        android:adjustViewBounds="false"
+        android:src="@drawable/guitar_12_frets_50percent" />
+
+        <!-- <view -->
+
+<!--             xmlns:android="http://schemas.android.com/apk/res/android" -->
+<!--             android:id="@+id/img_fretimageview" -->
+<!--             android:layout_width="wrap_content" -->
+<!--             android:layout_height="wrap_content" -->
+<!--             class="com.ago.guitartrainer.ui.BlockfleuteImageView" -->
+<!--             android:adjustViewBounds="false" -->
+<!--             android:src="@drawable/blockfleute_fingering" /> -->
 
         <LinearLayout
             android:layout_width="wrap_content"

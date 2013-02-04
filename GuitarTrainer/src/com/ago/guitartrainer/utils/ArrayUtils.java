@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import com.ago.guitartrainer.notation.Position;
+import com.ago.guitartrainer.instruments.guitar.Position;
 
 public class ArrayUtils {
 

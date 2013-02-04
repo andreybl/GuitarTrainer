@@ -2,8 +2,8 @@ package com.ago.guitartrainer.events;
 
 import java.util.List;
 
+import com.ago.guitartrainer.instruments.guitar.Position;
 import com.ago.guitartrainer.notation.Note;
-import com.ago.guitartrainer.notation.Position;
 
 /**
  * The event is generated for the note.

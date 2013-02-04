@@ -4,7 +4,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -14,11 +13,11 @@ import com.ago.guitartrainer.db.DatabaseHelper;
 import com.ago.guitartrainer.events.NotePlayingEvent;
 import com.ago.guitartrainer.events.OnViewSelectionListener;
 import com.ago.guitartrainer.fragments.FragmentNote2Position;
-import com.ago.guitartrainer.instruments.GuitarUtils;
+import com.ago.guitartrainer.instruments.guitar.GuitarFingeringHelper;
+import com.ago.guitartrainer.instruments.guitar.GuitarUtils;
+import com.ago.guitartrainer.instruments.guitar.Position;
 import com.ago.guitartrainer.lessons.QuestionMetrics;
 import com.ago.guitartrainer.notation.Note;
-import com.ago.guitartrainer.notation.NoteStave;
-import com.ago.guitartrainer.notation.Position;
 import com.ago.guitartrainer.ui.FretView;
 import com.ago.guitartrainer.ui.FretView.Layer;
 import com.ago.guitartrainer.ui.LearningStatusView;
@@ -111,7 +110,8 @@ public class LessonNote2Position extends ALesson {
 
         do {
             questionedNote = LessonsUtils.randomNote();
-            acceptedPositions = NoteStave.getInstance().resolvePositions(questionedNote);
+//            questionedNote = Note.D4;
+            acceptedPositions = GuitarFingeringHelper.getInstance().resolvePositions(questionedNote);
             /* can be for instance the case for F5 (not on the fret at all) */
         } while (acceptedPositions.size() == 0);
 
@@ -120,7 +120,7 @@ public class LessonNote2Position extends ALesson {
         QuestionNote2Position currentQuestion = resolveOrCreateQuestion(qDao, questionedNote);
         QuestionMetrics qm = resolveOrCreateQuestionMetrics(currentQuestion.getId());
         registerQuestion(qDao, currentQuestion, qm);
-
+        
         // TODO: tmp solution, the "random" must be set'able by the user
         boolean isRandomArea = true;
         if (isRandomArea) {

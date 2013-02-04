@@ -6,11 +6,12 @@ import java.util.Random;
 
 import com.ago.guitartrainer.GuitarTrainerApplication;
 import com.ago.guitartrainer.SettingsActivity;
-import com.ago.guitartrainer.instruments.GuitarUtils;
+import com.ago.guitartrainer.instruments.guitar.GuitarFingeringHelper;
+import com.ago.guitartrainer.instruments.guitar.GuitarUtils;
+import com.ago.guitartrainer.instruments.guitar.Position;
 import com.ago.guitartrainer.notation.Degree;
 import com.ago.guitartrainer.notation.Key;
 import com.ago.guitartrainer.notation.Note;
-import com.ago.guitartrainer.notation.Position;
 import com.ago.guitartrainer.scalegrids.ScaleGrid;
 
 public class LessonsUtils {
@@ -34,15 +35,13 @@ public class LessonsUtils {
      * @return degree of the scale grid
      */
     public static Degree randomDegree() {
-        Degree[] mainDegrees = new Degree[] { Degree.ONE, Degree.TWO, Degree.THREE, Degree.FOUR, Degree.FIVE,
-                Degree.SIX, Degree.SEVEN };
 
         boolean isMainDegree = false;
         Degree degree;
         do {
             int indexOfDegree = LessonsUtils.random(0, Degree.values().length - 1);
             degree = Degree.values()[indexOfDegree];
-            isMainDegree = Arrays.binarySearch(mainDegrees, degree) >= 0;
+            isMainDegree = Arrays.binarySearch(Degree.STRONG_DEGREES, degree) >= 0;
         } while (!isMainDegree);
 
         return degree;
@@ -95,12 +94,6 @@ public class LessonsUtils {
      * @return
      */
     public static Note randomNote() {
-        /**
-         * The keys corresponds to the main degrees of the C-major scale: C, D, E etc. The main reason to exclude keys
-         * with sharps/flats: the appropriate images are not currently not available in the {@link NotesView}. But on
-         * the other side it could be enough just to no the position of the main keys.
-         * */
-        Key[] mainKeys = new Key[] { Key.C, Key.D, Key.E, Key.F, Key.G, Key.A, Key.B };
 
         Note note = null;
         boolean isMainKey = false;
@@ -109,7 +102,7 @@ public class LessonsUtils {
             /* we use indexes of notes 21..32, because they correspond to note playable by electro-tuner which I have */
             int index = (isDebugMode) ? LessonsUtils.random(21, 32) : LessonsUtils.random(0, Note.values().length - 1);
             note = Note.values()[index];
-            isMainKey = Arrays.binarySearch(mainKeys, note.getKey()) >= 0;
+            isMainKey = Arrays.binarySearch(Key.mainKeys, note.getKey()) >= 0;
 
         } while (!isMainKey);
 
@@ -118,10 +111,19 @@ public class LessonsUtils {
 
     public static Position randomPosition() {
         boolean isDebugMode = GuitarTrainerApplication.getPrefs().getBoolean(SettingsActivity.KEY_DEBUG_MODE, true);
-        int str = LessonsUtils.random(1, 6);
-        int fret = LessonsUtils.random(0, (isDebugMode) ? 5 : GuitarUtils.FRETS_ON_GUITAR);
 
-        Position pos = new Position(str, fret);
+        Position pos;
+        boolean isMainKey = false;
+        do {
+
+            int str = LessonsUtils.random(1, 6);
+            int fret = LessonsUtils.random(0, (isDebugMode) ? 5 : GuitarUtils.FRETS_ON_GUITAR);
+            pos = new Position(str, fret);
+
+            Note note = GuitarFingeringHelper.getInstance().resolveNote(pos);
+            isMainKey = Arrays.binarySearch(Key.mainKeys, note.getKey()) >= 0;
+        } while (!isMainKey);
+
         return pos;
     }
 }

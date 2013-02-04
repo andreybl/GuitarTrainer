@@ -7,12 +7,12 @@ import java.util.List;
 import java.util.Map;
 
 import com.ago.guitartrainer.R;
-import com.ago.guitartrainer.instruments.GuitarUtils;
+import com.ago.guitartrainer.instruments.guitar.GuitarFingeringHelper;
+import com.ago.guitartrainer.instruments.guitar.GuitarUtils;
+import com.ago.guitartrainer.instruments.guitar.Position;
 import com.ago.guitartrainer.notation.Chord;
 import com.ago.guitartrainer.notation.Degree;
 import com.ago.guitartrainer.notation.Note;
-import com.ago.guitartrainer.notation.NoteStave;
-import com.ago.guitartrainer.notation.Position;
 import com.ago.guitartrainer.utils.ArrayUtils;
 
 /**
@@ -257,11 +257,10 @@ public abstract class ScaleGrid {
      *            the note which must be the root of the shape
      */
     private int calculateFretForNote(Note key, int[] rootStrings) {
-        NoteStave notes = NoteStave.getInstance();
         int noteFret = 0;
         outerloop: for (int i = 0; i <= GuitarUtils.FRETS_ON_GUITAR; i++) {
             for (int j = 0; j < rootStrings.length; j++) {
-                Note n = notes.resolveNote(new Position(rootStrings[j] + 1, i));
+                Note n = GuitarFingeringHelper.getInstance().resolveNote(new Position(rootStrings[j] + 1, i));
                 if (n == key) {
                     noteFret = i;
                     break outerloop;
@@ -282,13 +281,11 @@ public abstract class ScaleGrid {
      */
     public List<Note> degree2Notes(Degree degree) {
 
-        NoteStave notes = NoteStave.getInstance();
-
         List<Position> positions = degreeToPosition.get(degree);
 
         List<Note> results = new ArrayList<Note>();
         for (Position pos : positions) {
-            Note n = notes.resolveNote(pos); // +fretShifts
+            Note n = GuitarFingeringHelper.getInstance().resolveNote(pos); // +fretShifts
             results.add(n);
         }
 

@@ -1,6 +1,5 @@
-package com.ago.guitartrainer.notation;
+package com.ago.guitartrainer.instruments.guitar;
 
-import com.ago.guitartrainer.instruments.GuitarUtils;
 
 /**
  * Represents a single note position on the fretboard.
