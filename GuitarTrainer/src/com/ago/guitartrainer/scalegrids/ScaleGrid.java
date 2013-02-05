@@ -27,6 +27,11 @@ import com.ago.guitartrainer.utils.ArrayUtils;
  */
 public abstract class ScaleGrid {
 
+    /**
+     * For forms:
+     * 
+     * @see http://www.guitarlessonworld.com/lessons/chord-to-chord-relationships.htm
+     */
     private static Map<Degree[], Integer[]> mapAlphaChord2Form = new HashMap<Degree[], Integer[]>();
 
     private static Map<Degree[], Integer[]> mapBetaChord2Form = new HashMap<Degree[], Integer[]>();
@@ -38,11 +43,11 @@ public abstract class ScaleGrid {
     private static Map<Degree[], Integer[]> mapEpsilonChord2Form = new HashMap<Degree[], Integer[]>();
 
     static {
-        mapAlphaChord2Form.put(Chord.major, new Integer[] { 0, 1, 4, 2, 3, Chord.NOTPLAYED });
+        mapAlphaChord2Form.put(Chord.major, new Integer[] { 0, 1, 0, 2, 3, Chord.NOTPLAYED });
         mapAlphaChord2Form.put(Chord.minor, new Integer[] { 3, 1, 0, 1, 3, Chord.NOTPLAYED });
         // mapAlphaChord2Form.put(Chord.dim, new Integer[] { XXX });
         // mapAlphaChord2Form.put(Chord.aug, new Integer[] { XXX });
-        mapAlphaChord2Form.put(Chord.major7thChord, new Integer[] { 0, 1, 4, 2, 3, Chord.NOTPLAYED });
+        mapAlphaChord2Form.put(Chord.major7thChord, new Integer[] { 0, 0, 0, 2, 3, Chord.NOTPLAYED });
         mapAlphaChord2Form.put(Chord.minor7thChord, new Integer[] { Chord.NOTPLAYED, 1, 3, 1, 3, Chord.NOTPLAYED });
         mapAlphaChord2Form.put(Chord.dominantSeptChord, new Integer[] { 0, 1, 3, 2, 3, Chord.NOTPLAYED });
         // mapAlphaChord2Form.put(Chord.dim7thChord, new Integer[] { XXX });
@@ -55,7 +60,7 @@ public abstract class ScaleGrid {
         // mapBetaChord2Form.put(Chord.aug, new Integer[] { XXX });
         mapBetaChord2Form.put(Chord.major7thChord, new Integer[] { 1, 3, 2, 3, 1, -1 });
         mapBetaChord2Form.put(Chord.minor7thChord, new Integer[] { 1, 2, 1, 3, 1, -1 });
-        mapBetaChord2Form.put(Chord.dominantSeptChord, new Integer[] { 1, 3, 1, 3, 1, 2 });
+        mapBetaChord2Form.put(Chord.dominantSeptChord, new Integer[] { 1, 3, 1, 3, 1, Chord.NOTPLAYED }); // also: 131314
         // mapBetaChord2Form.put(Chord.dim7thChord, new Integer[] { XXX });
     }
 
@@ -94,7 +99,7 @@ public abstract class ScaleGrid {
 
     public enum Type {
 
-        ALPHA('C', 5, mapAlphaChord2Form),
+        ALPHA('C', 4, mapAlphaChord2Form),
 
         BETA('A', 5, mapBetaChord2Form),
 

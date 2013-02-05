@@ -98,6 +98,8 @@ public class LessonNote2Position extends ALesson {
     public void doNext() {
 
         fragment.getFretView().clearLayer(layerLesson);
+        fragment.getFretView().clearLayerByZIndex(FretView.LAYER_Z_TOUCHES);
+        fragment.getFretView().clearLayerByZIndex(FretView.LAYER_Z_FFT);
 
         /*
          * in the Note2Position lesson the user is presented with the (random?) note, With the answer the user must find
@@ -110,7 +112,7 @@ public class LessonNote2Position extends ALesson {
 
         do {
             questionedNote = LessonsUtils.randomNote();
-//            questionedNote = Note.D4;
+            // questionedNote = Note.D4;
             acceptedPositions = GuitarFingeringHelper.getInstance().resolvePositions(questionedNote);
             /* can be for instance the case for F5 (not on the fret at all) */
         } while (acceptedPositions.size() == 0);
@@ -120,7 +122,7 @@ public class LessonNote2Position extends ALesson {
         QuestionNote2Position currentQuestion = resolveOrCreateQuestion(qDao, questionedNote);
         QuestionMetrics qm = resolveOrCreateQuestionMetrics(currentQuestion.getId());
         registerQuestion(qDao, currentQuestion, qm);
-        
+
         // TODO: tmp solution, the "random" must be set'able by the user
         boolean isRandomArea = true;
         if (isRandomArea) {

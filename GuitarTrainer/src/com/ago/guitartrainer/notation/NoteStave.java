@@ -46,7 +46,7 @@ public class NoteStave {
         registerNote(Note.A2);
         registerNote(Note.A2di);
         registerNote(Note.B2);
-        registerNote(Note.C3);
+        registerNote(Note.C3);  //10
         registerNote(Note.C3di);
         registerNote(Note.D3);
         registerNote(Note.D3di);
@@ -56,7 +56,7 @@ public class NoteStave {
         registerNote(Note.G3);
         registerNote(Note.G3di);
         registerNote(Note.A3);
-        registerNote(Note.A3di);
+        registerNote(Note.A3di); // 20
         registerNote(Note.B3);
         registerNote(Note.C4);
         registerNote(Note.C4di);
@@ -66,7 +66,7 @@ public class NoteStave {
         registerNote(Note.F4);
         registerNote(Note.F4di);
         registerNote(Note.G4);
-        registerNote(Note.G4di);
+        registerNote(Note.G4di); // 30
         registerNote(Note.A4);
         registerNote(Note.A4di);
         registerNote(Note.B4);

@@ -24,5 +24,8 @@
     <string name="lesson_position2note_description">The note must be submited for every position shown on the fret</string>
     <string name="lesson_note2position_title">Note2Position</string>
     <string name="lesson_note2position_description">The position must be submited for every note shown</string>
+    <string name="lesson_scalegridchord2positions_title">ScalegridChord2Positions</string>
+    <string name="lesson_scalegridchord2positions_description">The chord positions inside of scale grid must be submited for every chord type </string>
+    
     
 </resources>

@@ -29,6 +29,7 @@ public class Chord {
     /** Example: Cdim7, Co, Co7, C7dim */
     public static final Degree[] dim7thChord = new Degree[] { Degree.ONE, Degree.TWO_HALF, Degree.FOUR_HALF, Degree.SIX };
 
+    public static final Degree[][] CHORDS = new Degree[][]{major, minor, dim, aug, major7thChord, minor7thChord, dominantSeptChord, dim7thChord};
     
 
     public static int NOTPLAYED = -1;

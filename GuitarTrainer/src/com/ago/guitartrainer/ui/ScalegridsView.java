@@ -30,7 +30,10 @@ public class ScalegridsView extends AInoutView<ScaleGrid.Type> {
     private CheckBox cbIsRootOnlyShown;
 
     private CheckBox cbIsRandomInput;
+    
+    private CheckBox cbIsRandomPosition;
 
+    
     public ScalegridsView(Context context) {
         super(context);
 
@@ -61,6 +64,7 @@ public class ScalegridsView extends AInoutView<ScaleGrid.Type> {
         btn2Shape.put((Button) mainLayout.findViewById(R.id.gridshape_epsilon), ScaleGrid.Type.EPSILON);
 
         cbIsRandomInput = (CheckBox) mainLayout.findViewById(R.id.cb_random_input);
+        cbIsRandomPosition = (CheckBox) mainLayout.findViewById(R.id.cb_random_position);
         cbIsRootOnlyShown = (CheckBox) mainLayout.findViewById(R.id.cb_root_only);
 
         /* defaults for selected scalegrid type */
@@ -132,6 +136,10 @@ public class ScalegridsView extends AInoutView<ScaleGrid.Type> {
         return cbIsRandomInput.isChecked();
     }
 
+    public boolean isRandomPosition() {
+        return cbIsRandomPosition.isChecked();
+    }
+    
     /*
      * **** INNER CLASSES
      */

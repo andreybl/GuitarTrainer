@@ -35,10 +35,10 @@ import com.j256.ormlite.dao.RuntimeExceptionDao;
 
 public class LessonScalegridDegree2Position extends ALesson {
 
-    private FragmentScalegridDegree2Position fragment;
+    protected FragmentScalegridDegree2Position fragment;
 
     /** the layer for the fret view image, used to visualize the question on the fret */
-    private Layer layerLesson = new Layer(FretView.LAYER_Z_LESSON, MasterActivity.getInstance().getResources()
+    protected Layer layerLesson = new Layer(FretView.LAYER_Z_LESSON, MasterActivity.getInstance().getResources()
             .getColor(R.color.blue));
 
     private Layer layerLessonSubmited = new Layer(FretView.LAYER_Z_LESSON + 100, MasterActivity.getInstance()
@@ -71,7 +71,7 @@ public class LessonScalegridDegree2Position extends ALesson {
      * if true, the user is allowed to decide on the start position of the scale grid. If false, the valid starting
      * position is selected randomly.
      */
-    private boolean isAreaStartInputAllowed = true;
+    // private boolean isAreaStartInputAllowed = true;
 
     // TODO: remove from class var? it is cached in DatabaseHelper anyway
     private RuntimeExceptionDao<QuestionScalegridDegree2Position, Integer> qDao = DatabaseHelper.getInstance()
@@ -96,6 +96,12 @@ public class LessonScalegridDegree2Position extends ALesson {
         fragment.getFretView().clearLayer(layerLesson);
     }
 
+    private Degree degree = Degree.ONE;
+
+    protected ScaleGrid gridShape;
+
+    protected QuestionScalegridDegree2Position quest;
+
     /**
      * Skip to the next lesson. Or start the first question in the lesson loop.
      * 
@@ -106,8 +112,8 @@ public class LessonScalegridDegree2Position extends ALesson {
     public void doNext() {
         fragment.getFretView().clearLayer(layerLesson);
         fragment.getFretView().clearLayer(layerLessonSubmited);
-        fragment.getFretView().clearLayerByZIndex(fragment.getFretView().LAYER_Z_TOUCHES);
-        fragment.getFretView().clearLayerByZIndex(fragment.getFretView().LAYER_Z_FFT);
+        fragment.getFretView().clearLayerByZIndex(FretView.LAYER_Z_TOUCHES);
+        fragment.getFretView().clearLayerByZIndex(FretView.LAYER_Z_FFT);
 
         /*
          * the original idea was to keep the question params completely in an appropriate AQuestion subclass. But the
@@ -117,7 +123,6 @@ public class LessonScalegridDegree2Position extends ALesson {
          * So we use temporal vars, which type actually corresponds to the AQuestion vars types.
          */
         int fretPosition = 1;
-        Degree degree = Degree.ONE;
 
         /*
          * 1.
@@ -127,19 +132,13 @@ public class LessonScalegridDegree2Position extends ALesson {
          */
         if (fragment.getScalegridView().isRandomInput()) {
             // param1: grid shape type must be random
-            userScalegridType = LessonsUtils.randomGridShapeType();
+            userScalegridType = LessonsUtils.randomScalegridType();
         } else {
             userScalegridType = fragment.getScalegridView().scalegridType();
         }
 
-        if (!isAreaStartInputAllowed) {
+        if (fragment.getScalegridView().isRandomPosition()) {
             fretPosition = LessonsUtils.randomFretPositionForGridShapeType(userScalegridType);
-        }
-
-        if (fragment.getDegreesView().isRandomInput()) {
-            degree = LessonsUtils.randomDegree();
-        } else {
-            degree = fragment.getDegreesView().degree();
         }
 
         /*
@@ -148,15 +147,14 @@ public class LessonScalegridDegree2Position extends ALesson {
          * now we ready either to pick AQuestion from dB, or create a new one. And also the same for related
          * QuestionMetrics.
          */
-        QuestionScalegridDegree2Position quest = resolveOrCreateQuestion(userScalegridType, fretPosition, degree);
+        quest = resolveOrCreateQuestion(userScalegridType, fretPosition, degree);
         QuestionMetrics qm = resolveOrCreateQuestionMetrics(quest.getId());
         registerQuestion(qDao, quest, qm);
 
         /* 3. visualize the question to the user */
-        ScaleGrid gridShape = ScaleGrid.create(quest.scaleGridType, quest.fretPosition);
+        gridShape = ScaleGrid.create(quest.scaleGridType, quest.fretPosition);
 
-        /* all positions must be played for the answer to be accepted */
-        expectedPositions = gridShape.degree2Positions(quest.degree);
+        expectedPositions = generateExpectedPositions();
 
         /** TMP:start: the chord is shown */
         // expectedPositions = gridShape.chord2Positions(Chord.major);
@@ -165,6 +163,10 @@ public class LessonScalegridDegree2Position extends ALesson {
         submittedPositions.clear();
         messageInLearningStatus(null);
 
+        askQuestionToUser();
+    }
+
+    protected void askQuestionToUser() {
         fragment.getScalegridView().show(gridShape.getType());
         fragment.getDegreesView().show(quest.degree);
 
@@ -178,6 +180,19 @@ public class LessonScalegridDegree2Position extends ALesson {
         if (playSound) {
             playDegree(quest.degree);
         }
+        
+    }
+
+    protected List<Position> generateExpectedPositions() {
+        if (fragment.getDegreesView().isRandomInput()) {
+            degree = LessonsUtils.randomDegree();
+        } else {
+            degree = fragment.getDegreesView().degree();
+        }
+
+        /* all positions must be played for the answer to be accepted */
+        List<Position> positions = gridShape.degree2Positions(degree);
+        return positions;
     }
 
     private MediaPlayer mediaPlayer;

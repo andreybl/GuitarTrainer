@@ -1,5 +1,6 @@
 package com.ago.guitartrainer.utils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -9,16 +10,20 @@ import com.ago.guitartrainer.SettingsActivity;
 import com.ago.guitartrainer.instruments.guitar.GuitarFingeringHelper;
 import com.ago.guitartrainer.instruments.guitar.GuitarUtils;
 import com.ago.guitartrainer.instruments.guitar.Position;
+import com.ago.guitartrainer.notation.Chord;
 import com.ago.guitartrainer.notation.Degree;
 import com.ago.guitartrainer.notation.Key;
 import com.ago.guitartrainer.notation.Note;
+import com.ago.guitartrainer.notation.NoteStave;
+import com.ago.guitartrainer.notation.Octave;
 import com.ago.guitartrainer.scalegrids.ScaleGrid;
+import com.ago.guitartrainer.scalegrids.ScaleGrid.Type;
 
 public class LessonsUtils {
 
     private static Random random = new Random();
 
-    public static Position pickPosition(ScaleGrid gridShape) {
+    public static Position randomPosition(ScaleGrid gridShape) {
         List<Position> strongPositions = gridShape.strongPositions();
 
         int randomMin = 0;
@@ -29,6 +34,8 @@ public class LessonsUtils {
         return (strongPositions.size() > 0) ? strongPositions.get(randomNum) : null;
     }
 
+    private static List<Degree> randomDegrees = new ArrayList<Degree>();
+
     /**
      * Return a random {@link Degree} from those which are I, II...
      * 
@@ -36,16 +43,16 @@ public class LessonsUtils {
      */
     public static Degree randomDegree() {
 
-        boolean isMainDegree = false;
-        Degree degree;
-        do {
-            int indexOfDegree = LessonsUtils.random(0, Degree.values().length - 1);
-            degree = Degree.values()[indexOfDegree];
-            isMainDegree = Arrays.binarySearch(Degree.STRONG_DEGREES, degree) >= 0;
-        } while (!isMainDegree);
+        if (randomDegrees.size() == 0) {
+            randomDegrees.addAll(Arrays.asList(Degree.STRONG_DEGREES));
+        }
 
-        return degree;
+        int randomIndex = LessonsUtils.random(0, randomDegrees.size() - 1);
+        Degree randomDegree = randomDegrees.remove(randomIndex);
+        return randomDegree;
     }
+
+    private static List<Integer> fretPositions = new ArrayList<Integer>();
 
     /**
      * Calculates a random but still valid start of the area in which the scale grid of a given type may reside.
@@ -58,8 +65,13 @@ public class LessonsUtils {
      * @return valid start of the area
      */
     public static int randomFretPositionForGridShapeType(ScaleGrid.Type gst) {
-        int fretPosition = LessonsUtils.random(0, GuitarUtils.FRETS_ON_GUITAR);
-        int fretPositionEnd = fretPosition + gst.numOfFrets();
+        if (fretPositions.size() == 0) {
+            fretPositions.addAll(Arrays.asList(new Integer[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }));
+        }
+        int indexFretPosition = LessonsUtils.random(0, fretPositions.size() - 1);
+        int fretPosition = fretPositions.remove(indexFretPosition);
+
+        int fretPositionEnd = fretPosition + gst.numOfFrets() - 1;
         if (fretPositionEnd > GuitarUtils.FRETS_ON_GUITAR) {
             fretPosition = GuitarUtils.FRETS_ON_GUITAR - (fretPositionEnd - fretPosition);
         }
@@ -81,12 +93,21 @@ public class LessonsUtils {
         return i1;
     }
 
-    public static ScaleGrid.Type randomGridShapeType() {
-        int indexOfGridShape = LessonsUtils.random(0, ScaleGrid.Type.values().length - 1);
-        ScaleGrid.Type gridShapeType = ScaleGrid.Type.values()[indexOfGridShape];
+    private static List<ScaleGrid.Type> randomScalegridType = new ArrayList<ScaleGrid.Type>();
 
-        return gridShapeType;
+    public static ScaleGrid.Type randomScalegridType() {
+        if (randomScalegridType.size() == 0) {
+            randomScalegridType.addAll(Arrays.asList(ScaleGrid.Type.values()));
+        }
+
+        int indexScalegridType = LessonsUtils.random(0, randomScalegridType.size() - 1);
+        Type scalegridTyp = randomScalegridType.remove(indexScalegridType);
+
+        return scalegridTyp;
     }
+
+    // used for randomNote() calls
+    private static List<Key> randomKey = new ArrayList<Key>();
 
     /**
      * Return random note in one of the main keys {C, D, ..}.
@@ -95,16 +116,22 @@ public class LessonsUtils {
      */
     public static Note randomNote() {
 
-        Note note = null;
-        boolean isMainKey = false;
         boolean isDebugMode = GuitarTrainerApplication.getPrefs().getBoolean(SettingsActivity.KEY_DEBUG_MODE, true);
-        do {
-            /* we use indexes of notes 21..32, because they correspond to note playable by electro-tuner which I have */
-            int index = (isDebugMode) ? LessonsUtils.random(21, 32) : LessonsUtils.random(0, Note.values().length - 1);
-            note = Note.values()[index];
-            isMainKey = Arrays.binarySearch(Key.mainKeys, note.getKey()) >= 0;
 
-        } while (!isMainKey);
+        if (randomKey.size() == 0) {
+            randomKey.addAll(Arrays.asList(Key.mainKeys));
+        }
+
+        int indexKey = LessonsUtils.random(0, randomKey.size() - 1);
+        Key key = randomKey.remove(indexKey);
+
+        Octave octave = Octave.IV;
+        if (isDebugMode) {
+            int indexOctave = LessonsUtils.random(0, Octave.values().length - 1);
+            octave = Octave.values()[indexOctave];
+        }
+
+        Note note = NoteStave.getInstance().resolveNote(key, octave);
 
         return note;
     }
@@ -119,11 +146,22 @@ public class LessonsUtils {
             int str = LessonsUtils.random(1, 6);
             int fret = LessonsUtils.random(0, (isDebugMode) ? 5 : GuitarUtils.FRETS_ON_GUITAR);
             pos = new Position(str, fret);
-
             Note note = GuitarFingeringHelper.getInstance().resolveNote(pos);
             isMainKey = Arrays.binarySearch(Key.mainKeys, note.getKey()) >= 0;
         } while (!isMainKey);
 
         return pos;
+    }
+
+    private static List<Degree[]> randomChords = new ArrayList<Degree[]>();
+
+    public static Degree[] randomChord() {
+        if (randomChords.size() == 0) {
+            randomChords.addAll(Arrays.asList(Chord.CHORDS));
+        }
+
+        int indexChord = LessonsUtils.random(0, randomChords.size() - 1);
+        Degree[] chord = randomChords.remove(indexChord);
+        return chord;
     }
 }

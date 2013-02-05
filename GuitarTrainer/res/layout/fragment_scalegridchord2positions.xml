@@ -11,7 +11,7 @@
 
         <com.ago.guitartrainer.ui.LearningStatusView
             android:id="@+id/learning_status"
-            android:layout_width="300dp"
+            android:layout_width="150dp"
             android:layout_height="wrap_content" />
 
         <com.ago.guitartrainer.ui.ScalegridsView
@@ -19,11 +19,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
-        <com.ago.guitartrainer.ui.DegreesView
-            android:id="@+id/view_degreesview"
+        <com.ago.guitartrainer.ui.ChordsView
+            android:id="@+id/view_chordsview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
-
     </LinearLayout>
 
     <com.ago.guitartrainer.ui.FretView

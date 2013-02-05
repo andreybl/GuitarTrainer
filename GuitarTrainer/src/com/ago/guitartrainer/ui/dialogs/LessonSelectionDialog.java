@@ -20,6 +20,7 @@ import com.ago.guitartrainer.R;
 import com.ago.guitartrainer.lessons.ILesson;
 import com.ago.guitartrainer.lessons.custom.LessonNote2Position;
 import com.ago.guitartrainer.lessons.custom.LessonPosition2Note;
+import com.ago.guitartrainer.lessons.custom.LessonScalegridChord2Positions;
 import com.ago.guitartrainer.lessons.custom.LessonScalegridDegree2Position;
 import com.ago.guitartrainer.ui.LessonsArrayAdapter;
 
@@ -83,10 +84,12 @@ public class LessonSelectionDialog extends AbstractCustomDialog {
         ILesson lesson1 = new LessonPosition2Note();
         ILesson lesson2 = new LessonNote2Position();
         ILesson lesson3 = new LessonScalegridDegree2Position();
+        ILesson lesson4 = new LessonScalegridChord2Positions();
 
         lessons.add(lesson1);
         lessons.add(lesson2);
         lessons.add(lesson3);
+        lessons.add(lesson4);
 
         return lessons;
     }

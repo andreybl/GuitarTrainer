@@ -5,6 +5,7 @@ import android.support.v4.app.Fragment;
 import com.ago.guitartrainer.lessons.ILesson;
 import com.ago.guitartrainer.lessons.custom.LessonNote2Position;
 import com.ago.guitartrainer.lessons.custom.LessonPosition2Note;
+import com.ago.guitartrainer.lessons.custom.LessonScalegridChord2Positions;
 import com.ago.guitartrainer.lessons.custom.LessonScalegridDegree2Position;
 
 public class FragmentFromLessonFactory {
@@ -20,11 +21,16 @@ public class FragmentFromLessonFactory {
             tmpFragment.onInitializationCompletedListener((LessonNote2Position) lesson);
             fragment = tmpFragment;
             // ((LessonNote2Position) lesson).setViewFragment((FragmentNote2Position) fragment);
+        } else if (lesson instanceof LessonScalegridChord2Positions) {
+            FragmentScalegridChord2Positions tmpFragment = new FragmentScalegridChord2Positions();
+            tmpFragment.onInitializationCompletedListener((LessonScalegridChord2Positions) lesson);
+            fragment = tmpFragment;
         } else if (lesson instanceof LessonScalegridDegree2Position) {
             FragmentScalegridDegree2Position tmpFragment = new FragmentScalegridDegree2Position();
             tmpFragment.onInitializationCompletedListener((LessonScalegridDegree2Position) lesson);
             fragment = tmpFragment;
         }
+            
         
 
         if (fragment == null)

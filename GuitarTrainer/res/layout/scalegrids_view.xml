@@ -47,15 +47,21 @@
     </GridLayout>
 
     <CheckBox
-        android:id="@+id/cb_random_input"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="random" />
-
-    <CheckBox
         android:id="@+id/cb_root_only"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="root only" />
+
+    <CheckBox
+        android:id="@+id/cb_random_input"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="random grid" />
+
+    <CheckBox
+        android:id="@+id/cb_random_position"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="random pos" />
 
 </LinearLayout>
