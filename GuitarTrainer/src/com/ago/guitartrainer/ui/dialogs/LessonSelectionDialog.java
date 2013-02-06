@@ -18,8 +18,9 @@ import android.widget.ListView;
 
 import com.ago.guitartrainer.R;
 import com.ago.guitartrainer.lessons.ILesson;
-import com.ago.guitartrainer.lessons.custom.LessonKeychordDegree2Parentkey;
+import com.ago.guitartrainer.lessons.custom.LessonModeDegree2Parent;
 import com.ago.guitartrainer.lessons.custom.LessonNote2Position;
+import com.ago.guitartrainer.lessons.custom.LessonParentDegree2Mode;
 import com.ago.guitartrainer.lessons.custom.LessonPosition2Note;
 import com.ago.guitartrainer.lessons.custom.LessonScalegridChord2Positions;
 import com.ago.guitartrainer.lessons.custom.LessonScalegridDegree2Position;
@@ -86,13 +87,15 @@ public class LessonSelectionDialog extends AbstractCustomDialog {
         ILesson lesson2 = new LessonNote2Position();
         ILesson lesson3 = new LessonScalegridDegree2Position();
         ILesson lesson4 = new LessonScalegridChord2Positions();
-        ILesson lesson5 = new LessonKeychordDegree2Parentkey();
+        ILesson lesson5 = new LessonModeDegree2Parent();
+        ILesson lesson6 = new LessonParentDegree2Mode();
 
         lessons.add(lesson1);
         lessons.add(lesson2);
         lessons.add(lesson3);
         lessons.add(lesson4);
         lessons.add(lesson5);
+        lessons.add(lesson6);
 
         return lessons;
     }

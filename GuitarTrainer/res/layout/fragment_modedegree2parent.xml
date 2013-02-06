@@ -15,16 +15,10 @@
             android:layout_height="wrap_content" />
 
         <com.ago.guitartrainer.ui.KeysView
-            android:id="@+id/view_keysview"
+            android:id="@+id/view_modesview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="right" />
-
-<!--         <com.ago.guitartrainer.ui.ChordsView -->
-<!--             android:id="@+id/view_chordsview" -->
-<!--             android:layout_width="wrap_content" -->
-<!--             android:layout_height="wrap_content" -->
-<!--             android:layout_gravity="right" /> -->
 
         <com.ago.guitartrainer.ui.DegreesView
             android:id="@+id/view_degreesview"

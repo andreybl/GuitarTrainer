@@ -53,24 +53,24 @@ public enum Key {
      *            mode of the scale
      * @return key for the scale mode
      */
-    public static Key keyByScaleAndMode(Key scaleKey, Degree mode) {
+    public static Key modeByParentAndDegree(Key scaleKey, Degree mode) {
         /*
          * TODO: not clear why the impl work at all
          */
 
         double sum = scaleKey.keyValue() + mode.degreeValue();
 
-        double newKeyValue;
+        double modeValue;
         if (sum > MAX_KEY_VALUE && sum < 11) {
-            newKeyValue = ((sum * 10) % (MAX_KEY_VALUE * 10)) / 10;
-            newKeyValue -= 0.5;
+            modeValue = ((sum * 10) % (MAX_KEY_VALUE * 10)) / 10;
+            modeValue -= 0.5;
         } else if (sum == 11) {
-            newKeyValue = Adi.keyValue;
+            modeValue = Adi.keyValue;
         } else {
-            newKeyValue = sum;
+            modeValue = sum;
         }
 
-        return mapDoubleToKey.get(newKeyValue);
+        return mapDoubleToKey.get(modeValue);
 
     }
 
@@ -78,28 +78,28 @@ public enum Key {
         return keyValue;
     }
 
-    public static Key parentScaleByKeyAndMode(Key key, Degree mode) {
+    public static Key parentByModeAndDegree(Key mode, Degree degree) {
         /*
          * TODO: not clear why the impl work at all
          */
 
-        double diff = key.keyValue() - mode.degreeValue();
+        double diff = mode.keyValue() - degree.degreeValue();
 
-        double newKeyValue;
+        double parentValue;
         if (diff < 0) { // && sum < 11
-            newKeyValue = ((diff * 10) % (MAX_KEY_VALUE * 10));
-            if (newKeyValue != 0)
-                newKeyValue += (MAX_KEY_VALUE * 10);
-            newKeyValue /= 10;
-            newKeyValue += 0.5;
-            newKeyValue = Math.abs(newKeyValue);
+            parentValue = ((diff * 10) % (MAX_KEY_VALUE * 10));
+            if (parentValue != 0)
+                parentValue += (MAX_KEY_VALUE * 10);
+            parentValue /= 10;
+            parentValue += 0.5;
+            parentValue = Math.abs(parentValue);
         } else if (diff == 0) {
-            newKeyValue = C.keyValue;
+            parentValue = C.keyValue;
         } else {
-            newKeyValue = diff;
+            parentValue = diff;
         }
 
-        return mapDoubleToKey.get(newKeyValue);
+        return mapDoubleToKey.get(parentValue);
 
     }
 

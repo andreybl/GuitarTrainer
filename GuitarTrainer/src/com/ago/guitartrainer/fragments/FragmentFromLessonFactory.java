@@ -3,8 +3,9 @@ package com.ago.guitartrainer.fragments;
 import android.support.v4.app.Fragment;
 
 import com.ago.guitartrainer.lessons.ILesson;
-import com.ago.guitartrainer.lessons.custom.LessonKeychordDegree2Parentkey;
+import com.ago.guitartrainer.lessons.custom.LessonModeDegree2Parent;
 import com.ago.guitartrainer.lessons.custom.LessonNote2Position;
+import com.ago.guitartrainer.lessons.custom.LessonParentDegree2Mode;
 import com.ago.guitartrainer.lessons.custom.LessonPosition2Note;
 import com.ago.guitartrainer.lessons.custom.LessonScalegridChord2Positions;
 import com.ago.guitartrainer.lessons.custom.LessonScalegridDegree2Position;
@@ -29,10 +30,13 @@ public class FragmentFromLessonFactory {
             FragmentScalegridDegree2Position tmpFragment = new FragmentScalegridDegree2Position();
             tmpFragment.onInitializationCompletedListener((LessonScalegridDegree2Position) lesson);
             fragment = tmpFragment;
-
-        } else if (lesson instanceof LessonKeychordDegree2Parentkey) {
-            FragmentKeychordDegree2Parentkey tmpFragment = new FragmentKeychordDegree2Parentkey();
-            tmpFragment.onInitializationCompletedListener((LessonKeychordDegree2Parentkey) lesson);
+        } else if (lesson instanceof LessonModeDegree2Parent) {
+            FragmentModeDegree2Parent tmpFragment = new FragmentModeDegree2Parent();
+            tmpFragment.onInitializationCompletedListener((LessonModeDegree2Parent) lesson);
+            fragment = tmpFragment;
+        } else if (lesson instanceof LessonParentDegree2Mode) {
+            FragmentParentDegree2Mode tmpFragment = new FragmentParentDegree2Mode();
+            tmpFragment.onInitializationCompletedListener((LessonParentDegree2Mode) lesson);
             fragment = tmpFragment;
         }
 

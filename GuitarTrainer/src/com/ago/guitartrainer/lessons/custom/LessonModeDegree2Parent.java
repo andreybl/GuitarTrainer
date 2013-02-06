@@ -3,27 +3,27 @@ package com.ago.guitartrainer.lessons.custom;
 import com.ago.guitartrainer.MasterActivity;
 import com.ago.guitartrainer.R;
 import com.ago.guitartrainer.events.OnViewSelectionListener;
-import com.ago.guitartrainer.fragments.FragmentKeychordDegree2Parentkey;
+import com.ago.guitartrainer.fragments.FragmentModeDegree2Parent;
 import com.ago.guitartrainer.notation.Degree;
 import com.ago.guitartrainer.notation.Key;
 import com.ago.guitartrainer.ui.LearningStatusView;
 import com.ago.guitartrainer.utils.LessonsUtils;
 
-public class LessonKeychordDegree2Parentkey extends ALesson {
+public class LessonModeDegree2Parent extends ALesson {
 
-    private FragmentKeychordDegree2Parentkey fragment;
+    private FragmentModeDegree2Parent fragment;
 
     @Override
     public String getTitle() {
         String str = MasterActivity.getInstance().getResources()
-                .getString(R.string.lesson_keychorddegree2parentkey_title);
+                .getString(R.string.lesson_modedegree2parent_title);
         return str;
     }
 
     @Override
     public String getDescription() {
         String str = MasterActivity.getInstance().getResources()
-                .getString(R.string.lesson_keychorddegree2parentkey_description);
+                .getString(R.string.lesson_modedegree2parent_description);
         return str;
     }
 
@@ -35,23 +35,23 @@ public class LessonKeychordDegree2Parentkey extends ALesson {
 
     @Override
     public void doNext() {
-        Key originalKey;
-        if (fragment.getKeysView().isRandomInput()) {
-            originalKey = LessonsUtils.randomKey();
-            fragment.getKeysView().show(originalKey);
+        Key mode;
+        if (fragment.getModesView().isRandomInput()) {
+            mode = LessonsUtils.randomKey();
+            fragment.getModesView().show(mode);
         } else {
-            originalKey = fragment.getKeysView().element();
+            mode = fragment.getModesView().element();
         }
 
-        Degree mode;
+        Degree degree;
         if (fragment.getDegreesView().isRandomInput()) {
-            mode = LessonsUtils.randomDegree();
-            fragment.getDegreesView().show(mode);
+            degree = LessonsUtils.randomDegree();
+            fragment.getDegreesView().show(degree);
         } else {
-            mode = fragment.getDegreesView().element();
+            degree = fragment.getDegreesView().element();
         }
 
-        expectedParentScale = Key.parentScaleByKeyAndMode(originalKey, mode);
+        expectedParentScale = Key.parentByModeAndDegree(mode, degree);
 
     }
 
@@ -67,17 +67,17 @@ public class LessonKeychordDegree2Parentkey extends ALesson {
         return fragment.getLearningStatusView();
     }
 
-    public void onFragmentInitializationCompleted(FragmentKeychordDegree2Parentkey fragment) {
+    public void onFragmentInitializationCompleted(FragmentModeDegree2Parent fragment) {
         this.fragment = fragment;
 
-        fragment.getKeysView().isMainKeysOnly(false);
+        fragment.getModesView().isMainKeysOnly(false);
         // fragment.getChordsView();
         // fragment.getDegreesView();
-        fragment.getParentKeysView().isMainKeysOnly(false);
-        fragment.getParentKeysView().isOutput(true);
+        fragment.getParentsView().isMainKeysOnly(false);
+        fragment.getParentsView().isOutput(true);
 
         OnViewSelectionListener<Key> onSelectionListener = new InnerOnSelectionListener();
-        fragment.getParentKeysView().registerListener(onSelectionListener);
+        fragment.getParentsView().registerListener(onSelectionListener);
 
     }
 
@@ -98,4 +98,5 @@ public class LessonKeychordDegree2Parentkey extends ALesson {
             }
         }
     }
+
 }

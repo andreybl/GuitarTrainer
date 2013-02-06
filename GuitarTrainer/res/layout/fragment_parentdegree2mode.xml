@@ -1,0 +1,41 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:gtrainer="http://schemas.android.com/apk/res/com.ago.guitartrainer"
+    android:id="@+id/layout_main_view"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <com.ago.guitartrainer.ui.LearningStatusView
+            android:id="@+id/learning_status"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content" />
+
+        <com.ago.guitartrainer.ui.KeysView
+            android:id="@+id/view_parentkeysview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right" />
+
+        <!-- <com.ago.guitartrainer.ui.ChordsView -->
+        <!-- android:id="@+id/view_chordsview" -->
+        <!-- android:layout_width="wrap_content" -->
+        <!-- android:layout_height="wrap_content" -->
+        <!-- android:layout_gravity="right" /> -->
+
+        <com.ago.guitartrainer.ui.DegreesView
+            android:id="@+id/view_degreesview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right" />
+    </LinearLayout>
+
+    <com.ago.guitartrainer.ui.KeysView
+        android:id="@+id/view_modesview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+</LinearLayout>

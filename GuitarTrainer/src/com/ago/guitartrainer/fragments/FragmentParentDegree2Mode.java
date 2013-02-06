@@ -8,64 +8,55 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
 import com.ago.guitartrainer.R;
-import com.ago.guitartrainer.lessons.custom.LessonKeychordDegree2Parentkey;
-import com.ago.guitartrainer.lessons.custom.LessonNote2Position;
+import com.ago.guitartrainer.lessons.custom.LessonModeDegree2Parent;
+import com.ago.guitartrainer.lessons.custom.LessonParentDegree2Mode;
 import com.ago.guitartrainer.ui.ChordsView;
 import com.ago.guitartrainer.ui.DegreesView;
-import com.ago.guitartrainer.ui.FretView;
 import com.ago.guitartrainer.ui.KeysView;
 import com.ago.guitartrainer.ui.LearningStatusView;
-import com.ago.guitartrainer.ui.NotesView;
 
-public class FragmentKeychordDegree2Parentkey extends Fragment {
+public class FragmentParentDegree2Mode extends Fragment {
 
     private String TAG = "GT-" + this.getClass().getSimpleName();
 
-    private KeysView keysView;
+    private KeysView modesView;
 
     private KeysView parentKeysView;
-
-    private ChordsView chordsView;
 
     private DegreesView degreesView;
 
     private LearningStatusView learningStatusView;
 
-    private LessonKeychordDegree2Parentkey lesson;
+    private LessonParentDegree2Mode lesson;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        LinearLayout mainLayout = (LinearLayout) inflater.inflate(R.layout.fragment_keychorddegree2parentkey,
-                container, false);
+        LinearLayout mainLayout = (LinearLayout) inflater
+                .inflate(R.layout.fragment_parentdegree2mode, container, false);
 
-        keysView = (KeysView) mainLayout.findViewById(R.id.view_keysview);
+        modesView = (KeysView) mainLayout.findViewById(R.id.view_modesview);
         parentKeysView = (KeysView) mainLayout.findViewById(R.id.view_parentkeysview);
-        chordsView = (ChordsView) mainLayout.findViewById(R.id.view_chordsview);
         degreesView = (DegreesView) mainLayout.findViewById(R.id.view_degreesview);
+
         learningStatusView = (LearningStatusView) mainLayout.findViewById(R.id.learning_status);
 
-        // lesson.setViewFragment(this);
         if (lesson != null)
             lesson.onFragmentInitializationCompleted(this);
 
         return mainLayout;
     }
 
-    public void onInitializationCompletedListener(LessonKeychordDegree2Parentkey lesson) {
+    public void onInitializationCompletedListener(LessonParentDegree2Mode lesson) {
         this.lesson = lesson;
     }
 
-    public KeysView getKeysView() {
-        return keysView;
+    public KeysView getModesView() {
+        return modesView;
     }
 
-    public KeysView getParentKeysView() {
+    public KeysView getParentsView() {
         return parentKeysView;
-    }
-
-    public ChordsView getChordsView() {
-        return chordsView;
     }
 
     public DegreesView getDegreesView() {

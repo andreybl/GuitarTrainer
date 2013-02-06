@@ -24,7 +24,9 @@
     <string name="lesson_note2position_description">The position must be submited for every note shown</string>
     <string name="lesson_scalegridchord2positions_title">ScalegridChord2Positions</string>
     <string name="lesson_scalegridchord2positions_description">The chord positions inside of scale grid must be submited for every chord type </string>
-    <string name="lesson_keychorddegree2parentkey_title">Chord-2-Parent</string>
-    <string name="lesson_keychorddegree2parentkey_description">For given chord, key and degree find the right parent key </string>
+    <string name="lesson_modedegree2parent_title">Chord-2-Parent</string>
+    <string name="lesson_modedegree2parent_description">For given chord, key and degree find the right parent key </string>
+    <string name="lesson_parentdegree2mode_title">Parent-2-Chord</string>
+    <string name="lesson_parentdegree2mode_description">For scale and degree, find the key of mode</string>
 
 </resources>
