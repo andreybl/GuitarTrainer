@@ -125,7 +125,7 @@ public class LessonScalegridDegree2Position extends ALesson {
         int fretPosition = 1;
 
         /*
-         * 1.
+         * 1. parameters of the question
          * 
          * In this block we decide on the parameters of the learning function. There are three params here, and each of
          * them can be either user selected or randomly picked.
@@ -134,15 +134,20 @@ public class LessonScalegridDegree2Position extends ALesson {
             // param1: grid shape type must be random
             userScalegridType = LessonsUtils.randomScalegridType();
         } else {
-            userScalegridType = fragment.getScalegridView().scalegridType();
+            userScalegridType = fragment.getScalegridView().element();
         }
 
         if (fragment.getScalegridView().isRandomPosition()) {
             fretPosition = LessonsUtils.randomFretPositionForGridShapeType(userScalegridType);
         }
 
+        /* 3. visualize the question to the user */
+        gridShape = ScaleGrid.create(userScalegridType, fretPosition);
+
+        expectedPositions = generateExpectedPositions();
+
         /*
-         * 2.
+         * 2. resolve question and metrics by params from dB
          * 
          * now we ready either to pick AQuestion from dB, or create a new one. And also the same for related
          * QuestionMetrics.
@@ -150,11 +155,6 @@ public class LessonScalegridDegree2Position extends ALesson {
         quest = resolveOrCreateQuestion(userScalegridType, fretPosition, degree);
         QuestionMetrics qm = resolveOrCreateQuestionMetrics(quest.getId());
         registerQuestion(qDao, quest, qm);
-
-        /* 3. visualize the question to the user */
-        gridShape = ScaleGrid.create(quest.scaleGridType, quest.fretPosition);
-
-        expectedPositions = generateExpectedPositions();
 
         /** TMP:start: the chord is shown */
         // expectedPositions = gridShape.chord2Positions(Chord.major);
@@ -168,7 +168,7 @@ public class LessonScalegridDegree2Position extends ALesson {
 
     protected void askQuestionToUser() {
         fragment.getScalegridView().show(gridShape.getType());
-        fragment.getDegreesView().show(quest.degree);
+        fragment.getDegreesView().show(degree);
 
         if (!fragment.getScalegridView().isRootOnlyShown()) {
             fragment.getFretView().show(layerLesson, gridShape);
@@ -180,14 +180,14 @@ public class LessonScalegridDegree2Position extends ALesson {
         if (playSound) {
             playDegree(quest.degree);
         }
-        
+
     }
 
     protected List<Position> generateExpectedPositions() {
         if (fragment.getDegreesView().isRandomInput()) {
             degree = LessonsUtils.randomDegree();
         } else {
-            degree = fragment.getDegreesView().degree();
+            degree = fragment.getDegreesView().element();
         }
 
         /* all positions must be played for the answer to be accepted */
@@ -435,10 +435,10 @@ public class LessonScalegridDegree2Position extends ALesson {
         fragment.getScalegridView().setEnabled(true);
         // fragment.getScalegridView().setEnabledInput(isShapeInputAllowed);
 
-        if (!fragment.getScalegridView().isRandomInput()) {
-            InnerOnShapeSelectionListener onShapeSelection = new InnerOnShapeSelectionListener();
-            fragment.getScalegridView().registerListener(onShapeSelection);
-        }
+        // if (!fragment.getScalegridView().isRandomInput()) {
+        // InnerOnShapeSelectionListener onShapeSelection = new InnerOnShapeSelectionListener();
+        // fragment.getScalegridView().registerListener(onShapeSelection);
+        // }
 
         fragment.getDegreesView().setEnabled(true);
         fragment.getDegreesView().setEnabledInput(false);
@@ -490,12 +490,12 @@ public class LessonScalegridDegree2Position extends ALesson {
                     messageInLearningStatus("You found " + submittedPositions.size() + " of "
                             + expectedPositions.size() + " positions.");
 
-                    /* clean either touch of fft drawn layer, show what was correctly submitted by the user till now */
+                    /* clean either touch of FFT drawn layer, show what was correctly submitted by the user till now */
                     List<Position> tmp = new ArrayList<Position>();
                     tmp.addAll(submittedPositions);
                     fragment.getFretView().show(layerLessonSubmited, tmp);
-                    fragment.getFretView().clearLayerByZIndex(fragment.getFretView().LAYER_Z_TOUCHES);
-                    fragment.getFretView().clearLayerByZIndex(fragment.getFretView().LAYER_Z_FFT);
+                    fragment.getFretView().clearLayerByZIndex(FretView.LAYER_Z_TOUCHES);
+                    fragment.getFretView().clearLayerByZIndex(FretView.LAYER_Z_FFT);
 
                     /* all positions from users are new */
                     if (ArrayUtils.isEqual(expectedPositions, submittedPositions)) {
@@ -520,26 +520,27 @@ public class LessonScalegridDegree2Position extends ALesson {
 
     }
 
-    /**
-     * Listens on user selection of the shape.
-     * 
-     * This listener does not participate in evaluation of answer. It just configure one of the lesson parameters - the
-     * grid shape to use in questions.
-     * 
-     * @author Andrej Golovko - jambit GmbH
-     * 
-     */
-    private class InnerOnShapeSelectionListener implements OnViewSelectionListener<ScaleGrid.Type> {
-
-        @Override
-        public void onViewElementSelected(ScaleGrid.Type element) {
-
-            // if (currentQuestion != null)
-            userScalegridType = element;
-            if (isLessonRunning())
-                next();
-        }
-
-    }
+    // /**
+    // * Listens on user selection of the shape.
+    // *
+    // * This listener does not participate in evaluation of answer. It just configure one of the lesson parameters -
+    // the
+    // * grid shape to use in questions.
+    // *
+    // * @author Andrej Golovko - jambit GmbH
+    // *
+    // */
+    // private class InnerOnShapeSelectionListener implements OnViewSelectionListener<ScaleGrid.Type> {
+    //
+    // @Override
+    // public void onViewElementSelected(ScaleGrid.Type element) {
+    //
+    // // if (currentQuestion != null)
+    // userScalegridType = element;
+    // if (isLessonRunning())
+    // next();
+    // }
+    //
+    // }
 
 }

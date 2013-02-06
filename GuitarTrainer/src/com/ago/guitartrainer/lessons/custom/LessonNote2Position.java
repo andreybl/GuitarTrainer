@@ -181,7 +181,7 @@ public class LessonNote2Position extends ALesson {
      * @author Andrej Golovko - jambit GmbH
      * 
      */
-    public class InnerOnSelectionListener implements OnViewSelectionListener<NotePlayingEvent> {
+    private class InnerOnSelectionListener implements OnViewSelectionListener<NotePlayingEvent> {
 
         @Override
         public void onViewElementSelected(final NotePlayingEvent npe) {

@@ -3,6 +3,7 @@ package com.ago.guitartrainer.fragments;
 import android.support.v4.app.Fragment;
 
 import com.ago.guitartrainer.lessons.ILesson;
+import com.ago.guitartrainer.lessons.custom.LessonKeychordDegree2Parentkey;
 import com.ago.guitartrainer.lessons.custom.LessonNote2Position;
 import com.ago.guitartrainer.lessons.custom.LessonPosition2Note;
 import com.ago.guitartrainer.lessons.custom.LessonScalegridChord2Positions;
@@ -20,7 +21,6 @@ public class FragmentFromLessonFactory {
             FragmentNote2Position tmpFragment = new FragmentNote2Position();
             tmpFragment.onInitializationCompletedListener((LessonNote2Position) lesson);
             fragment = tmpFragment;
-            // ((LessonNote2Position) lesson).setViewFragment((FragmentNote2Position) fragment);
         } else if (lesson instanceof LessonScalegridChord2Positions) {
             FragmentScalegridChord2Positions tmpFragment = new FragmentScalegridChord2Positions();
             tmpFragment.onInitializationCompletedListener((LessonScalegridChord2Positions) lesson);
@@ -29,9 +29,12 @@ public class FragmentFromLessonFactory {
             FragmentScalegridDegree2Position tmpFragment = new FragmentScalegridDegree2Position();
             tmpFragment.onInitializationCompletedListener((LessonScalegridDegree2Position) lesson);
             fragment = tmpFragment;
+
+        } else if (lesson instanceof LessonKeychordDegree2Parentkey) {
+            FragmentKeychordDegree2Parentkey tmpFragment = new FragmentKeychordDegree2Parentkey();
+            tmpFragment.onInitializationCompletedListener((LessonKeychordDegree2Parentkey) lesson);
+            fragment = tmpFragment;
         }
-            
-        
 
         if (fragment == null)
             throw new RuntimeException("Failed ot resolve fragment for lesson: " + lesson.getClass().getSimpleName());

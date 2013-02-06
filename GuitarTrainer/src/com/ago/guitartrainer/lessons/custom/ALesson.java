@@ -117,7 +117,8 @@ public abstract class ALesson implements ILesson {
             lessonMetrics.startTime();
 
             int currentLoop = lessonMetrics.increaseLoop();
-            getLearningStatusView().updateLessonLoop(currentLoop);
+            if (getLearningStatusView() != null)
+                getLearningStatusView().updateLessonLoop(currentLoop);
 
         }
 
@@ -136,7 +137,11 @@ public abstract class ALesson implements ILesson {
          * the question was asked
          */
         AQuestion currentQuestion = getCurrentQuestion();
-        currentQuestionMetrics = resolveOrCreateQuestionMetrics(currentQuestion.getId());
+        if (currentQuestion != null) {
+            currentQuestionMetrics = resolveOrCreateQuestionMetrics(currentQuestion.getId());
+        } else {
+            currentQuestionMetrics = new QuestionMetrics();
+        }
         currentQuestionMetrics.start();
 
         /* 6. start the question timer */
@@ -145,7 +150,9 @@ public abstract class ALesson implements ILesson {
         questionTimer = new QuestionTimer(this, getLearningStatusView(), questionMaxDurationSec * 1000, 300);
         questionTimer.start();
 
-        Log.d(getTag(), getCurrentQuestion().toString());
+        if (getCurrentQuestion() != null) {
+            Log.d(getTag(), getCurrentQuestion().toString());
+        }
     }
 
     /**
@@ -209,8 +216,6 @@ public abstract class ALesson implements ILesson {
         this.currentQuestion = currentQuestion;
 
     }
-
-    public abstract void doNext();
 
     @Override
     public void stop() {
@@ -295,8 +300,6 @@ public abstract class ALesson implements ILesson {
         getLearningStatusView().updateCurrentQuestionTrials(currentQuestionMetrics.numOfTrialsLastLoop());
     }
 
-    public abstract void doStop();
-
     protected AQuestion getCurrentQuestion() {
 
         return this.currentQuestion;
@@ -358,6 +361,10 @@ public abstract class ALesson implements ILesson {
         vibratorService.vibrate(pattern, -1);
 
     }
+
+    public abstract void doNext();
+
+    public abstract void doStop();
 
     protected abstract LearningStatusView getLearningStatusView();
 }

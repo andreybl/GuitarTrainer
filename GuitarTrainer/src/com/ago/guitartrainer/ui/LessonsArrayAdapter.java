@@ -29,25 +29,24 @@ public class LessonsArrayAdapter extends ArrayAdapter<ILesson> {
         if (row == null) {
             LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             row = inflater.inflate(R.layout.lessonselection_listitem, parent, false);
+        }
+        
+        ILesson lesson = getItem(position);
 
-            ILesson lesson = getItem(position);
+        TextView tvTitle = (TextView) row.findViewById(R.id.list_lessons_item_title);
+        TextView tvTime = (TextView) row.findViewById(R.id.list_lessons_item_time);
+        TextView tvDescription = (TextView) row.findViewById(R.id.list_lessons_item_description);
 
-            TextView tvTitle = (TextView) row.findViewById(R.id.list_lessons_item_title);
-            TextView tvTime = (TextView) row.findViewById(R.id.list_lessons_item_time);
-            TextView tvDescription = (TextView) row.findViewById(R.id.list_lessons_item_description);
+        tvTitle.setText(lesson.getTitle());
+        tvDescription.setText(lesson.getDescription());
 
-            tvTitle.setText(lesson.getTitle());
-            tvDescription.setText(lesson.getDescription());
+        LessonMetrics lessonMetrics = DatabaseHelper.getInstance().findLessonMetrics(lesson.getClass());
 
-            LessonMetrics lessonMetrics = DatabaseHelper.getInstance().findLessonMetrics(lesson.getClass());
-
-            if (lessonMetrics != null) {
-                String strValue = TimeUtils.formatDuration(lessonMetrics.durationTotal());
-                tvTime.setText(strValue);
-            } else {
-                tvTime.setText("unknown");
-            }
-
+        if (lessonMetrics != null) {
+            String strValue = TimeUtils.formatDuration(lessonMetrics.durationTotal());
+            tvTime.setText(strValue);
+        } else {
+            tvTime.setText("unknown");
         }
 
         return row;

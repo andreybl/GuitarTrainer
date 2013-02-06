@@ -4,7 +4,7 @@
     <string name="app_name">Guitar Trainer</string>
     <string name="menu_settings">Settings</string>
     <string name="menu_reset_data">Reset data</string>
-    
+
     <!-- Lesson selection and execution controls -->
     <string name="dialog_lessonselection_title">Dialog: Lesson Selection</string>
     <string name="lesson_select">Lessons</string>
@@ -13,8 +13,6 @@
     <string name="lesson_stop">Stop</string>
     <string name="instrument_select">Instruments</string>
     <string name="lesson_metrics">Metrics</string>
-    
-    
     <string name="undefined">--</string>
 
     <!-- For each lesson available: Titles and Descriptions -->
@@ -26,6 +24,7 @@
     <string name="lesson_note2position_description">The position must be submited for every note shown</string>
     <string name="lesson_scalegridchord2positions_title">ScalegridChord2Positions</string>
     <string name="lesson_scalegridchord2positions_description">The chord positions inside of scale grid must be submited for every chord type </string>
-    
-    
+    <string name="lesson_keychorddegree2parentkey_title">Chord-2-Parent</string>
+    <string name="lesson_keychorddegree2parentkey_description">For given chord, key and degree find the right parent key </string>
+
 </resources>

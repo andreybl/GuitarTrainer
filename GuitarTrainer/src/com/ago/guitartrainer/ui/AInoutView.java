@@ -55,13 +55,15 @@ public abstract class AInoutView<T> extends LinearLayout {
             setEnabled(enabledInput);
     }
 
+    public boolean isEnabledInput() {
+        return isEnabledInput;
+    }
+    
     public void registerListener(OnViewSelectionListener<T> listener) {
         listeners.add(listener);
     }
 
-    public boolean isEnabledInput() {
-        return isEnabledInput;
-    }
+
 
     protected void notifyListeners(T obj) {
         if (obj != null) {

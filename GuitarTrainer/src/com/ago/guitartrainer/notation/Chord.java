@@ -1,5 +1,8 @@
 package com.ago.guitartrainer.notation;
 
+import java.util.HashMap;
+
+import com.ago.guitartrainer.utils.MultiMap;
 
 public class Chord {
 
@@ -29,27 +32,46 @@ public class Chord {
     /** Example: Cdim7, Co, Co7, C7dim */
     public static final Degree[] dim7thChord = new Degree[] { Degree.ONE, Degree.TWO_HALF, Degree.FOUR_HALF, Degree.SIX };
 
-    public static final Degree[][] CHORDS = new Degree[][]{major, minor, dim, aug, major7thChord, minor7thChord, dominantSeptChord, dim7thChord};
-    
+    /** Example: C7b5, half-diminished */
+    public static final Degree[] minor7b5Chord = new Degree[] { Degree.ONE, Degree.TWO_HALF, Degree.FOUR_HALF,
+            Degree.SIX };
+
+    public static final Degree[][] CHORDS = new Degree[][] { major, minor, dim, aug, major7thChord, minor7thChord,
+            dominantSeptChord, dim7thChord, minor7b5Chord };
 
     public static int NOTPLAYED = -1;
 
-    public Chord() {
-        super();
-        /*-
-         * The fret offsets are specified as integers, whereas we start from the 
-         * first string. In total, each array of offset has 6 elements (according 
-         * to string number). 
-         * Example:  
-         *      new Integer[] { 0, 1, 4, 2, 3, -1 }
-         * This is the major7thChord in Alpha scale grid. The "-1" means - the 
-         * string is not played.
-         *      
-         * 
-         */
-        {
+    // private static Chord INSTANCE;
+    //
+    // private static MultiMap<Key, Degree, Key> keyMode2Parent = new MultiMap<Key, Degree, Key>();
+    // private static MultiMap<Key, Degree, Key> parentMode2Key = new MultiMap<Key, Degree, Key>();
+    //
+    // private Chord() {
+    // registerMode(Key.C, Degree.ONE, Key.C);
+    // registerMode(Key.C, Degree.TWO, Key.D);
+    // registerMode(Key.C, Degree.THREE, Key.E);
+    // registerMode(Key.C, Degree.FOUR, Key.F);
+    // registerMode(Key.C, Degree.FIVE, Key.G);
+    // registerMode(Key.C, Degree.SIX, Key.A);
+    // registerMode(Key.C, Degree.SEVEN, Key.B);
+    //
+    // }
 
-        }
-
-    }
+    //
+    // private void registerMode(Key scale, Degree modeDegree, Key modeKey) {
+    // parentMode2Key.put(scale, modeDegree, modeKey);
+    // keyMode2Parent.put(modeKey, modeDegree, scale);
+    //
+    // }
+    //
+    // public static Chord getInstance() {
+    // if (INSTANCE == null)
+    // INSTANCE = new Chord();
+    // return INSTANCE;
+    // }
+    //
+    // public Key getParentScale(Key originalKey, Degree mode) {
+    // return null;
+    //
+    // }
 }

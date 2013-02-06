@@ -42,6 +42,17 @@ public abstract class ScaleGrid {
 
     private static Map<Degree[], Integer[]> mapEpsilonChord2Form = new HashMap<Degree[], Integer[]>();
 
+    /*-
+     * The fret offsets are specified as integers, whereas we start from the 
+     * first string. In total, each array of offset has 6 elements (according 
+     * to string number). 
+     * Example:  
+     *      new Integer[] { 0, 1, 4, 2, 3, -1 }
+     * This is the major7thChord in Alpha scale grid. The "-1" means - the 
+     * string is not played.
+     *      
+     * 
+     */
     static {
         mapAlphaChord2Form.put(Chord.major, new Integer[] { 0, 1, 0, 2, 3, Chord.NOTPLAYED });
         mapAlphaChord2Form.put(Chord.minor, new Integer[] { 3, 1, 0, 1, 3, Chord.NOTPLAYED });
@@ -60,7 +71,8 @@ public abstract class ScaleGrid {
         // mapBetaChord2Form.put(Chord.aug, new Integer[] { XXX });
         mapBetaChord2Form.put(Chord.major7thChord, new Integer[] { 1, 3, 2, 3, 1, -1 });
         mapBetaChord2Form.put(Chord.minor7thChord, new Integer[] { 1, 2, 1, 3, 1, -1 });
-        mapBetaChord2Form.put(Chord.dominantSeptChord, new Integer[] { 1, 3, 1, 3, 1, Chord.NOTPLAYED }); // also: 131314
+        mapBetaChord2Form.put(Chord.dominantSeptChord, new Integer[] { 1, 3, 1, 3, 1, Chord.NOTPLAYED }); // also:
+                                                                                                          // 131314
         // mapBetaChord2Form.put(Chord.dim7thChord, new Integer[] { XXX });
     }
 
@@ -345,39 +357,39 @@ public abstract class ScaleGrid {
         return positionToDegree.get(position);
     }
 
-    /**
-     * Projects positions passed onto grid shape. Only strong positions are taken into account.
-     * 
-     * The positions passed as parameter are projected onto the current grid shape projection. They are kind of filtered
-     * through the shape projection. Only positions are returned, which belong to the shape.
-     * 
-     * The weak positions will not be taken into account and are NOT in the returned value
-     * 
-     * @param positions
-     *            to project onto grid shape
-     * @return subset of positions from original list, which are strong in current grind shape
-     * @deprecated the method seems to be useless, will be removed
-     */
-    public List<Position> applyShape(List<Position> positions) {
-        List<Position> projected = new ArrayList<Position>();
-
-        /*
-         * we assume, the grid shapes are always defined starting from the zero fret. So the 0 in the equation. The
-         * start/end frets for range checking are inclusive
-         */
-        // int startInclFret = 0 + fretShifts;
-
-        for (Position position : positions) {
-            if (position.getFret() >= startingFret && position.getFret() <= endingFret) {
-                Degree d = positionToDegree.get(position);
-                if (d.isStrong()) {
-                    projected.add(position);
-                }
-            }
-        }
-
-        return projected;
-    }
+//    /**
+//     * Projects positions passed onto grid shape. Only strong positions are taken into account.
+//     * 
+//     * The positions passed as parameter are projected onto the current grid shape projection. They are kind of filtered
+//     * through the shape projection. Only positions are returned, which belong to the shape.
+//     * 
+//     * The weak positions will not be taken into account and are NOT in the returned value
+//     * 
+//     * @param positions
+//     *            to project onto grid shape
+//     * @return subset of positions from original list, which are strong in current grind shape
+//     * @deprecated the method seems to be useless, will be removed
+//     */
+//    public List<Position> applyShape(List<Position> positions) {
+//        List<Position> projected = new ArrayList<Position>();
+//
+//        /*
+//         * we assume, the grid shapes are always defined starting from the zero fret. So the 0 in the equation. The
+//         * start/end frets for range checking are inclusive
+//         */
+//        // int startInclFret = 0 + fretShifts;
+//
+//        for (Position position : positions) {
+//            if (position.getFret() >= startingFret && position.getFret() <= endingFret) {
+//                Degree d = positionToDegree.get(position);
+//                if (d.isStrong()) {
+//                    projected.add(position);
+//                }
+//            }
+//        }
+//
+//        return projected;
+//    }
 
     public int getStartingFret() {
         return startingFret;

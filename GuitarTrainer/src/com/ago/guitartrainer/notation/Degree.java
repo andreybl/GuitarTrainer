@@ -11,8 +11,8 @@ public enum Degree {
     //@formatter:on
 
     private double degreeValue;
-    
-    public static final Degree[] STRONG_DEGREES = new Degree[]{ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN}; 
+
+    public static final Degree[] STRONG_DEGREES = new Degree[] { ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN };
 
     private static Map<Double, Degree> mapDoubleToDegree = new Hashtable<Double, Degree>();
     static {
@@ -37,31 +37,16 @@ public enum Degree {
     public boolean isRoot() {
         if (this == ONE)
             return true;
-        else 
-            return false;
-    }
-            
-    public boolean isStrong() {
-        if (this == ONE)
-            return true;
-        else if (this == TWO)
-            return true;
-        else if (this == THREE)
-            return true;
-        else if (this == FOUR)
-            return true;
-        else if (this == FIVE)
-            return true;
-        else if (this == SIX)
-            return true;
-        else if (this == SEVEN)
-            return true;
         else
             return false;
     }
+
+    public double degreeValue(){
+        return degreeValue;
+    }
     
     /**
-     * The current degree instance is unmodified 
+     * The current degree instance is unmodified
      * 
      * @param frets
      * @return
@@ -76,5 +61,5 @@ public enum Degree {
 
         return mapDoubleToDegree.get(f2);
     }
-    
+
 }

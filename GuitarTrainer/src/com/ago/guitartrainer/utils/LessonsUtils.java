@@ -164,4 +164,30 @@ public class LessonsUtils {
         Degree[] chord = randomChords.remove(indexChord);
         return chord;
     }
+
+    public static Key randomKey() {
+        if (randomKey.size() == 0) {
+            randomKey.addAll(Arrays.asList(Key.mainKeys));
+        }
+
+        int indexKey = LessonsUtils.random(0, randomKey.size() - 1);
+        Key key = randomKey.remove(indexKey);
+
+        return key;
+    }
+
+    private static List<Degree[]> random7thChords = new ArrayList<Degree[]>();
+
+    public static Degree[] randomChordFrom7th() {
+        if (random7thChords.size() == 0) {
+            Degree[][] chord7th = new Degree[][] { Chord.major7thChord, Chord.minor7thChord, Chord.dominantSeptChord,
+                    Chord.minor7b5Chord };
+            random7thChords.addAll(Arrays.asList(chord7th));
+        }
+
+        int indexChord = LessonsUtils.random(0, random7thChords.size() - 1);
+        Degree[] chord = random7thChords.remove(indexChord);
+        return chord;
+
+    }
 }

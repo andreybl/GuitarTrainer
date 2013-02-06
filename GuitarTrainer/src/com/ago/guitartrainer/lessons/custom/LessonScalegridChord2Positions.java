@@ -2,10 +2,8 @@ package com.ago.guitartrainer.lessons.custom;
 
 import java.util.List;
 
-import com.ago.guitartrainer.GuitarTrainerApplication;
 import com.ago.guitartrainer.MasterActivity;
 import com.ago.guitartrainer.R;
-import com.ago.guitartrainer.SettingsActivity;
 import com.ago.guitartrainer.events.NotePlayingEvent;
 import com.ago.guitartrainer.events.OnViewSelectionListener;
 import com.ago.guitartrainer.fragments.FragmentScalegridChord2Positions;
@@ -22,10 +20,6 @@ public class LessonScalegridChord2Positions extends LessonScalegridDegree2Positi
         // initialize views required for the current type of lesson
         fragment.getFretView().setEnabled(true);
         fragment.getFretView().setEnabledInput(true);
-
-        fragment.getScalegridView().setEnabled(true);
-
-        // fragment.getChordsView().setEnabled(false);
 
         fragment.getScalegridView().setEnabled(true);
 
@@ -47,11 +41,6 @@ public class LessonScalegridChord2Positions extends LessonScalegridDegree2Positi
         } else {
             fragment.getFretView().show(layerLesson, gridShape.getRootPosition());
         }
-
-        // boolean playSound = GuitarTrainerApplication.getPrefs().getBoolean(SettingsActivity.KEY_PLAY_SOUNDS, false);
-        // if (playSound) {
-        // playDegree(quest.degree);
-        // }
     }
 
     private Degree[] chord = Chord.major;
@@ -62,7 +51,7 @@ public class LessonScalegridChord2Positions extends LessonScalegridDegree2Positi
         if (f.getChordsView().isRandomInput()) {
             chord = LessonsUtils.randomChord();
         } else {
-            chord = f.getChordsView().chord();
+            chord = f.getChordsView().element();
         }
 
         /* all positions must be played for the answer to be accepted */
