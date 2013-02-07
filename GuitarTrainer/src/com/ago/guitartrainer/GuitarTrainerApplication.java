@@ -1,8 +1,12 @@
 package com.ago.guitartrainer;
 
+import java.io.File;
+import java.lang.Thread.UncaughtExceptionHandler;
+
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 
 import com.ago.guitartrainer.db.DatabaseHelper;
@@ -17,15 +21,26 @@ public class GuitarTrainerApplication extends Application {
      * calculate the border size. This value (and the test it is used in) had to be introduced bacause some Android
      * devices return the wrong ppi value.
      */
-//    private static final float MAX_PPI_DENSITYDPI_DIFFERENCE = 40.0f;
+    // private static final float MAX_PPI_DENSITYDPI_DIFFERENCE = 40.0f;
 
     @Override
     public void onCreate() {
         super.onCreate();
 
+        // TODO: use it for logging!
+        // Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
+        //
+        // @Override
+        // public void uncaughtException(Thread thread, Throwable ex) {
+        // File f = new File(Environment.getExternalStorageDirectory(), "guitartrainer.log");
+        //
+        // }
+        // });
+
         currentContex = getApplicationContext();
 
         DatabaseHelper.initDatabaseHelperInstance(getApplicationContext());
+
     }
 
     public static SharedPreferences getPrefs() {

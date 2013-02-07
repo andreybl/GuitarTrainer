@@ -15,8 +15,7 @@ public class LessonModeDegree2Parent extends ALesson {
 
     @Override
     public String getTitle() {
-        String str = MasterActivity.getInstance().getResources()
-                .getString(R.string.lesson_modedegree2parent_title);
+        String str = MasterActivity.getInstance().getResources().getString(R.string.lesson_modedegree2parent_title);
         return str;
     }
 
@@ -37,6 +36,7 @@ public class LessonModeDegree2Parent extends ALesson {
     public void doNext() {
         Key mode;
         if (fragment.getModesView().isRandomInput()) {
+            // TODO: use all keys (not only natural keys) here
             mode = LessonsUtils.randomKey();
             fragment.getModesView().show(mode);
         } else {

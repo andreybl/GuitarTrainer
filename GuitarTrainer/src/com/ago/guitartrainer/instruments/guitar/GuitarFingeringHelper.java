@@ -170,7 +170,8 @@ public class GuitarFingeringHelper {
 
     public List<Position> resolvePositions(Note n) {
         List<Position> list = new ArrayList<Position>();
-        if (mapNote2Positions.containsKey(n)) {
+        // TODO: the "n" is null sometimes, why?
+        if (n != null && mapNote2Positions.containsKey(n)) {
             list.addAll(mapNote2Positions.get(n));
         }
 

@@ -194,6 +194,10 @@ public class LessonNote2Position extends ALesson {
             if (!isLessonRunning())
                 return;
 
+            // TODO: use for other lessons also
+            if (currentQuestionMetrics.isClosed())
+                return;
+
             // TODO: the npe.position is not set, when detected with FFT. It is not possible to
             // resolve unique position.
 

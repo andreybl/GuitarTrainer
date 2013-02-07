@@ -68,7 +68,7 @@ public abstract class ALesson implements ILesson {
      * metrics must be updated and persisted.
      * 
      * */
-    private QuestionMetrics currentQuestionMetrics;
+    protected QuestionMetrics currentQuestionMetrics;
 
     protected RuntimeExceptionDao<QuestionMetrics, Integer> qmDao = DatabaseHelper.getInstance()
             .getRuntimeExceptionDao(QuestionMetrics.class);

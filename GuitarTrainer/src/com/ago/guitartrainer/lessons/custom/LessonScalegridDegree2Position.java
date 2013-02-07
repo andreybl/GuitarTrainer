@@ -520,27 +520,4 @@ public class LessonScalegridDegree2Position extends ALesson {
 
     }
 
-    // /**
-    // * Listens on user selection of the shape.
-    // *
-    // * This listener does not participate in evaluation of answer. It just configure one of the lesson parameters -
-    // the
-    // * grid shape to use in questions.
-    // *
-    // * @author Andrej Golovko - jambit GmbH
-    // *
-    // */
-    // private class InnerOnShapeSelectionListener implements OnViewSelectionListener<ScaleGrid.Type> {
-    //
-    // @Override
-    // public void onViewElementSelected(ScaleGrid.Type element) {
-    //
-    // // if (currentQuestion != null)
-    // userScalegridType = element;
-    // if (isLessonRunning())
-    // next();
-    // }
-    //
-    // }
-
 }

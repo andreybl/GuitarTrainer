@@ -1,5 +1,7 @@
 package com.ago.guitartrainer.lessons.custom;
 
+import android.util.Log;
+
 import com.ago.guitartrainer.MasterActivity;
 import com.ago.guitartrainer.R;
 import com.ago.guitartrainer.events.OnViewSelectionListener;
@@ -36,6 +38,7 @@ public class LessonParentDegree2Mode extends ALesson {
     public void doNext() {
         Key parent;
         if (fragment.getModesView().isRandomInput()) {
+            // TODO: use all keys (not only natural keys) here
             parent = LessonsUtils.randomKey();
             fragment.getParentsView().show(parent);
         } else {
