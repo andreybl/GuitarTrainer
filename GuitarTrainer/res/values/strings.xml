@@ -4,6 +4,7 @@
     <string name="app_name">Guitar Trainer</string>
     <string name="menu_settings">Settings</string>
     <string name="menu_reset_data">Reset data</string>
+    <string name="menu_benchmark">Benchmark</string>
 
     <!-- Lesson selection and execution controls -->
     <string name="dialog_lessonselection_title">Dialog: Lesson Selection</string>

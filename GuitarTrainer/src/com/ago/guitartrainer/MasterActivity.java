@@ -17,8 +17,9 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.ago.guitartrainer.db.DatabaseHelper;
-import com.ago.guitartrainer.fragments.FragmentMain;
+import com.ago.guitartrainer.fragments.FragmentBenchmarkFretview;
 import com.ago.guitartrainer.fragments.FragmentFromLessonFactory;
+import com.ago.guitartrainer.fragments.FragmentMain;
 import com.ago.guitartrainer.lessons.ILesson;
 import com.ago.guitartrainer.ui.IPrefKeys;
 import com.ago.guitartrainer.ui.dialogs.AboutDialog;
@@ -71,10 +72,11 @@ public class MasterActivity extends FragmentActivity {
             Fragment fragment = FragmentFromLessonFactory.fragmentForLesson(currentLesson);
             replaceFragment(fragment);
         } else {
-            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ft.replace(R.id.content_frame, new FragmentMain());
-            ft.addToBackStack(null);
-            ft.commit();
+            // FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            // ft.replace(R.id.content_frame, new FragmentMain());
+            // ft.addToBackStack(null);
+            // ft.commit();
+            replaceFragment(new FragmentMain());
 
         }
 
@@ -153,6 +155,10 @@ public class MasterActivity extends FragmentActivity {
         case R.id.menu_settings: {
             Intent intent = new Intent(this, SettingsActivity.class);
             startActivity(intent);
+            break;
+        }
+        case R.id.menu_benchmark: {
+            replaceFragment(new FragmentBenchmarkFretview());
             break;
         }
         case R.id.menu_reset_database: {

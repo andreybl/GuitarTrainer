@@ -254,7 +254,7 @@ public abstract class ALesson implements ILesson {
          */
         currentQuestionMetrics.submitAnswer(IS_SUCCESS);
 
-        vibrateYesAndCompleted();
+        vibrateOnSuccessAndCompletion();
 
         questionTimer.cancel();
 
@@ -337,7 +337,7 @@ public abstract class ALesson implements ILesson {
      * Vibrate in pattern, when the answer of user is completed. E.g. the question was answered successfully and we can
      * go to the next question.
      */
-    protected void vibrateYesAndCompleted() {
+    protected void vibrateOnSuccessAndCompletion() {
 
         boolean doVibrate = GuitarTrainerApplication.getPrefs().getBoolean(SettingsActivity.KEY_PLAY_VIBRATIONS, true);
 
