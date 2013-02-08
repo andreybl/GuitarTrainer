@@ -6,6 +6,7 @@ import com.ago.guitartrainer.MasterActivity;
 import com.ago.guitartrainer.R;
 import com.ago.guitartrainer.events.OnViewSelectionListener;
 import com.ago.guitartrainer.fragments.FragmentParentDegree2Mode;
+import com.ago.guitartrainer.lessons.UserInputMethod;
 import com.ago.guitartrainer.notation.Degree;
 import com.ago.guitartrainer.notation.Key;
 import com.ago.guitartrainer.ui.LearningStatusView;
@@ -93,7 +94,7 @@ public class LessonParentDegree2Mode extends ALesson {
                 return;
 
             if (expectedMode == element) {
-                onSuccess();
+                onSuccess(UserInputMethod.BUTTON, 1);
             } else {
                 onFailure();
             }

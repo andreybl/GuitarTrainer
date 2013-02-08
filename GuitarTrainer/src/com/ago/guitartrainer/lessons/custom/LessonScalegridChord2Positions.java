@@ -1,18 +1,18 @@
 package com.ago.guitartrainer.lessons.custom;
 
-import java.util.List;
-
 import com.ago.guitartrainer.MasterActivity;
 import com.ago.guitartrainer.R;
 import com.ago.guitartrainer.events.NotePlayingEvent;
 import com.ago.guitartrainer.events.OnViewSelectionListener;
 import com.ago.guitartrainer.fragments.FragmentScalegridChord2Positions;
-import com.ago.guitartrainer.instruments.guitar.Position;
+import com.ago.guitartrainer.lessons.AQuestion;
 import com.ago.guitartrainer.notation.Chord;
 import com.ago.guitartrainer.notation.Degree;
-import com.ago.guitartrainer.utils.LessonsUtils;
+import com.ago.guitartrainer.scalegrids.ScaleGrid;
 
 public class LessonScalegridChord2Positions extends LessonScalegridDegree2Position {
+
+    private Degree[] chord = Chord.major;
 
     public void onFragmentInitializationCompleted(FragmentScalegridChord2Positions fragment) {
         this.fragment = fragment;
@@ -28,35 +28,21 @@ public class LessonScalegridChord2Positions extends LessonScalegridDegree2Positi
     }
 
     @Override
-    protected void askQuestionToUser() {
-
-        fragment.getScalegridView().show(gridShape.getType());
+    protected void showQuestionToUser(AQuestion q) {
+        QuestionScalegridDegree2Position quest = (QuestionScalegridDegree2Position) q;
+        fragment.getScalegridView().show(quest.scaleGridType);
         // fragment.getDegreesView().show(quest.degree);
+
+        ScaleGrid sg = ScaleGrid.create(quest.scaleGridType, quest.fretPosition);
 
         FragmentScalegridChord2Positions f = (FragmentScalegridChord2Positions) fragment;
         f.getChordsView().show(chord);
 
         if (!fragment.getScalegridView().isRootOnlyShown()) {
-            fragment.getFretView().show(layerLesson, gridShape);
+            fragment.getFretView().show(layerLesson, sg);
         } else {
-            fragment.getFretView().show(layerLesson, gridShape.getRootPosition());
+            fragment.getFretView().show(layerLesson, sg.getRootPosition());
         }
-    }
-
-    private Degree[] chord = Chord.major;
-
-    @Override
-    protected List<Position> generateExpectedPositions() {
-        FragmentScalegridChord2Positions f = (FragmentScalegridChord2Positions) fragment;
-        if (f.getChordsView().isRandomInput()) {
-            chord = LessonsUtils.randomChord();
-        } else {
-            chord = f.getChordsView().element();
-        }
-
-        /* all positions must be played for the answer to be accepted */
-        List<Position> positions = gridShape.chord2Positions(chord);
-        return positions;
     }
 
     @Override

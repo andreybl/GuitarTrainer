@@ -1,5 +1,5 @@
 #
-# generated on 2013/02/01 08:40:30
+# generated on 2013/02/08 11:25:36
 #
 # --table-start--
 dataClass=com.ago.guitartrainer.lessons.LessonMetrics
@@ -53,6 +53,12 @@ generatedId=true
 # --field-end--
 # --field-start--
 fieldName=avgSuccessfulAnswerTime
+# --field-end--
+# --field-start--
+fieldName=nextLapTime
+# --field-end--
+# --field-start--
+fieldName=eFactor
 # --field-end--
 # --field-start--
 fieldName=numOfSuccessfulAnswers

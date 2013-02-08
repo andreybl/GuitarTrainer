@@ -12,7 +12,7 @@ public enum Degree {
 
     private double degreeValue;
 
-    public static final Degree[] STRONG_DEGREES = new Degree[] { ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN };
+    public static final Degree[] NATURAL_DEGREES = new Degree[] { ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN };
 
     private static Map<Double, Degree> mapDoubleToDegree = new Hashtable<Double, Degree>();
     static {

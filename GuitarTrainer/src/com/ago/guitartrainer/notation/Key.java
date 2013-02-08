@@ -16,7 +16,7 @@ public enum Key {
      * sharps/flats: the appropriate images are not currently not available in the {@link NotesView}. But on the other
      * side it could be enough just to no the position of the main keys.
      * */
-    public static final Key[] mainKeys = new Key[] { Key.C, Key.D, Key.E, Key.F, Key.G, Key.A, Key.B };
+    public static final Key[] NATURAL_KEYS = new Key[] { Key.C, Key.D, Key.E, Key.F, Key.G, Key.A, Key.B };
 
     private double keyValue;
 

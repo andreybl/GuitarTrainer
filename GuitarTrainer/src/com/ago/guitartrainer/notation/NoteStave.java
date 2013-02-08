@@ -25,6 +25,8 @@ public class NoteStave {
 
     private MultiMap<Key, Octave, Note> mapKeyOctave2Note = new MultiMap<Key, Octave, Note>();
 
+    private List<Note> notesOrdered = new ArrayList<Note>();
+
     private NoteStave() {
         initNote2Freq();
     }
@@ -46,7 +48,7 @@ public class NoteStave {
         registerNote(Note.A2);
         registerNote(Note.A2di);
         registerNote(Note.B2);
-        registerNote(Note.C3);  //10
+        registerNote(Note.C3); // 10
         registerNote(Note.C3di);
         registerNote(Note.D3);
         registerNote(Note.D3di);
@@ -78,8 +80,6 @@ public class NoteStave {
         registerNote(Note.F5);
 
     }
-
-    private List<Note> notesOrdered = new ArrayList<Note>();
 
     private void registerNote(Note note) {
 
@@ -123,25 +123,24 @@ public class NoteStave {
         return note;
     }
 
-    /** inner class to do soring of the map **/
-    private class ValueComparer implements Comparator {
-        private Map _data = null;
-
-        public ValueComparer(Map data) {
-            super();
-            _data = data;
-        }
-
-        public int compare(Object o1, Object o2) {
-            Double e1 = (Double) _data.get(o1);
-            Double e2 = (Double) _data.get(o2);
-            return e1.compareTo(e2);
-        }
-    }
+    // /** inner class to do soring of the map **/
+    // private class ValueComparer implements Comparator {
+    // private Map _data = null;
+    //
+    // public ValueComparer(Map data) {
+    // super();
+    // _data = data;
+    // }
+    //
+    // public int compare(Object o1, Object o2) {
+    // Double e1 = (Double) _data.get(o1);
+    // Double e2 = (Double) _data.get(o2);
+    // return e1.compareTo(e2);
+    // }
+    // }
 
     public Note resolveNote(Key key, Octave octave) {
         Note note = mapKeyOctave2Note.get(key, octave);
-
         return note;
     }
 
@@ -173,13 +172,12 @@ public class NoteStave {
      * @return
      */
     public Note nextHasNoSharpsFlats(Note note) {
-        Key[] mainDegrees = new Key[] { Key.C, Key.D, Key.E, Key.F, Key.G, Key.A, Key.B };
         Note noteHighest = Note.values()[0];
         Note result = note;
         boolean finishSearch = false;
         do {
             result = next(result);
-            finishSearch = Arrays.binarySearch(mainDegrees, result.getKey()) >= 0 || result == noteHighest;
+            finishSearch = Arrays.binarySearch(Key.NATURAL_KEYS, result.getKey()) >= 0 || result == noteHighest;
         } while (!finishSearch);
 
         return result;
@@ -212,13 +210,12 @@ public class NoteStave {
      * @return
      */
     public Note previousHasNoSharpsFlats(Note note) {
-        Key[] mainDegrees = new Key[] { Key.C, Key.D, Key.E, Key.F, Key.G, Key.A, Key.B };
         Note result = note;
         Note noteLowest = Note.values()[0];
         boolean finishSearch = false;
         do {
             result = previous(result);
-            finishSearch = Arrays.binarySearch(mainDegrees, result.getKey()) >= 0 || result == noteLowest;
+            finishSearch = Arrays.binarySearch(Key.NATURAL_KEYS, result.getKey()) >= 0 || result == noteLowest;
         } while (!finishSearch);
 
         return result;

@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -21,7 +20,6 @@ import com.ago.guitartrainer.fragments.FragmentBenchmarkFretview;
 import com.ago.guitartrainer.fragments.FragmentFromLessonFactory;
 import com.ago.guitartrainer.fragments.FragmentMain;
 import com.ago.guitartrainer.lessons.ILesson;
-import com.ago.guitartrainer.ui.IPrefKeys;
 import com.ago.guitartrainer.ui.dialogs.AboutDialog;
 import com.ago.guitartrainer.ui.dialogs.InstrumentSelectionDialog;
 import com.ago.guitartrainer.ui.dialogs.LessonSelectionDialog;
@@ -72,10 +70,6 @@ public class MasterActivity extends FragmentActivity {
             Fragment fragment = FragmentFromLessonFactory.fragmentForLesson(currentLesson);
             replaceFragment(fragment);
         } else {
-            // FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            // ft.replace(R.id.content_frame, new FragmentMain());
-            // ft.addToBackStack(null);
-            // ft.commit();
             replaceFragment(new FragmentMain());
 
         }
@@ -89,7 +83,7 @@ public class MasterActivity extends FragmentActivity {
     private ILesson currentLessonFromPreferences() {
         /* try to recall the previous lesson type from the shared preferences */
 
-        String lastLessonClazz = GuitarTrainerApplication.getPrefs().getString(IPrefKeys.KEY_LESSON_CLAZZ, null);
+        String lastLessonClazz = GuitarTrainerApplication.getPrefs().getString(SettingsActivity.KEY_LESSON_CLAZZ, null);
         ILesson lesson = null;
         if (lastLessonClazz != null) {
             Class<?> clazz;
@@ -244,7 +238,7 @@ public class MasterActivity extends FragmentActivity {
                     currentLesson = selectedLesson;
 
                     Editor editor = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
-                    editor.putString(IPrefKeys.KEY_LESSON_CLAZZ, currentLesson.getClass().getName());
+                    editor.putString(SettingsActivity.KEY_LESSON_CLAZZ, currentLesson.getClass().getName());
                     editor.commit();
 
                     miStart.setEnabled(true);

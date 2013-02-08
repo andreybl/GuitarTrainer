@@ -73,7 +73,7 @@ public class GuitarTrainerTest extends ActivityInstrumentationTestCase2<MasterAc
         }
 
         for (Key k : Key.values()) {
-            for (Degree d : Degree.STRONG_DEGREES) {
+            for (Degree d : Degree.NATURAL_DEGREES) {
                 Key key = Key.modeByParentAndDegree(k, d);
                 System.out.print(key + "\t");
             }

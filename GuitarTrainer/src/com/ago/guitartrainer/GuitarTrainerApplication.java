@@ -1,12 +1,8 @@
 package com.ago.guitartrainer;
 
-import java.io.File;
-import java.lang.Thread.UncaughtExceptionHandler;
-
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.Environment;
 import android.preference.PreferenceManager;
 
 import com.ago.guitartrainer.db.DatabaseHelper;

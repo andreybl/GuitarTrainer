@@ -21,6 +21,7 @@ import com.ago.guitartrainer.events.NotePlayingEvent;
 import com.ago.guitartrainer.events.OnViewSelectionListener;
 import com.ago.guitartrainer.fragments.FragmentScalegridDegree2Position;
 import com.ago.guitartrainer.instruments.guitar.Position;
+import com.ago.guitartrainer.lessons.AQuestion;
 import com.ago.guitartrainer.lessons.QuestionMetrics;
 import com.ago.guitartrainer.notation.Degree;
 import com.ago.guitartrainer.notation.Note;
@@ -32,6 +33,7 @@ import com.ago.guitartrainer.ui.LearningStatusView;
 import com.ago.guitartrainer.utils.ArrayUtils;
 import com.ago.guitartrainer.utils.LessonsUtils;
 import com.j256.ormlite.dao.RuntimeExceptionDao;
+import com.j256.ormlite.stmt.Where;
 
 public class LessonScalegridDegree2Position extends ALesson {
 
@@ -53,6 +55,12 @@ public class LessonScalegridDegree2Position extends ALesson {
      * */
     private List<Position> expectedPositions;
 
+    public LessonScalegridDegree2Position() {
+        if (qDao.countOf() == 0) {
+            populateDatabase();
+        }
+    }
+
     /**
      * _Correctly_ submitted by the user positions, as mentioned in javadoc for {@link #expectedPositions}.
      * 
@@ -60,18 +68,6 @@ public class LessonScalegridDegree2Position extends ALesson {
      * same objects as {@link #expectedPositions}
      * */
     private Set<Position> submittedPositions = new HashSet<Position>();
-
-    /**
-     * if true, the grid shape used as lesson parameter is allowed to be entered by the user. Otherwise, the parameter
-     * is selected randomly.
-     */
-    private ScaleGrid.Type userScalegridType = Type.ALPHA;
-
-    /**
-     * if true, the user is allowed to decide on the start position of the scale grid. If false, the valid starting
-     * position is selected randomly.
-     */
-    // private boolean isAreaStartInputAllowed = true;
 
     // TODO: remove from class var? it is cached in DatabaseHelper anyway
     private RuntimeExceptionDao<QuestionScalegridDegree2Position, Integer> qDao = DatabaseHelper.getInstance()
@@ -96,12 +92,6 @@ public class LessonScalegridDegree2Position extends ALesson {
         fragment.getFretView().clearLayer(layerLesson);
     }
 
-    private Degree degree = Degree.ONE;
-
-    protected ScaleGrid gridShape;
-
-    protected QuestionScalegridDegree2Position quest;
-
     /**
      * Skip to the next lesson. Or start the first question in the lesson loop.
      * 
@@ -116,64 +106,146 @@ public class LessonScalegridDegree2Position extends ALesson {
         fragment.getFretView().clearLayerByZIndex(FretView.LAYER_Z_FFT);
 
         /*
-         * the original idea was to keep the question params completely in an appropriate AQuestion subclass. But the
-         * problems is, that we must decided on the params before we can pick the question from the dB. And the
-         * AQuestion instance is required to get appropriate QuestionMetrics object.
-         * 
-         * So we use temporal vars, which type actually corresponds to the AQuestion vars types.
-         */
-        int fretPosition = 1;
-
-        /*
-         * 1. parameters of the question
-         * 
-         * In this block we decide on the parameters of the learning function. There are three params here, and each of
-         * them can be either user selected or randomly picked.
-         */
-        if (fragment.getScalegridView().isRandomInput()) {
-            // param1: grid shape type must be random
-            userScalegridType = LessonsUtils.randomScalegridType();
-        } else {
-            userScalegridType = fragment.getScalegridView().element();
-        }
-
-        if (fragment.getScalegridView().isRandomPosition()) {
-            fretPosition = LessonsUtils.randomFretPositionForGridShapeType(userScalegridType);
-        }
-
-        /* 3. visualize the question to the user */
-        gridShape = ScaleGrid.create(userScalegridType, fretPosition);
-
-        expectedPositions = generateExpectedPositions();
-
-        /*
          * 2. resolve question and metrics by params from dB
          * 
          * now we ready either to pick AQuestion from dB, or create a new one. And also the same for related
          * QuestionMetrics.
          */
-        quest = resolveOrCreateQuestion(userScalegridType, fretPosition, degree);
-        QuestionMetrics qm = resolveOrCreateQuestionMetrics(quest.getId());
-        registerQuestion(qDao, quest, qm);
+        QuestionScalegridDegree2Position quest = null;
+        try {
+            // TODO: user it!
+             quest = (QuestionScalegridDegree2Position) resolveNextQuestionByLearningAlgo(qDao);
 
-        /** TMP:start: the chord is shown */
-        // expectedPositions = gridShape.chord2Positions(Chord.major);
-        /** TMP:end */
+            if (quest == null)
+                quest = (QuestionScalegridDegree2Position) resolveNextQuestion();
 
-        submittedPositions.clear();
-        messageInLearningStatus(null);
+            QuestionMetrics qm = resolveOrCreateQuestionMetrics(quest.getId());
 
-        askQuestionToUser();
+            registerQuestion(qDao, quest, qm);
+        } catch (SQLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        if (quest != null) {
+            ScaleGrid sg = ScaleGrid.create(quest.scaleGridType, quest.fretPosition);
+            expectedPositions = sg.degree2Positions(quest.degree);
+
+            submittedPositions.clear();
+            messageInLearningStatus(null);
+
+            showQuestionToUser(quest);
+
+        }
     }
 
-    protected void askQuestionToUser() {
-        fragment.getScalegridView().show(gridShape.getType());
-        fragment.getDegreesView().show(degree);
+    private void populateDatabase() {
+
+        int fretPosition = 1;
+
+        for (Type scalegridType : Type.values()) {
+            for (Degree degree : Degree.NATURAL_DEGREES) {
+                QuestionScalegridDegree2Position quest = new QuestionScalegridDegree2Position();
+                quest.scaleGridType = scalegridType;
+                quest.fretPosition = fretPosition;
+                quest.degree = degree;
+
+                QuestionMetrics qm = new QuestionMetrics();
+                qmDao.create(qm);
+
+                quest.setMetrics(qm);
+                qDao.create(quest);
+
+            }
+        }
+
+    }
+
+    /**
+     * Resolve the next question to be asked every time the method is called.
+     * 
+     * The question is resolved based on parameters, which are:
+     * <ul>
+     * <li>either user input'ed
+     * <li>or randomly selected
+     * </ul>
+     * 
+     * The mathod does not apply any learning algorithms to decide which question to return.
+     * 
+     * @return question to be present to user
+     * @throws SQLException
+     */
+    protected AQuestion resolveNextQuestion() throws SQLException {
+        QuestionScalegridDegree2Position quest = null;
+
+        Where<QuestionScalegridDegree2Position, Integer> where = qDao.queryBuilder().where();
+
+        Type scalegridType = Type.ALPHA;
+        Degree degree = Degree.TWO;
+        int fretPosition = 1;
+
+        /*
+         * 1. Decided on parameterst of the question: scale grid, fret position, degree
+         * 
+         * Each param can either be random, or defined by the user.
+         */
+
+        if (fragment.getScalegridView().isRandomInput()) {
+            scalegridType = LessonsUtils.randomScalegridType();
+        } else {
+            // user selected choice
+            scalegridType = fragment.getScalegridView().element();
+        }
+        where = where.eq("scaleGridType", scalegridType);
+
+        if (fragment.getScalegridView().isRandomPosition()) {
+            fretPosition = LessonsUtils.randomFretPositionForGridShapeType(scalegridType);
+        } else {
+            // user selected choice
+            fretPosition = 1;
+        }
+        where = where.and().eq("fretPosition", fretPosition);
+
+        if (fragment.getDegreesView().isRandomInput()) {
+            degree = LessonsUtils.randomDegree();
+        } else {
+            // user selected choice
+            degree = fragment.getDegreesView().element();
+        }
+        where = where.and().eq("degree", degree);
+
+        /*
+         * 2. use the learning algo to decide on unique question to ask in current lap
+         * 
+         * We ignore the fact, that some params can be either random or user selected. If all params are either random
+         * or user selected, the result of the "quests" is a single question. And the application of the learning algo
+         * does not harm.
+         */
+        List<QuestionScalegridDegree2Position> quests = where.query();
+
+        if (quests.size() == 0) {
+            quest = new QuestionScalegridDegree2Position();
+            quest.scaleGridType = scalegridType;
+            quest.fretPosition = fretPosition;
+            quest.degree = degree;
+        } else {
+            quest = quests.get(0);
+        }
+
+        return quest;
+    }
+
+    protected void showQuestionToUser(AQuestion q) {
+        QuestionScalegridDegree2Position quest = (QuestionScalegridDegree2Position) q;
+        fragment.getScalegridView().show(quest.scaleGridType);
+        fragment.getDegreesView().show(quest.degree);
+
+        ScaleGrid sg = ScaleGrid.create(quest.scaleGridType, quest.fretPosition);
 
         if (!fragment.getScalegridView().isRootOnlyShown()) {
-            fragment.getFretView().show(layerLesson, gridShape);
+            fragment.getFretView().show(layerLesson, sg);
         } else {
-            fragment.getFretView().show(layerLesson, gridShape.getRootPosition());
+            fragment.getFretView().show(layerLesson, sg.getRootPosition());
         }
 
         boolean playSound = GuitarTrainerApplication.getPrefs().getBoolean(SettingsActivity.KEY_PLAY_SOUNDS, false);
@@ -181,18 +253,6 @@ public class LessonScalegridDegree2Position extends ALesson {
             playDegree(quest.degree);
         }
 
-    }
-
-    protected List<Position> generateExpectedPositions() {
-        if (fragment.getDegreesView().isRandomInput()) {
-            degree = LessonsUtils.randomDegree();
-        } else {
-            degree = fragment.getDegreesView().element();
-        }
-
-        /* all positions must be played for the answer to be accepted */
-        List<Position> positions = gridShape.degree2Positions(degree);
-        return positions;
     }
 
     private MediaPlayer mediaPlayer;
@@ -232,41 +292,6 @@ public class LessonScalegridDegree2Position extends ALesson {
 
     }
 
-    /**
-     * Find question in dB or create a new one. The question created is not persisted in the method.
-     * 
-     * @param scalegridType
-     * @param fretPosition
-     * @param degree
-     * @return
-     */
-    private QuestionScalegridDegree2Position resolveOrCreateQuestion(Type scalegridType, int fretPosition, Degree degree) {
-        QuestionScalegridDegree2Position question = null;
-        try {
-            // resolve question
-            List<QuestionScalegridDegree2Position> quests = qDao.queryBuilder().where()
-                    .eq("scaleGridType", scalegridType).and().eq("fretPosition", fretPosition).and()
-                    .eq("degree", degree).query();
-            if (quests.size() == 0) {
-                question = new QuestionScalegridDegree2Position();
-                question.scaleGridType = scalegridType;
-                question.fretPosition = fretPosition;
-                question.degree = degree;
-                // in the next step the metrics object will be added
-
-            } else if (quests.size() == 1) {
-                question = quests.get(0);
-            } else {
-                throw new RuntimeException("The question object is not unique.");
-            }
-
-        } catch (SQLException e) {
-            Log.e(getTag(), e.getMessage(), e);
-        }
-
-        return question;
-    }
-
     @Override
     public void showMetrics() {
 
@@ -299,7 +324,7 @@ public class LessonScalegridDegree2Position extends ALesson {
              * currently, I donn't know how to do it with ORMLite
              */
             List<QuestionScalegridDegree2Position> quests = qDao.queryBuilder().where()
-                    .eq("scaleGridType", userScalegridType).query();
+                    .eq("scaleGridType", fragment.getScalegridView().element()).query();
 
             /* collection metrics about degrees */
             Map<Degree, Double> mapDegree2Avg = new HashMap<Degree, Double>();
@@ -327,10 +352,10 @@ public class LessonScalegridDegree2Position extends ALesson {
             }
 
             /* Preparing the position to color map, Map<Position, Integer> */
-            ScaleGrid scaleGrid = ScaleGrid.create(userScalegridType, 0);
+            ScaleGrid scaleGrid = ScaleGrid.create(fragment.getScalegridView().element(), 0);
             Map<Position, Integer> mapPosition2Color = new HashMap<Position, Integer>();
 
-            for (Degree degree : Degree.STRONG_DEGREES) {
+            for (Degree degree : Degree.NATURAL_DEGREES) {
                 /*
                  * TODO: problem: positions with the same degree will always have the same color.
                  * 
@@ -433,12 +458,6 @@ public class LessonScalegridDegree2Position extends ALesson {
         fragment.getFretView().setEnabledInput(true);
 
         fragment.getScalegridView().setEnabled(true);
-        // fragment.getScalegridView().setEnabledInput(isShapeInputAllowed);
-
-        // if (!fragment.getScalegridView().isRandomInput()) {
-        // InnerOnShapeSelectionListener onShapeSelection = new InnerOnShapeSelectionListener();
-        // fragment.getScalegridView().registerListener(onShapeSelection);
-        // }
 
         fragment.getDegreesView().setEnabled(true);
         fragment.getDegreesView().setEnabledInput(false);
@@ -499,7 +518,7 @@ public class LessonScalegridDegree2Position extends ALesson {
 
                     /* all positions from users are new */
                     if (ArrayUtils.isEqual(expectedPositions, submittedPositions)) {
-                        onSuccess();
+                        onSuccess(npEvent.userInputMethod, expectedPositions.size());
                     } else {
 
                         vibrateYesButUncompleted();

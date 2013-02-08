@@ -17,6 +17,7 @@ import com.ago.guitartrainer.instruments.guitar.GuitarFingeringHelper;
 import com.ago.guitartrainer.instruments.guitar.GuitarUtils;
 import com.ago.guitartrainer.instruments.guitar.Position;
 import com.ago.guitartrainer.lessons.QuestionMetrics;
+import com.ago.guitartrainer.lessons.UserInputMethod;
 import com.ago.guitartrainer.notation.Note;
 import com.ago.guitartrainer.ui.FretView;
 import com.ago.guitartrainer.ui.FretView.Layer;
@@ -214,8 +215,7 @@ public class LessonNote2Position extends ALesson {
             }
 
             if (isAnswerAccepted) {
-
-                onSuccess();
+                onSuccess(npe.userInputMethod, acceptedPositions.size());
                 fragment.getFretView().clearLayer(layerLesson);
                 fragment.getFretView().show(layerLesson, acceptedPositions);
             } else {

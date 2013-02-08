@@ -21,6 +21,7 @@ import com.ago.guitartrainer.R;
 import com.ago.guitartrainer.events.NotePlayingEvent;
 import com.ago.guitartrainer.instruments.guitar.GuitarFingeringHelper;
 import com.ago.guitartrainer.instruments.guitar.Position;
+import com.ago.guitartrainer.lessons.UserInputMethod;
 import com.ago.guitartrainer.notation.Note;
 import com.ago.guitartrainer.scalegrids.ScaleGrid;
 import com.ago.guitartrainer.ui.FretView.Layer;
@@ -304,6 +305,7 @@ public class FretImageView extends ImageView {
         fretView.setNoteName(note.toString());
 
         NotePlayingEvent npe = new NotePlayingEvent(note, pos);
+        npe.userInputMethod = UserInputMethod.FRETVIEWMANUAL;
         if (fretView != null)
             fretView.notifyListeners(npe);
 

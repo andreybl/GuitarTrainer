@@ -2,7 +2,10 @@ package com.ago.guitartrainer.events;
 
 import java.util.List;
 
+import android.test.UiThreadTest;
+
 import com.ago.guitartrainer.instruments.guitar.Position;
+import com.ago.guitartrainer.lessons.UserInputMethod;
 import com.ago.guitartrainer.notation.Note;
 
 /**
@@ -33,6 +36,8 @@ public class NotePlayingEvent {
      * 
      */
     public Position position;
+    
+    public UserInputMethod userInputMethod = UserInputMethod.UNDEFINED;
 
     public NoteEventType type;
 

@@ -1,5 +1,9 @@
 package com.ago.guitartrainer.lessons;
 
+import java.util.Date;
+
+import com.ago.guitartrainer.GuitarTrainerApplication;
+import com.ago.guitartrainer.SettingsActivity;
 import com.j256.ormlite.field.DatabaseField;
 
 /**
@@ -12,13 +16,13 @@ import com.j256.ormlite.field.DatabaseField;
  * </ul>
  * 
  * @author Andrej Golovko - jambit GmbH
- * 
+ * @see http://www.supermemo.com/english/ol/sm2.htm
  */
 public class QuestionMetrics {
 
     @DatabaseField(generatedId = true)
     private int id;
-    
+
     /** timestamp when the question was started */
     private long startedAt = 0;
 
@@ -29,8 +33,42 @@ public class QuestionMetrics {
     @DatabaseField
     public long avgSuccessfulAnswerTime;
 
+    @DatabaseField
+    private Date nextLapTime;
+
     /**
-     * counter for successful answers.
+     * The E-Factor - easiness factor - as described in SM2 learning algorithm.
+     * 
+     * 
+     * 
+     * E-Factors is allowed to vary between 1.1 for the most difficult items and 2.5 for the easiest ones. At the moment
+     * of introducing an item into a SuperMemo database, its E-Factor was assumed to equal 2.5. In the course of
+     * repetitions this value was gradually decreased in case of recall problems. Thus the greater problems an item
+     * caused in recall, the more significant was the decrease of its E-Factor.
+     * 
+     * The eFactor is calculated with: eFactor':=eFactor+(0.1-(5-q)*(0.08+(5-q)*0.02)), where q is a quality of the
+     * response in range 0..5. The q is reflected with {@link QualityOfAnswer} in our case.
+     * 
+     * The item must be repeated until the eFactor is at least 4.
+     */
+    @DatabaseField
+    private double eFactor = 2.5;
+
+    // @formatter:off
+    /**
+     * Inter-repetition interval after the n-th repetition (in days).
+     *
+     * Calculation of the interval is done with formula:
+     *      I(1):=1 
+     *      I(2):=6 
+     *      for n>2 I(n):=I(n-1)*eFactor
+     * 
+     */
+    //@formatter:on
+    private int iRepetitionIntervalInDays = 1;
+
+    /**
+     * Counter for successful answers.
      * 
      * Note that the difference (askedCounter-numOfSuccessfulAnswers) informs about number of times when the question
      * was skipped (e.g. user failed to answer the question).
@@ -54,7 +92,6 @@ public class QuestionMetrics {
      */
     private int numOfSuccessfulAnswersLastLoop = 0;
 
-    
     /**
      * counter for failed answers in last loop
      * 
@@ -65,15 +102,23 @@ public class QuestionMetrics {
     /** avg time of successful answers in the last loop */
     private long avgSuccessfulAnswerTimeLastLoop;
 
-    public int getId(){
+    public int getId() {
         return id;
     }
-    
+
+    /**
+     * The true is set, only if the eFactor of the next lap was calcualted already.
+     */
+    // private boolean isEFactorUpdated = false;
+
     /**
      * Submit the time required by the user to answer the question.
      * 
-     * Not only correct, but also incorrect answers are accounted. We also account for incorrect answer, when the user
-     * skips the question without trying to answer it, like it is the case when clicking on the "Next" button.
+     * The parameter {@link QualityOfAnswer} depends strongly on the input method and so must be provided from the
+     * fragment which is in charge of input.
+     * 
+     * Not only correct, but also incorrect answers are taken into account. We also account for incorrect answer, when
+     * the user skips the question without trying to answer it, like it is the case when clicking on the "Next" button.
      * 
      * The avg answer time for the question is calculated accumulatively with formula:
      * <p>
@@ -84,23 +129,30 @@ public class QuestionMetrics {
      * @param isSuccess
      *            indicates whether the answer was successful
      */
-    public void submitAnswer(boolean isSuccess) {
+    // TODO: add method liek submitAnswer(isSuccess) to also submit failures, e.g. where no numOfInputs is required
+    public void submitAnswer(UserInputMethod userInputMethod, int numberOfInputs, boolean isSuccess) {
 
         if (isClosed())
             return;
 
+        // calculate quality of answer
+        String key = SettingsActivity.KEY_USERINPUTMETHOD_prefix + "_" + userInputMethod;
+        long bestMotionTime = GuitarTrainerApplication.getPrefs().getLong(key, 4000);
+        QualityOfAnswer qualityOfAnswer = null;
+
+        long currentTime = System.currentTimeMillis();
+
         if (isSuccess) {
+
             /*
              * the question is done, we update metrics for it and prohibit any submission to the question
              */
-
-            long currentTime = System.currentTimeMillis();
 
             duration = currentTime - startedAt;
 
             avgSuccessfulAnswerTimeLastLoop = (avgSuccessfulAnswerTimeLastLoop * numOfSuccessfulAnswersLastLoop + duration)
                     / (numOfSuccessfulAnswersLastLoop + 1);
-            
+
             numOfSuccessfulAnswersLastLoop++;
             numOfSuccessfulAnswers++;
 
@@ -108,12 +160,39 @@ public class QuestionMetrics {
 
             // TODO: do something with loop and non-loop metrics
             avgSuccessfulAnswerTime = avgSuccessfulAnswerTimeLastLoop;
-            
-            // TODO: calc the avg value for total
+
+            qualityOfAnswer = QualityOfAnswer.mapToQuality(bestMotionTime, numberOfInputs, duration);
+
         } else {
 
             numOfFailedAnswersLastLoop++;
             numOfFailedAnswers++;
+
+            // TODO: actually, "blackout" is only when we go to the next question with next()
+            // qualityOfAnswer = QualityOfAnswer.BLACKOUT; so we need submitBlackout() method
+        }
+
+        if (isSuccess && qualityOfAnswer != null) {
+            Date now = new Date(currentTime);
+            if (nextLapTime == null || nextLapTime.before(now)) {
+
+                if (qualityOfAnswer != QualityOfAnswer.UNDEFINED) {
+
+                    eFactor = eFactor - 0.8 + 0.28 * qualityOfAnswer.value - 0.02 * qualityOfAnswer.value
+                            * qualityOfAnswer.value;
+
+                    if (iRepetitionIntervalInDays == 1)
+                        iRepetitionIntervalInDays = 1;
+                    else if (iRepetitionIntervalInDays == 2)
+                        iRepetitionIntervalInDays = 6;
+                    else
+                        iRepetitionIntervalInDays = (int) Math.round(iRepetitionIntervalInDays * eFactor);
+
+                    // TODO: temporally disabled
+                    // long iRepetitionIntervalInMs = iRepetitionIntervalInDays * 24 * 60 * 60 * 1000;
+                    // nextLapTime = new Date(now.getTime() + iRepetitionIntervalInMs);
+                }
+            }
         }
 
     }
@@ -172,5 +251,11 @@ public class QuestionMetrics {
     public boolean isClosed() {
         boolean isClosed = startedAt != 0 && duration != 0;
         return isClosed;
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "[" + getId() + "]" + ":eFactor=" + eFactor + ";nextLapTime=" + nextLapTime
+                + ";avgSuccessfulAnswerTime=" + avgSuccessfulAnswerTime;
     }
 }

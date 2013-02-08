@@ -24,6 +24,7 @@ import android.util.Log;
 import com.ago.guitartrainer.events.INoteEventListener;
 import com.ago.guitartrainer.events.NoteEventType;
 import com.ago.guitartrainer.events.NotePlayingEvent;
+import com.ago.guitartrainer.lessons.UserInputMethod;
 import com.ago.guitartrainer.midi.FFTPitchDetectorListener;
 import com.ago.guitartrainer.midi.PitchDetectorPhase;
 import com.ago.guitartrainer.notation.Note;
@@ -268,6 +269,7 @@ public class PitchDetector implements Runnable {
     }
 
     private void notifyListener(NotePlayingEvent e) {
+        e.userInputMethod = UserInputMethod.FRETVIEWSOUND;
         if (e.note == Note.D2di || e.note == Note.F5)
             return;
 

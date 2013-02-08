@@ -20,23 +20,25 @@ import android.os.Bundle;
 public class SettingsActivity extends Activity {
 
     public static final String KEY_QUESTION_DURATION_MAX = "question_duration_max";
-    
+
     public static final String KEY_POST_QUESTION_PAUSE_DURATION = "post_question_pause_duration";
-    
+
     public static final String KEY_QUESTION_SHORTEST_REACTION_TIME = "question_shortest_reaction_time";
 
     public static final String KEY_NOTESVIEW_SENSITIVITY = "notesview_sensitivity";
 
     public static final String KEY_DEBUG_MODE = "debug_mode";
-    
+
     public static final String KEY_PLAY_SOUNDS = "play_sounds";
-    
+
     public static final String KEY_PLAY_VIBRATIONS = "play_vibrations";
-    
+
     public static final String KEY_INPUT_METHOD_MANUAL = "input_method_manual";
-    
-    
-    
+
+    public static final String KEY_LESSON_CLAZZ = "app.LastLessonClazzName";
+
+    public static final String KEY_USERINPUTMETHOD_prefix = "app.UserInputMethod";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

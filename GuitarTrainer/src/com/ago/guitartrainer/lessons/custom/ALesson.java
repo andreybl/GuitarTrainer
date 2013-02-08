@@ -1,6 +1,7 @@
 package com.ago.guitartrainer.lessons.custom;
 
 import java.sql.SQLException;
+import java.util.Calendar;
 import java.util.List;
 
 import android.content.Context;
@@ -17,6 +18,7 @@ import com.ago.guitartrainer.lessons.AQuestion.QuestionStatus;
 import com.ago.guitartrainer.lessons.ILesson;
 import com.ago.guitartrainer.lessons.LessonMetrics;
 import com.ago.guitartrainer.lessons.QuestionMetrics;
+import com.ago.guitartrainer.lessons.UserInputMethod;
 import com.ago.guitartrainer.lessons.helpers.PauseTimer;
 import com.ago.guitartrainer.lessons.helpers.QuestionTimer;
 import com.ago.guitartrainer.ui.LearningStatusView;
@@ -217,6 +219,8 @@ public abstract class ALesson implements ILesson {
 
     }
 
+    private static int UNDEFINED_RESPONSE_TIME = -1;
+
     @Override
     public void stop() {
 
@@ -235,7 +239,7 @@ public abstract class ALesson implements ILesson {
 
         questionTimer.cancel();
 
-        currentQuestionMetrics.submitAnswer(false);
+        currentQuestionMetrics.submitAnswer(UserInputMethod.UNDEFINED, UNDEFINED_RESPONSE_TIME, !IS_SUCCESS);
 
         getLearningStatusView().updateMessageToUser(null);
 
@@ -247,12 +251,17 @@ public abstract class ALesson implements ILesson {
     /**
      * Must be called by the sub-class, when the question is answered <code>successfully</code>.
      * 
-     * */
-    protected void onSuccess() {
-        /*
-         * TODO: update metrics for question, persist it to db; update lesson metrics and persist. go to next question
-         */
-        currentQuestionMetrics.submitAnswer(IS_SUCCESS);
+     * The number of inputs corresponds to the minimal expected elements which must be submitted by the user to answer
+     * the question. For example, if single note is required to be submitted, but the user try 7 different notes, the
+     * parameter here will have the "1" as its value.
+     * 
+     * @param userInputMethod
+     * @param numberOfInputs
+     *            number of expected inputs required from the user
+     */
+    protected void onSuccess(UserInputMethod userInputMethod, int numberOfInputs) {
+
+        currentQuestionMetrics.submitAnswer(userInputMethod, numberOfInputs, IS_SUCCESS);
 
         vibrateOnSuccessAndCompletion();
 
@@ -292,7 +301,7 @@ public abstract class ALesson implements ILesson {
      * Must be called by the sub-class, when the question is answered <code>incorrectly</code>.
      */
     protected void onFailure() {
-        currentQuestionMetrics.submitAnswer(!IS_SUCCESS);
+        currentQuestionMetrics.submitAnswer(UserInputMethod.UNDEFINED, UNDEFINED_RESPONSE_TIME, !IS_SUCCESS);
 
         qmDao.update(currentQuestionMetrics);
 
@@ -331,6 +340,43 @@ public abstract class ALesson implements ILesson {
             return false;
 
         return !lessonMetrics.isFinished();
+    }
+
+    /**
+     * Resolve single question to be asked according to the learning algorithm.
+     * 
+     * Returned are in first line the question, which time to be shown is in past. If no such question were found, we
+     * use the E-Factor to shown the harders questions.
+     * 
+     * @param quests
+     * @return
+     * @throws SQLException
+     */
+    protected AQuestion resolveNextQuestionByLearningAlgo(RuntimeExceptionDao qDao) throws SQLException {
+
+        Calendar cal = Calendar.getInstance();
+
+        // TODO: add caching for such questions.
+        List<QuestionMetrics> questionsByTime = qmDao.queryBuilder().orderBy("nextLapTime", true).where()
+                .le("nextLapTime", cal.getTime()).query();
+
+        QuestionMetrics qMetrics = null;
+        AQuestion quest = null;
+
+        if (questionsByTime.size() > 0) {
+            qMetrics = questionsByTime.get(0);
+        } else {
+            // TODO: also here, at the lap begining take the top-20 harders questions and learn only these
+            List<QuestionMetrics> list = qmDao.queryBuilder().orderBy("eFactor", true).query();
+            qMetrics = list.get(0);
+        }
+
+        if (qMetrics != null) {
+            List<AQuestion> quests = qDao.queryBuilder().where().eq("qMetric_id", qMetrics.getId()).query();
+            quest = quests.get(0);
+        }
+
+        return quest;
     }
 
     /**

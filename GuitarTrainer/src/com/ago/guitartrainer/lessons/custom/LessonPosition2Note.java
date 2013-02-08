@@ -18,6 +18,7 @@ import com.ago.guitartrainer.fragments.FragmentPosition2Note;
 import com.ago.guitartrainer.instruments.guitar.GuitarFingeringHelper;
 import com.ago.guitartrainer.instruments.guitar.Position;
 import com.ago.guitartrainer.lessons.QuestionMetrics;
+import com.ago.guitartrainer.lessons.UserInputMethod;
 import com.ago.guitartrainer.notation.Note;
 import com.ago.guitartrainer.ui.FretView;
 import com.ago.guitartrainer.ui.FretView.Layer;
@@ -215,7 +216,7 @@ public class LessonPosition2Note extends ALesson {
 
             Log.d(getTag(), "Notes soll/ist: " + expectedNote + "/" + note);
             if (note.equals(expectedNote)) {
-                onSuccess();
+                onSuccess(UserInputMethod.NOTEINPUT, 1);
             } else {
                 onFailure();
             }

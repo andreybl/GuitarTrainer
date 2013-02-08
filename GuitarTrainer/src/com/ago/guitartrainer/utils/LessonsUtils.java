@@ -44,7 +44,7 @@ public class LessonsUtils {
     public static Degree randomDegree() {
 
         if (randomDegrees.size() == 0) {
-            randomDegrees.addAll(Arrays.asList(Degree.STRONG_DEGREES));
+            randomDegrees.addAll(Arrays.asList(Degree.NATURAL_DEGREES));
         }
 
         int randomIndex = LessonsUtils.random(0, randomDegrees.size() - 1);
@@ -119,7 +119,7 @@ public class LessonsUtils {
         boolean isDebugMode = GuitarTrainerApplication.getPrefs().getBoolean(SettingsActivity.KEY_DEBUG_MODE, true);
 
         if (randomKey.size() == 0) {
-            randomKey.addAll(Arrays.asList(Key.mainKeys));
+            randomKey.addAll(Arrays.asList(Key.NATURAL_KEYS));
         }
 
         int indexKey = LessonsUtils.random(0, randomKey.size() - 1);
@@ -147,7 +147,7 @@ public class LessonsUtils {
             int fret = LessonsUtils.random(0, (isDebugMode) ? 5 : GuitarUtils.FRETS_ON_GUITAR);
             pos = new Position(str, fret);
             Note note = GuitarFingeringHelper.getInstance().resolveNote(pos);
-            isMainKey = Arrays.binarySearch(Key.mainKeys, note.getKey()) >= 0;
+            isMainKey = Arrays.binarySearch(Key.NATURAL_KEYS, note.getKey()) >= 0;
         } while (!isMainKey);
 
         return pos;
@@ -167,7 +167,7 @@ public class LessonsUtils {
 
     public static Key randomKey() {
         if (randomKey.size() == 0) {
-            randomKey.addAll(Arrays.asList(Key.mainKeys));
+            randomKey.addAll(Arrays.asList(Key.NATURAL_KEYS));
         }
 
         int indexKey = LessonsUtils.random(0, randomKey.size() - 1);
