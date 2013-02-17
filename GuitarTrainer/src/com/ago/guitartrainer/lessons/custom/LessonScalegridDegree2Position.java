@@ -19,6 +19,7 @@ import com.ago.guitartrainer.SettingsActivity;
 import com.ago.guitartrainer.db.DatabaseHelper;
 import com.ago.guitartrainer.events.NotePlayingEvent;
 import com.ago.guitartrainer.events.OnViewSelectionListener;
+import com.ago.guitartrainer.fragments.FragmentScalegridChord2Positions;
 import com.ago.guitartrainer.fragments.FragmentScalegridDegree2Position;
 import com.ago.guitartrainer.instruments.guitar.Position;
 import com.ago.guitartrainer.lessons.AQuestion;
@@ -114,7 +115,7 @@ public class LessonScalegridDegree2Position extends ALesson {
         QuestionScalegridDegree2Position quest = null;
         try {
             // TODO: user it!
-             quest = (QuestionScalegridDegree2Position) resolveNextQuestionByLearningAlgo(qDao);
+            quest = (QuestionScalegridDegree2Position) resolveNextQuestionByLearningAlgo(qDao);
 
             if (quest == null)
                 quest = (QuestionScalegridDegree2Position) resolveNextQuestion();
@@ -128,8 +129,18 @@ public class LessonScalegridDegree2Position extends ALesson {
         }
 
         if (quest != null) {
-            ScaleGrid sg = ScaleGrid.create(quest.scaleGridType, quest.fretPosition);
-            expectedPositions = sg.degree2Positions(quest.degree);
+            
+            if (fragment instanceof FragmentScalegridChord2Positions) {
+                // TODO: ugly workarround! must be in another **Lesson
+                ScaleGrid sg = ScaleGrid.create(quest.scaleGridType, quest.fretPosition);
+                FragmentScalegridChord2Positions f = (FragmentScalegridChord2Positions)fragment;
+                expectedPositions = sg.chord2Positions(f.getChordsView().element());
+                
+            } else {
+                ScaleGrid sg = ScaleGrid.create(quest.scaleGridType, quest.fretPosition);
+                expectedPositions = sg.degree2Positions(quest.degree);
+                
+            }
 
             submittedPositions.clear();
             messageInLearningStatus(null);
@@ -206,13 +217,15 @@ public class LessonScalegridDegree2Position extends ALesson {
         }
         where = where.and().eq("fretPosition", fretPosition);
 
-        if (fragment.getDegreesView().isRandomInput()) {
-            degree = LessonsUtils.randomDegree();
-        } else {
-            // user selected choice
-            degree = fragment.getDegreesView().element();
+        if (fragment.getDegreesView() != null) {
+            if (fragment.getDegreesView().isRandomInput()) {
+                degree = LessonsUtils.randomDegree();
+            } else {
+                // user selected choice
+                degree = fragment.getDegreesView().element();
+            }
+            where = where.and().eq("degree", degree);
         }
-        where = where.and().eq("degree", degree);
 
         /*
          * 2. use the learning algo to decide on unique question to ask in current lap
