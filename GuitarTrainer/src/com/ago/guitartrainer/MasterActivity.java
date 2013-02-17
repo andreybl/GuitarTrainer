@@ -108,7 +108,7 @@ public class MasterActivity extends FragmentActivity {
          * The "..." will not be shown, as far as it is in Action Bar, but it is hidden with getActionBar().hide() call
          */
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.activity_main, menu);
+        inflater.inflate(R.menu.menu_master_activity, menu);
 
         /* Init buttons for lesson control */
         miInstrumentSelect = menu.findItem(R.id.menu_instrument_select);

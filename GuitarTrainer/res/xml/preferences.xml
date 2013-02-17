@@ -12,6 +12,11 @@
         android:summary="Run the app in debug mode. Show additional information, put restriction on the lesson content by limiting number of questions etc."
         android:title="Debug Mode" />
     <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="learningmode_userselected"
+        android:summary="Instructs the app to use user parameters for deciding which question is next. If not set, the SM2 learning algorithm is used to resolve next question."
+        android:title="User-selected Learning Mode" />
+    <CheckBoxPreference
         android:defaultValue="true"
         android:key="input_method_manual"
         android:summary="Sets manual to be the default input method. If unchecked, the sound input method is default"

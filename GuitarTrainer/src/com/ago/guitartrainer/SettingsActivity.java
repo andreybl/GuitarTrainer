@@ -39,6 +39,8 @@ public class SettingsActivity extends Activity {
 
     public static final String KEY_USERINPUTMETHOD_prefix = "app.UserInputMethod";
 
+    public static final String KEY_LEARNINGMODE_USERSELECTED = "app.LearningModeUserSelected";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

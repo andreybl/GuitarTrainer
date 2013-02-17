@@ -30,20 +30,39 @@ public class LessonScalegridChord2Positions extends LessonScalegridDegree2Positi
     @Override
     protected void showQuestionToUser(AQuestion q) {
         QuestionScalegridDegree2Position quest = (QuestionScalegridDegree2Position) q;
-        fragment.getScalegridView().show(quest.scaleGridType);
-        // fragment.getDegreesView().show(quest.degree);
+        FragmentScalegridChord2Positions f = (FragmentScalegridChord2Positions) fragment;
+        f.getScalegridView().show(quest.scaleGridType);
 
         ScaleGrid sg = ScaleGrid.create(quest.scaleGridType, quest.fretPosition);
 
-        FragmentScalegridChord2Positions f = (FragmentScalegridChord2Positions) fragment;
         f.getChordsView().show(chord);
 
         if (!fragment.getScalegridView().isRootOnlyShown()) {
             fragment.getFretView().show(layerLesson, sg);
         } else {
             fragment.getFretView().show(layerLesson, sg.getRootPosition());
-        }
+        }        
     }
+//    
+//    @Override
+//    protected AQuestion resolveNextQuestion() throws SQLException {
+//        FragmentScalegridChord2Positions f = (FragmentScalegridChord2Positions) fragment;
+//        
+//        ScaleGrid sg = ScaleGrid.create(quest.scaleGridType, quest.fretPosition);
+//        
+//        if (!f.getChordsView().isRandomInput()) {
+//            LessonsUtils.randomChord();
+//            fragment.getFretView().show(layerLesson, sg);
+//        } else {
+//            fragment.getFretView().show(layerLesson, sg.getRootPosition());
+//        }
+//    }
+//
+//    @Override
+//    protected List<Position> prepareExpectedPositions(QuestionScalegridChord2Position quest) {
+//        ScaleGrid sg = ScaleGrid.create(quest.scaleGridType, quest.fretPosition);
+//        return sg.chord2Positions(quest.chord);
+//    }
 
     @Override
     public String getTitle() {

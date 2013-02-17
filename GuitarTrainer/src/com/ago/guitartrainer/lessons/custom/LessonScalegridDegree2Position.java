@@ -114,10 +114,14 @@ public class LessonScalegridDegree2Position extends ALesson {
          */
         QuestionScalegridDegree2Position quest = null;
         try {
-            // TODO: user it!
-            quest = (QuestionScalegridDegree2Position) resolveNextQuestionByLearningAlgo(qDao);
 
-            if (quest == null)
+            boolean isUserSelectedLearningMode = GuitarTrainerApplication.getPrefs().getBoolean(
+                    SettingsActivity.KEY_LEARNINGMODE_USERSELECTED, true);
+
+            if (!isUserSelectedLearningMode)
+                quest = (QuestionScalegridDegree2Position) resolveNextQuestionByLearningAlgo(qDao);
+
+            if (isUserSelectedLearningMode || quest == null)
                 quest = (QuestionScalegridDegree2Position) resolveNextQuestion();
 
             QuestionMetrics qm = resolveOrCreateQuestionMetrics(quest.getId());
@@ -129,17 +133,17 @@ public class LessonScalegridDegree2Position extends ALesson {
         }
 
         if (quest != null) {
-            
+
             if (fragment instanceof FragmentScalegridChord2Positions) {
                 // TODO: ugly workarround! must be in another **Lesson
                 ScaleGrid sg = ScaleGrid.create(quest.scaleGridType, quest.fretPosition);
-                FragmentScalegridChord2Positions f = (FragmentScalegridChord2Positions)fragment;
+                FragmentScalegridChord2Positions f = (FragmentScalegridChord2Positions) fragment;
                 expectedPositions = sg.chord2Positions(f.getChordsView().element());
-                
+
             } else {
                 ScaleGrid sg = ScaleGrid.create(quest.scaleGridType, quest.fretPosition);
                 expectedPositions = sg.degree2Positions(quest.degree);
-                
+
             }
 
             submittedPositions.clear();
@@ -148,6 +152,11 @@ public class LessonScalegridDegree2Position extends ALesson {
             showQuestionToUser(quest);
 
         }
+    }
+
+    protected List<Position> prepareExpectedPositions(QuestionScalegridDegree2Position quest) {
+        ScaleGrid sg = ScaleGrid.create(quest.scaleGridType, quest.fretPosition);
+        return sg.degree2Positions(quest.degree);
     }
 
     private void populateDatabase() {
