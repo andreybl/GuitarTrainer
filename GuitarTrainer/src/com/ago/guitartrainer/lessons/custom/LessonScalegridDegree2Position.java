@@ -113,10 +113,14 @@ public class LessonScalegridDegree2Position extends ALesson {
          */
         QuestionScalegridDegree2Position quest = null;
         try {
-            // TODO: user it!
-             quest = (QuestionScalegridDegree2Position) resolveNextQuestionByLearningAlgo(qDao);
 
-            if (quest == null)
+            boolean isUserSelectedLearningMode = GuitarTrainerApplication.getPrefs().getBoolean(
+                    SettingsActivity.KEY_LEARNINGMODE_USERSELECTED, true);
+
+            if (!isUserSelectedLearningMode)
+                quest = (QuestionScalegridDegree2Position) resolveNextQuestionByLearningAlgo(qDao);
+
+            if (isUserSelectedLearningMode || quest == null)
                 quest = (QuestionScalegridDegree2Position) resolveNextQuestion();
 
             QuestionMetrics qm = resolveOrCreateQuestionMetrics(quest.getId());
@@ -128,8 +132,8 @@ public class LessonScalegridDegree2Position extends ALesson {
         }
 
         if (quest != null) {
-            ScaleGrid sg = ScaleGrid.create(quest.scaleGridType, quest.fretPosition);
-            expectedPositions = sg.degree2Positions(quest.degree);
+            
+            expectedPositions = prepareExpectedPositions(quest);
 
             submittedPositions.clear();
             messageInLearningStatus(null);
@@ -137,6 +141,11 @@ public class LessonScalegridDegree2Position extends ALesson {
             showQuestionToUser(quest);
 
         }
+    }
+
+    protected List<Position> prepareExpectedPositions(QuestionScalegridDegree2Position quest) {
+        ScaleGrid sg = ScaleGrid.create(quest.scaleGridType, quest.fretPosition);
+        return sg.degree2Positions(quest.degree);
     }
 
     private void populateDatabase() {
@@ -206,11 +215,13 @@ public class LessonScalegridDegree2Position extends ALesson {
         }
         where = where.and().eq("fretPosition", fretPosition);
 
-        if (fragment.getDegreesView().isRandomInput()) {
-            degree = LessonsUtils.randomDegree();
-        } else {
-            // user selected choice
-            degree = fragment.getDegreesView().element();
+        if (fragment.getDegreesView() != null) {
+            if (fragment.getDegreesView().isRandomInput()) {
+                degree = LessonsUtils.randomDegree();
+            } else {
+                // user selected choice
+                degree = fragment.getDegreesView().element();
+            }
         }
         where = where.and().eq("degree", degree);
 
